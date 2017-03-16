@@ -8,7 +8,9 @@
     "build": "webpack --config webpack.config.js"
   },
   "dependencies": {
-    "vue": "^2.2.4"
+    "vue": "^2.2.4",
+    "vuex": "^2.2.1",
+    "vue-resource": "^1.2.1"
   },
   "devDependencies": {
     "babel-core": "^6.24.0",
