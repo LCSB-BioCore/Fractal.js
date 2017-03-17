@@ -1,12 +1,13 @@
 const path = require('path')
 
-const config = {
+module.exports = {
   entry: './src/main.js',
   output: {
     path: path.resolve(__dirname, './lib'),
     library: 'fractal',
     filename: 'fractal.js'
   },
+  devtool: 'source-map',
   module: {
     rules: [
       {
@@ -27,5 +28,3 @@ const config = {
     }
   }
 }
-
-module.exports = config
