@@ -6,13 +6,15 @@ module.exports = config => {
     files: [
       {pattern: 'test/**/*_test.js'}
     ],
-    browsers: ['Chrome'],
+    browsers: ['PhantomJS'],
     preprocessors: {
       'test/**/*_test.js': ['webpack', 'sourcemap']
     },
     webpack: webpackConfig,
     webpackMiddleware: {
       stats: 'errors-only'
-    }
+    },
+    singleRun: true,
+    colors: true
   })
 }

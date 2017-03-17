@@ -5,7 +5,8 @@
   "author": "Sascha Herzinger",
   "private": true,
   "scripts": {
-    "build": "webpack --config webpack.config.js"
+    "build": "./node_modules/webpack/bin/webpack.js --config webpack.config.js",
+    "test": "./node_modules/karma/bin/karma start karma.config.js"
   },
   "dependencies": {
     "vue": "^2.2.4",
@@ -30,6 +31,7 @@
     "jasmine-core": "^2.5.2",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^2.0.3",
-    "karma-jasmine": "^1.1.0"
+    "karma-jasmine": "^1.1.0",
+    "karma-phantomjs-launcher": "^1.0.4"
   }
 }
