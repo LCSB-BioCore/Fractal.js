@@ -1,13 +1,14 @@
 const path = require('path')
 
 module.exports = {
-  entry: './src/main.js',
+  entry: path.resolve(__dirname, 'src/main.js'),
+  devtool: 'source-map',
   output: {
-    path: path.resolve(__dirname, './lib'),
+    path: path.resolve(__dirname, 'lib'),
     library: 'fractal',
+    libraryTarget: 'var',
     filename: 'fractal.js'
   },
-  devtool: 'source-map',
   module: {
     rules: [
       {
