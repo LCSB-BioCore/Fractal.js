@@ -1,3 +1,1 @@
-/**
- * Created by sascha on 16/03/2017.
- */
+export const subsets = state => state.subsets

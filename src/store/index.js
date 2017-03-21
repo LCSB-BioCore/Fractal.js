@@ -1,3 +1,4 @@
+import 'babel-polyfill'  // included here for testing
 import Vue from 'vue'
 import Vuex from 'vuex'
 import * as getters from './getters'
@@ -7,7 +8,8 @@ import mutations from './mutations'
 Vue.use(Vuex)
 
 const state = {
-  requestManager: null
+  requestManager: null,
+  subsets: []
 }
 
 const store = new Vuex.Store({

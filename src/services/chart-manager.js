@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import CorrelationAnalysis from '../components/charts/CorrelationAnalysis.vue'
+import CorrelationAnalysis from '../components/charts/correlation-analysis.vue'
 
 class ChartManager {
   constructor () {
@@ -9,7 +9,7 @@ class ChartManager {
   }
 
   setChart ({name, elementId} = {}) {
-    if (this.AVAILABLE_CHARTS.indexOf(name) === -1) {
+    if (Object.keys(this.AVAILABLE_CHARTS).indexOf(name) === -1) {
       throw Error(`Chart '${name} is not available. 
       Must be one of: ${this.AVAILABLE_CHARTS}`)
     }

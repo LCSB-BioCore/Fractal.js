@@ -1,7 +1,7 @@
 import 'babel-polyfill'
 import { store } from './store'
-import { RequestManager } from './services/requestManager'
-import { ChartManager } from './services/chartManager'
+import { RequestManager } from './services/request-manager'
+import { ChartManager } from './services/chart-manager'
 
 class FractalJS {
   constructor (handler, thisBaseURL, fractalisBaseURL, getAuth) {
@@ -11,15 +11,17 @@ class FractalJS {
     this._chartManager = new ChartManager()
   }
 
-  static loadData (descriptors) {
+  // noinspection JSMethodCanBeStatic
+  loadData (descriptors) {
     store.requestManager.createData(descriptors)
   }
 
-  static setChart (name, elementId) {
+  setChart (name, elementId) {
     this._chartManager.setChart({name, elementId})
   }
 
-  static setSubsets (...subsets) {
+  // noinspection JSMethodCanBeStatic
+  setSubsets (...subsets) {
     store.dispatch('setSubsets', subsets)
   }
 }
