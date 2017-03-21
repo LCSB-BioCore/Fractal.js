@@ -1,3 +1,9 @@
-/**
- * Created by sascha on 16/03/2017.
- */
+import * as types from './mutation-types'
+
+export const setRequestManager = ({ commit }, manager) => {
+  commit(types.SET_REQUEST_MANAGER, manager)
+}
+
+export const setSubsets = ({ commit }, subsets) => {
+  commit(types.SET_SUBSETS, subsets)
+}

@@ -1,10 +1,29 @@
 import 'babel-polyfill'
+import { store } from './store'
+import { RequestManager } from './services/requestManager'
 import { ChartManager } from './services/chartManager'
 
-const chartManager = new ChartManager()
+class FractalJS {
+  constructor (handler, thisBaseURL, fractalisBaseURL, getAuth) {
+    const requestManager = new RequestManager(
+      {handler, thisBaseURL, fractalisBaseURL, getAuth})
+    store.dispatch('setRequestManager', requestManager)
+    this._chartManager = new ChartManager()
+  }
 
-function setChart (name, elementId) {
-  chartManager.setChart(name, elementId)
+  static loadData (descriptors) {
+    store.requestManager.createData(descriptors)
+  }
+
+  static setChart (name, elementId) {
+    this._chartManager.setChart({name, elementId})
+  }
+
+  static setSubsets (...subsets) {
+    store.dispatch('setSubsets', subsets)
+  }
 }
 
-export { setChart }
+export function init ({handler, thisBaseURL, fractalisBaseURL, getAuth} = {}) {
+  return new FractalJS(handler, thisBaseURL, fractalisBaseURL, getAuth)
+}

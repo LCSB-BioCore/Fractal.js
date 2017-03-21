@@ -1,27 +1,10 @@
 import axios from 'axios'
 
-export default class {
-  _validateHandler (handler) {
-
-  }
-
-  _validateServerURL (thisServerURL) {
-
-  }
-
-  _validateAuth (thisAuth) {
-
-  }
-
-  constructor (handler, thisBaseURL, thisAuth, fractalisBaseURL) {
-    this._validateHandler(handler)
-    this._validateServerURL(thisBaseURL)
-    this._validateAuth(thisAuth)
-    this._validateServerURL(fractalisBaseURL)
-
+class RequestManager {
+  constructor ({handler, thisBaseURL, fractalisBaseURL, getAuth} = {}) {
     this._handler = handler
     this._thisBaseURL = thisBaseURL
-    this._thisAuth = thisAuth
+    this._getAuth = getAuth
 
     this._axios = axios.create({
       baseURL: fractalisBaseURL,
@@ -31,10 +14,10 @@ export default class {
 
   createData (descriptors) {
     this._axios.post('/data', {
+      descriptors,
+      auth: this._getAuth(),
       handler: this._handler,
-      server: this._thisBaseURL,
-      auth: this._thisAuth,
-      descriptors
+      server: this._thisBaseURL
     }).then(response => {
       console.log(response)
     }).catch(error => {
@@ -94,3 +77,5 @@ export default class {
     })
   }
 }
+
+export { RequestManager }

@@ -1,3 +1,2 @@
-/**
- * Created by sascha on 16/03/2017.
- */
+export const SET_REQUEST_MANAGER = 'SET_REQUEST_MANAGER'
+export const SET_SUBSETS = 'SET_SUBSETS'
