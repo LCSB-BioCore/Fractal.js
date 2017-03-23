@@ -1,7 +1,6 @@
-import 'babel-polyfill'
-import { store } from './store'
-import { RequestManager } from './services/request-manager'
-import { ChartManager } from './services/chart-manager'
+import store from './store/store'
+import RequestManager from './services/request-manager'
+import ChartManager from './services/chart-manager'
 
 class FractalJS {
   constructor (handler, thisBaseURL, fractalisBaseURL, getAuth) {

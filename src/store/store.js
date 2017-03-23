@@ -1,4 +1,3 @@
-import 'babel-polyfill'  // included here for testing
 import Vue from 'vue'
 import Vuex from 'vuex'
 import * as getters from './getters'
@@ -12,11 +11,9 @@ const state = {
   subsets: []
 }
 
-const store = new Vuex.Store({
+export default new Vuex.Store({
   state,
   getters,
   actions,
   mutations
 })
-
-export { store }

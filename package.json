@@ -5,7 +5,7 @@
   "author": "Sascha Herzinger",
   "private": true,
   "scripts": {
-    "build": "./node_modules/webpack/bin/webpack.js --config webpack.config.js",
+    "build": "./node_modules/webpack/bin/webpack.js --config webpack.config.js --env build",
     "test": "./node_modules/karma/bin/karma start karma.config.js"
   },
   "dependencies": {
@@ -17,9 +17,10 @@
     "babel-core": "^6.24.0",
     "babel-preset-latest": "^6.24.0",
     "babel-polyfill": "^6.23.0",
+    "babel-plugin-add-module-exports": "^0.2.1",
 
     "webpack": "^2.2.1",
-    "babel-loader": "^6.4.0",
+    "babel-loader": "^7.0.0-beta.1",
     "vue-loader": "^11.1.4",
     "css-loader": "^0.27.3",
 
@@ -29,10 +30,10 @@
     "eslint-plugin-promise": "^3.5.0",
 
     "karma": "^1.5.0",
-    "jasmine-core": "^2.5.2",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^2.0.3",
-    "karma-jasmine": "^1.1.0",
-    "karma-phantomjs-launcher": "^1.0.4"
+    "karma-phantomjs-launcher": "^1.0.4",
+    "jasmine-core": "^2.5.2",
+    "karma-jasmine": "^1.1.0"
   }
 }

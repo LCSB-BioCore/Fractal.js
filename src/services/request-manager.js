@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-class RequestManager {
+export default class {
   constructor ({handler, thisBaseURL, fractalisBaseURL, getAuth} = {}) {
     this._handler = handler
     this._thisBaseURL = thisBaseURL
@@ -77,5 +77,3 @@ class RequestManager {
     })
   }
 }
-
-export { RequestManager }

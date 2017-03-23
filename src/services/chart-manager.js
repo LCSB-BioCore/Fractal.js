@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import CorrelationAnalysis from '../components/charts/correlation-analysis.vue'
 
-class ChartManager {
+export default class {
   constructor () {
     this.AVAILABLE_CHARTS = {
       'correlation-analysis': CorrelationAnalysis
@@ -18,5 +18,3 @@ class ChartManager {
     vm.$mount(elementId)
   }
 }
-
-export { ChartManager }

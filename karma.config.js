@@ -4,15 +4,18 @@ module.exports = config => {
   config.set({
     frameworks: ['jasmine'],
     files: [
-      {pattern: 'test/**/*test.js'}
+      {pattern: 'test/**/*-test.js'}
     ],
     browsers: ['PhantomJS'],
     preprocessors: {
-      'test/**/*test.js': ['webpack', 'sourcemap']
+      'test/**/*-test.js': ['webpack']
     },
     webpack: webpackConfig,
     webpackMiddleware: {
-      stats: 'errors-only'
+      noInfo: false,
+      stats: {
+        color: true
+      }
     },
     singleRun: true,
     colors: true

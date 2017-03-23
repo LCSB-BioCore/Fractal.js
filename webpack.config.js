@@ -1,24 +1,48 @@
+const webpack = require('webpack')
 const path = require('path')
+const env  = require('yargs').argv.env;
+
+let plugins = []
+let filename = ''
+const library = 'fractal'
+
+if (env === 'build') {
+  plugins.push(new webpack.optimize.UglifyJsPlugin({minimize: true}))
+  filename = library + '.min.js'
+} else {
+  filename = library + '.js'
+}
 
 module.exports = {
-  entry: path.resolve(__dirname, 'src/main.js'),
-  devtool: 'source-map',
+  entry: ['babel-polyfill', path.resolve(__dirname, 'src/main.js')],
+  devtool: '#inline-source-map',
+  plugins: plugins,
   output: {
     path: path.resolve(__dirname, 'lib'),
-    library: 'fractal',
+    library: library,
     libraryTarget: 'var',
-    filename: 'fractal.js'
+    filename: filename
   },
   module: {
     rules: [
       {
         test: /\.vue$/,
         loader: 'vue-loader',
-        exclude: /node_modules/
+        exclude: /node_modules/,
+        options: {
+          // compile the <script></script> part of vue components with babel
+          loaders: {
+            js: 'babel-loader'
+          }
+        }
       },
       {
         test: /\.js$/,
         loader: 'babel-loader',
+        include: [
+          path.resolve(__dirname, 'src'),
+          path.resolve(__dirname, 'test')
+        ],
         exclude: /node_modules/
       }
     ]
