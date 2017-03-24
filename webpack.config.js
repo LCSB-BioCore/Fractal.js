@@ -1,6 +1,6 @@
 const webpack = require('webpack')
 const path = require('path')
-const env  = require('yargs').argv.env;
+const env = require('yargs').argv.env
 
 let plugins = []
 let filename = ''
@@ -15,7 +15,7 @@ if (env === 'build') {
 
 module.exports = {
   entry: ['babel-polyfill', path.resolve(__dirname, 'src/main.js')],
-  devtool: '#inline-source-map',
+  devtool: '#eval-source-map',
   plugins: plugins,
   output: {
     path: path.resolve(__dirname, 'lib'),

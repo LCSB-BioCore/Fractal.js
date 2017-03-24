@@ -12,7 +12,7 @@ class FractalJS {
 
   // noinspection JSMethodCanBeStatic
   loadData (descriptors) {
-    store.requestManager.createData(descriptors)
+    store.state.requestManager.createData(descriptors)
   }
 
   setChart (name, elementId) {
@@ -25,6 +25,8 @@ class FractalJS {
   }
 }
 
-export function init ({handler, thisBaseURL, fractalisBaseURL, getAuth} = {}) {
+function init ({handler, thisBaseURL, fractalisBaseURL, getAuth}) {
   return new FractalJS(handler, thisBaseURL, fractalisBaseURL, getAuth)
 }
+
+export { init }

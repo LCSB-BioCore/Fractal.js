@@ -1,4 +1,4 @@
-const webpackConfig = require('./webpack.config')
+const webpackConfig = require('./webpack.config.js')
 
 module.exports = config => {
   config.set({
@@ -6,9 +6,9 @@ module.exports = config => {
     files: [
       {pattern: 'test/**/*-test.js'}
     ],
-    browsers: ['PhantomJS'],
+    browsers: ['Chrome'],
     preprocessors: {
-      'test/**/*-test.js': ['webpack']
+      'test/**/*-test.js': ['webpack', 'sourcemap']
     },
     webpack: webpackConfig,
     webpackMiddleware: {
@@ -17,7 +17,8 @@ module.exports = config => {
         color: true
       }
     },
-    singleRun: true,
+    reporter: ['progress'],
+    singleRun: false,
     colors: true
   })
 }

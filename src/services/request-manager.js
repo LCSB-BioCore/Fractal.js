@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export default class {
-  constructor ({handler, thisBaseURL, fractalisBaseURL, getAuth} = {}) {
+  constructor ({handler, thisBaseURL, fractalisBaseURL, getAuth}) {
     this._handler = handler
     this._thisBaseURL = thisBaseURL
     this._getAuth = getAuth
