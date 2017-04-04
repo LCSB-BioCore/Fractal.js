@@ -2,7 +2,10 @@ const webpack = require('webpack')
 const path = require('path')
 const env = require('yargs').argv.env
 
-let plugins = []
+let plugins = [
+  new webpack.HotModuleReplacementPlugin(),
+  new webpack.NamedModulesPlugin()
+]
 let filename = ''
 const library = 'fractal'
 
@@ -14,14 +17,21 @@ if (env === 'build') {
 }
 
 module.exports = {
-  entry: ['babel-polyfill', path.resolve(__dirname, 'src/main.js')],
+  entry: [
+    'babel-polyfill',
+    path.resolve(__dirname, 'src/main.js')
+  ],
   devtool: '#inline-source-map',
+  devServer: {
+    hot: true,
+    inline: true,
+  },
   plugins: plugins,
   output: {
     path: path.resolve(__dirname, 'lib'),
     library: library,
     libraryTarget: 'var',
-    filename: filename
+    filename: filename,
   },
   module: {
     rules: [

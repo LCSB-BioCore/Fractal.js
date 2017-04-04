@@ -1,6 +1,6 @@
 import Vue from 'vue'
-import TestChart from '../components/charts/test-chart.vue'
-import CorrelationAnalysis from '../components/charts/correlation-analysis.vue'
+import TestChart from '../components/charts/TestChart.vue'
+import CorrelationAnalysis from '../components/charts/CorrelationAnalysis.vue'
 
 export default class {
   constructor () {
