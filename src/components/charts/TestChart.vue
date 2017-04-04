@@ -1,7 +1,6 @@
 <template>
   <div>
-    {{ greeting }}
-    <data-box></data-box>
+    <data-box data-type="numeric"></data-box>
   </div>
 </template>
 
@@ -10,11 +9,6 @@
   import DataBox from '../DataBox.vue'
   export default {
     name: 'test-chart',
-    data () {
-      return {
-        greeting: 'Hello World!'
-      }
-    },
     components: {
       DataBox
     }
