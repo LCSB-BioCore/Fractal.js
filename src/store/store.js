@@ -7,7 +7,7 @@ import actions from './actions'
 Vue.use(Vuex)
 
 const state = {
-  loadedData: [],
+  data: [],
   requestManager: null,
   subsets: []
 }

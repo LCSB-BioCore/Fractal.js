@@ -6,6 +6,7 @@ class FractalJS {
   constructor (handler, thisBaseURL, fractalisBaseURL, getAuth) {
     const requestManager = new RequestManager({handler, thisBaseURL, fractalisBaseURL, getAuth})
     store.dispatch('setRequestManager', requestManager)
+    store.dispatch('updateData')
     this._chartManager = new ChartManager()
   }
 

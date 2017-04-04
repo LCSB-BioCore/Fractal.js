@@ -16,7 +16,7 @@
     ],
     computed: {
       items: function() {
-        return store.state.loadedData.filter(item => item.dataType === this.dataType)
+        return store.getters.data.filter(item => item.dataType === this.dataType)
       }
     }
   }

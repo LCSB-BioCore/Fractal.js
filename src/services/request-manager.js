@@ -13,11 +13,13 @@ export default class {
   }
 
   createData (descriptors) {
-    return this._axios.post('/data', {
+    this._axios.post('/data', {
       descriptors,
       auth: this._getAuth(),
       handler: this._handler,
       server: this._thisBaseURL
+    }).catch(error => {
+      throw error
     })
   }
 

@@ -5,7 +5,7 @@ describe('store', () => {
   it('should have working setSubsets action', () => {
     const subsets = [[1, 2, 3], [4, 5, 6], [6, 7, 8]]
     store.dispatch('setSubsets', subsets)
-    expect(store.state.subsets).toEqual(subsets)
+    expect(store.getters.subsets).toEqual(subsets)
   })
 
   it('should have working setRequestManager action', () => {
@@ -16,6 +16,6 @@ describe('store', () => {
       getAuth: () => ({token: '1234567890'})
     })
     store.dispatch('setRequestManager', requestManager)
-    expect(store.state.requestManager).not.toBeNull()
+    expect(store.getters.requestManager).not.toBeNull()
   })
 })
