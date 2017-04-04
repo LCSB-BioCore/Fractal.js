@@ -15,7 +15,7 @@ if (env === 'build') {
 
 module.exports = {
   entry: ['babel-polyfill', path.resolve(__dirname, 'src/main.js')],
-  devtool: '#eval-source-map',
+  devtool: '#inline-source-map',
   plugins: plugins,
   output: {
     path: path.resolve(__dirname, 'lib'),

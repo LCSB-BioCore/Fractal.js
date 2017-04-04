@@ -13,15 +13,11 @@ export default class {
   }
 
   createData (descriptors) {
-    this._axios.post('/data', {
+    return this._axios.post('/data', {
       descriptors,
       auth: this._getAuth(),
       handler: this._handler,
       server: this._thisBaseURL
-    }).then(response => {
-      console.log(response)
-    }).catch(error => {
-      console.log(error)
     })
   }
 
@@ -43,11 +39,7 @@ export default class {
   }
 
   getAllDataStatus () {
-    this._axios.get('/data').then(response => {
-      console.log(response)
-    }).else(error => {
-      console.log(error)
-    })
+    return this._axios.get('/data')
   }
 
   creareAnalysis (name, args) {
