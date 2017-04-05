@@ -8,7 +8,8 @@ describe('runAnalysis method', () => {
   const runAnalysis = requestHandling.methods.runAnalysis
 
   beforeEach(() => {
-    const requestManager = new RequestManager({handler: '', thisBaseURL: '', fractalisBaseURL: '', getAuth: () => {}})
+    const requestManager = new RequestManager(
+      {handler: '', thisBaseURL: '', fractalisBaseURL: '', getAuth: () => {}})
     store.dispatch('setRequestManager', requestManager)
   })
 
@@ -17,11 +18,26 @@ describe('runAnalysis method', () => {
     expect(rv instanceof Promise).toBe(true)
   })
 
-  it('fails if unknown job state', (done) => {
-    spyOn(store.getters.requestManager, 'createAnalysis').and.returnValue(Promise.resolve(123))
-    spyOn(store.getters.requestManager, 'getAnalysisStatus').and.returnValue(Promise.resolve({state: 'FOO', result: ''}))
+  it('fails if unknown job state', done => {
+    spyOn(store.getters.requestManager, 'createAnalysis')
+      .and.returnValue(Promise.resolve(123))
+    spyOn(store.getters.requestManager, 'getAnalysisStatus')
+      .and.returnValue(Promise.resolve({state: 'FOO', result: ''}))
     runAnalysis({name: '', args: {}})
-      .then(fail)
+      .then(done.fail)
       .catch(done)
+  })
+
+  it('returns result if state is successful', done => {
+    spyOn(store.getters.requestManager, 'createAnalysis')
+      .and.returnValue(Promise.resolve(123))
+    spyOn(store.getters.requestManager, 'getAnalysisStatus')
+      .and.returnValue(Promise.resolve({state: 'SUCCESS', result: 123}))
+    runAnalysis({name: '', args: {}})
+      .then(response => {
+        expect(response).toBe(123)
+        done()
+      })
+      .catch(done.fail)
   })
 })

@@ -10,7 +10,7 @@ export default {
       let counter = 0
       while (counter < 1000) {
         await timeout(++counter * 200)
-        const jobInfo = store.getters.requestManager.getAnalysisStatus({jobID})
+        const jobInfo = await store.getters.requestManager.getAnalysisStatus({jobID})
         if (jobInfo.state === 'SUCCESS') {
           return jobInfo.result
         } else if (jobInfo.state === 'FAILURE') {
