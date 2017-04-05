@@ -1,10 +1,25 @@
+import store from '../../store/store'
+
 export default {
   methods: {
-    loadDataForArgs (args) {
-
-    },
-    runAnalysis (args) {
-
+    async runAnalysis ({name, args}) {
+      function timeout (ms) {
+        return new Promise(resolve => setTimeout(resolve, ms))
+      }
+      const jobID = await store.getters.requestManager.createAnalysis({name, args})
+      let counter = 0
+      while (counter < 1000) {
+        await timeout(++counter * 200)
+        const jobInfo = store.getters.requestManager.getAnalysisStatus({jobID})
+        if (jobInfo.state === 'SUCCESS') {
+          return jobInfo.result
+        } else if (jobInfo.state === 'FAILURE') {
+          throw jobInfo.result
+        } else if (jobInfo.state === 'PENDING') {
+        } else {
+          throw new Error(`Analysis Job has unknown state: ${jobInfo.state}`)
+        }
+      }
     }
   }
 }

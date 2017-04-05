@@ -13,61 +13,36 @@ export default class {
   }
 
   createData (descriptors) {
-    this._axios.post('/data', {
+    return this._axios.post('/data', {
       descriptors,
       auth: this._getAuth(),
       handler: this._handler,
       server: this._thisBaseURL
-    }).catch(error => {
-      throw error
     })
   }
 
   getDataStatusByParams (descriptor) {
     const params = JSON.stringify({server: this._thisBaseURL, descriptor})
-    this._axios.get(`/data/${params}`).then(response => {
-      console.log(response)
-    }).else(error => {
-      console.log(error)
-    })
+    return this._axios.get(`/data/${params}`)
   }
 
   getDataStatusByID (dataID) {
-    this._axios.get(`/data/${dataID}`).then(response => {
-      console.log(response)
-    }).else(error => {
-      console.log(error)
-    })
+    return this._axios.get(`/data/${dataID}`)
   }
 
   getAllDataStatus () {
     return this._axios.get('/data')
   }
 
-  creareAnalysis (name, args) {
-    this._axios.post('/analytics', {
-      name,
-      args
-    }).then(response => {
-      console.log(response)
-    }).catch(error => {
-      console.log(error)
-    })
+  createAnalysis ({name, args}) {
+    return this._axios.post('/analytics', {name, args})
   }
 
-  getAnalysisStatus (jobID) {
-    this._axios.get(`/analytics/${jobID}`).then(response => {
-      console.log(response)
-    }).else(error => {
-      console.log(error)
-    })
+  getAnalysisStatus ({jobID}) {
+    return this._axios.get(`/analytics/${jobID}`)
   }
 
   cancelAnalysis (jobID) {
-    this._axios.delete(`/analytics/${jobID}`).then(response => {
-      console.log(response)
-    }).else(error => {
-      console.log(error)
-    })
+    return this._axios.delete(`/analytics/${jobID}`)
   }
 }
