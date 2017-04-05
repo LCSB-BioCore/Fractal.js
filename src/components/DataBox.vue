@@ -1,7 +1,7 @@
 <template>
   <div class="data-container">
     <div class="data-item" v-for="(item, index) in items">
-      <input :id="'data-check-' + index" type="checkbox" />
+      <input type="checkbox" :id="'data-check-' + index" :value="item.description" v-model="checkedItems"/>
       <label :for="'data-check-' + index">{{ item.description }}</label>
     </div>
   </div>
@@ -14,6 +14,11 @@
     props: [
       'dataType'
     ],
+    data: function() {
+      return {
+        checkedItems: []
+      }
+    },
     computed: {
       items: function() {
         return store.getters.data.filter(item => item.dataType === this.dataType)
