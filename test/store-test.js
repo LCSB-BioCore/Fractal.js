@@ -1,3 +1,5 @@
+'use strict'
+
 import store from '../src/store/store'
 import RequestManager from '../src/services/request-manager'
 
