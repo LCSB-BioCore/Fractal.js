@@ -28,7 +28,7 @@ describe('runAnalysis method', () => {
       .catch(done)
   })
 
-  it('returns result if state is successful', done => {
+  it('resolves if job state is successful', done => {
     spyOn(store.getters.requestManager, 'createAnalysis')
       .and.returnValue(Promise.resolve(123))
     spyOn(store.getters.requestManager, 'getAnalysisStatus')
@@ -36,6 +36,35 @@ describe('runAnalysis method', () => {
     runAnalysis({name: '', args: {}})
       .then(response => {
         expect(response).toBe(123)
+        done()
+      })
+      .catch(done.fail)
+  })
+
+  it('rejects if job state is unsuccessful', done => {
+    spyOn(store.getters.requestManager, 'createAnalysis')
+      .and.returnValue(Promise.resolve(123))
+    spyOn(store.getters.requestManager, 'getAnalysisStatus')
+      .and.returnValue(Promise.resolve({state: 'FAILURE', result: ''}))
+    runAnalysis({name: '', args: {}})
+      .then(done.fail)
+      .catch(done)
+  })
+
+  it('does wait for job state to switch from PENDING to final state', done => {
+    spyOn(store.getters.requestManager, 'createAnalysis')
+      .and.returnValue(Promise.resolve(123))
+    spyOn(store.getters.requestManager, 'getAnalysisStatus')
+      .and.returnValues(
+        Promise.resolve({state: 'PENDING', result: ''}),
+        Promise.resolve({state: 'PENDING', result: ''}),
+        Promise.resolve({state: 'PENDING', result: ''}),
+        Promise.resolve({state: 'SUCCESS', result: 123})
+      )
+    runAnalysis({name: '', args: {}})
+      .then(response => {
+        expect(response).toBe(123)
+        expect(store.getters.requestManager.getAnalysisStatus).toHaveBeenCalledTimes(4)
         done()
       })
       .catch(done.fail)
