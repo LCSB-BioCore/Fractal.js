@@ -51,7 +51,7 @@
     methods: {
       createPlot () {
         // function made available via requestHandling mixin
-        this.runAnalysis({name: 'compute-correlation', args: this.args})
+        this.runAnalysis({job_name: 'compute-correlation', args: this.args})
           .then(response => {
             console.log(response)
           })

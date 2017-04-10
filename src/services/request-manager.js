@@ -35,8 +35,8 @@ export default class {
     return this._axios.get('/data')
   }
 
-  createAnalysis ({name, args}) {
-    return this._axios.post('/analytics', {name, args})
+  createAnalysis ({job_name, args}) {
+    return this._axios.post('/analytics', {job_name, args})
   }
 
   getAnalysisStatus ({jobID}) {

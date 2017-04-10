@@ -2,11 +2,11 @@ import store from '../../store/store'
 
 export default {
   methods: {
-    async runAnalysis ({name, args}) {
+    async runAnalysis ({job_name, args}) {
       function timeout (ms) {
         return new Promise(resolve => setTimeout(resolve, ms))
       }
-      const jobID = await store.getters.requestManager.createAnalysis({name, args})
+      const jobID = await store.getters.requestManager.createAnalysis({job_name, args})
       let counter = 0
       while (counter < 1000) {
         await timeout(++counter * 200)
