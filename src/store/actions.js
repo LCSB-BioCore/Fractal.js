@@ -9,7 +9,7 @@ export default {
   },
   updateData: context => {
     context.getters.requestManager.getAllDataStatus().then(response => {
-      const data = response
+      const data = response.data
       context.commit(types.SET_DATA, data)
     }).catch(error => {
       console.error(error) // TODO: Notify user about this

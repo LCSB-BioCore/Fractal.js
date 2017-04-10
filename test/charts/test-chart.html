@@ -1,6 +1,7 @@
 <!doctype html>
 
 <head>
+  <script src="http://localhost:8080/credentials.js"></script>
   <script src="http://localhost:8080/fractal.js"></script>
 </head>
 
@@ -9,6 +10,31 @@
 </body>
 
 <script>
-  const fjs = fractal.init({handler: '', thisBaseURL: '', fractalisBaseURL: '', getAuth: () => {}})
-  fjs.setChart({chart: 'test-chart', selector: '#placeholder'})
+  const fjs = fractal.init({
+    handler: 'ada',
+    thisBaseURL: 'http://10.79.2.192:8080',
+    fractalisBaseURL: 'http://127.0.0.1:5000',
+    getAuth: () => {
+        return credentials
+      }
+  })
+  fjs.loadData([
+    {
+      data_type: 'Enum',
+      data_set: 'denopa.clinical_baseline',
+      projection: 'Geschlecht',
+      get description () {
+        return `${this.projection} (${this.data_set})`
+      }
+    },
+    {
+      data_type: 'Integer',
+      data_set: 'denopa.clinical_baseline',
+      projection: 'a_Alter',
+      get description () {
+        return `${this.projection} (${this.data_set})`
+      }
+    }
+  ])
+  fjs.setChart({chart: 'correlation-analysis', selector: '#placeholder'})
 </script>

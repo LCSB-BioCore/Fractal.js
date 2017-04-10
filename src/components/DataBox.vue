@@ -1,7 +1,7 @@
 <template>
   <div class="data-container">
     <div class="data-item" v-for="(item, index) in items">
-      <input type="checkbox" :id="'data-check-' + index" :value="item.description" v-model="checkedItems"/>
+      <input type="checkbox" :id="'data-check-' + index" :value="item.data_id" v-model="checkedItems"/>
       <label :for="'data-check-' + index">{{ item.description }}</label>
     </div>
   </div>
@@ -21,7 +21,7 @@
     },
     computed: {
       items: function() {
-        return store.getters.data.filter(item => item.dataType === this.dataType)
+        return store.getters.data.filter(item => item.data_type === this.dataType)
       }
     }
   }
