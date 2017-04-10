@@ -1,8 +1,15 @@
 <template>
-  <div class="data-container">
-    <div class="data-item" v-for="(item, index) in items">
-      <input type="checkbox" :id="'data-check-' + index" :value="item.data_id" v-model="checkedItems"/>
-      <label :for="'data-check-' + index">{{ item.description }}</label>
+  <div>
+    <label for="data-container" :tooltip="tooltip">{{ header }}</label>
+    <div id="data-container">
+      <div class="data-item" v-for="(item, index) in items">
+        <input type="checkbox"
+               :id="'data-check-' + index"
+               :value="item.data_id"
+               v-model="selectedIDs"
+               @click="updateSelected"/>
+        <label :for="'data-check-' + index">{{ item.description }}</label>
+      </div>
     </div>
   </div>
 </template>
@@ -11,28 +18,49 @@
   import store from '../store/store'
   export default {
     name: 'data-box',
-    props: [
-      'dataType'
-    ],
-    data: function() {
+    data () {
       return {
-        checkedItems: []
+        selectedIDs: []
+      }
+    },
+    props: {
+      dataType: {
+        type: String,
+        required: true
+      },
+      header: {
+        type: String,
+        required: true
+      },
+      tooltip: {
+        type: String,
+        required: false
       }
     },
     computed: {
-      items: function() {
+      items () {
         return store.getters.data.filter(item => item.data_type === this.dataType)
+      }
+    },
+    methods: {
+      updateSelected () {
+        this.$emit('update', this.selectedIDs)
       }
     }
   }
 </script>
 
 <style scoped>
-  .data-container {
+  #data-container {
     border: 1px solid #ccc;
+    border-radius: 8px;
     width: 300px;
     height: 200px;
     overflow-y: scroll;
     padding: 5px 5px 5px 5px;
+  }
+
+  #data-container .data-item:nth-child(odd) {
+    background: #ccc;
   }
 </style>

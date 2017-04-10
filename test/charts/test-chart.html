@@ -34,6 +34,14 @@
       get description () {
         return `${this.projection} (${this.data_set})`
       }
+    },
+    {
+      data_type: 'Double',
+      data_set: 'denopa.clinical_baseline',
+      projection: 'a_AESD_I_mean',
+      get description () {
+        return `${this.projection} (${this.data_set})`
+      }
     }
   ])
   fjs.setChart({chart: 'correlation-analysis', selector: '#placeholder'})
