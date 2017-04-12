@@ -6,11 +6,13 @@ export default {
       function timeout (ms) {
         return new Promise(resolve => setTimeout(resolve, ms))
       }
-      const jobID = await store.getters.requestManager.createAnalysis({job_name, args})
+      const rv1 = await store.getters.requestManager.createAnalysis({job_name, args})
+      const jobID = rv1.data.job_id
       let counter = 0
       while (counter < 1000) {
         await timeout(++counter * 200)
-        const jobInfo = await store.getters.requestManager.getAnalysisStatus({jobID})
+        const rv2 = await store.getters.requestManager.getAnalysisStatus({jobID})
+        const jobInfo = rv2.data
         if (jobInfo.state === 'SUCCESS') {
           return jobInfo.result
         } else if (jobInfo.state === 'FAILURE') {

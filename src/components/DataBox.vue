@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div id="data-box">
     <label for="data-container" :tooltip="tooltip">{{ header }}</label>
-    <div id="data-container">
+    <div id="data-container" style="height: 80%;">
       <div class="data-item" v-for="(item, index) in items">
         <input type="checkbox"
                :id="'data-check-' + index"
@@ -51,11 +51,13 @@
 </script>
 
 <style scoped>
+  #data-box {
+    width: 30%;
+  }
+
   #data-container {
     border: 1px solid #ccc;
     border-radius: 8px;
-    width: 300px;
-    height: 200px;
     overflow-y: scroll;
     padding: 5px 5px 5px 5px;
   }
