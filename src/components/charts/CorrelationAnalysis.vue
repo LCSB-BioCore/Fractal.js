@@ -14,7 +14,7 @@
 
     <input id="run-analysis-btn"
            type="button"
-           @click="runAnalysisWrapper"
+           @click="runAnalysisWrapper({init: true})"
            value="Run Analysis"
            :disabled="disabled"/>
 
@@ -27,12 +27,14 @@
                   :data-idx="idx"
                   v-for="(point, idx) in points">
           </circle>
-          <line id="lin-reg-line"
-                :x1="linRegLine.x1"
-                :x2="linRegLine.x2"
-                :y1="linRegLine.y1"
-                :y2="linRegLine.y2">
-          </line>
+          <transition>
+            <line id="lin-reg-line"
+                  :x1="tweenedRegLine.x1"
+                  :x2="tweenedRegLine.x2"
+                  :y1="tweenedRegLine.y1"
+                  :y2="tweenedRegLine.y2">
+            </line>
+          </transition>
           <g id="x-axis-1" class="fjs-corr-axis" :style="{ transform: `translate(0px, ${padded.height}px)` }"></g>
           <g id="x-axis-2" class="fjs-corr-axis"></g>
           <g id="y-axis-1" class="fjs-corr-axis"></g>
@@ -50,6 +52,7 @@
   import DataBox from '../DataBox.vue'
   import requestHandling from '../mixins/request-handling'
   import * as d3 from 'd3'
+  import { TweenLite } from 'gsap'
   export default {
     name: 'correlation-analysis',
     data () {
@@ -73,7 +76,7 @@
           }
         },
 
-        analysisResults: {
+        shownAnalysisResults: {
           coef: 0,
           p_value: 0,
           slope: 0,
@@ -89,7 +92,9 @@
             }
           }
         },
-        selectedPoints: []
+        tmpAnalysisResults: {},
+        selectedPoints: [],
+        tweenedRegLine: {}
       }
     },
     computed: {
@@ -102,11 +107,11 @@
         return { width, height }
       },
       points () {
-        return Object.keys(this.analysisResults.data.id).map(key => {
+        return Object.keys(this.shownAnalysisResults.data.id).map(key => {
           return {
-            x: this.analysisResults.data[this.analysisResults.x_label][key],
-            y: this.analysisResults.data[this.analysisResults.y_label][key],
-            id: this.analysisResults.data.id[key]
+            x: this.shownAnalysisResults.data[this.shownAnalysisResults.x_label][key],
+            y: this.shownAnalysisResults.data[this.shownAnalysisResults.y_label][key],
+            id: this.shownAnalysisResults.data.id[key]
           }
         })
       },
@@ -130,14 +135,14 @@
           .tickFormat('')
         return { x1, x2, y1, y2 }
       },
-      linRegLine () {
+      regLine () {
         const xarr = this.points.map(d => d.x)
         const minX = Math.min.apply(null, xarr)
         const maxX = Math.max.apply(null, xarr)
         let x1 = this.scales.x(minX)
-        let y1 = this.scales.y(this.analysisResults.intercept + this.analysisResults.slope * minX)
+        let y1 = this.scales.y(this.tmpAnalysisResults.intercept + this.tmpAnalysisResults.slope * minX)
         let x2 = this.scales.x(maxX)
-        let y2 = this.scales.y(this.analysisResults.intercept + this.analysisResults.slope * maxX)
+        let y2 = this.scales.y(this.tmpAnalysisResults.intercept + this.tmpAnalysisResults.slope * maxX)
 
         x1 = x1 < 0 ? 0 : x1;
         x1 = x1 > this.width ? this.width : x1;
@@ -156,12 +161,14 @@
       brush () {
         return d3.brush()
           .extent([[0, 0], [this.padded.width, this.padded.height]])
-          .on('end', function() {
+          .on('end', () => {
             const [[x0, y0], [x1, y1]] = d3.event.selection
             this.selectedPoints = this.points.filter(d => {
-              return x0 <= d.x && d.x <= x1 && y1 <= d.y && d.y <= y0;
+              const x = this.scales.x(d.x)
+              const y = this.scales.y(d.y)
+              return x0 <= x && x <= x1 && y0 <= y && y <= y1;
             })
-            this.runAnalysisWrapper()
+            this.runAnalysisWrapper({init: false})
           })
       }
     },
@@ -178,12 +185,21 @@
       'brush': {
         handler: function(newBrush) {
           d3.select('#brush').call(newBrush)
-        }
+        },
+        deep: true
+      },
+      'regLine': {
+        handler: function(newRegLine, oldRegLine) {
+          let coords = oldRegLine
+          TweenLite.to(coords, 0.5, Object.assign(newRegLine, {onUpdate: () => { this.tweenedRegLine = coords }}))
+        },
+        deep: true
       }
     },
     mounted() {
       window.addEventListener('resize', this.onResize)
       this.onResize() // initial call
+      this.tmpAnalysisResults = this.shownAnalysisResults
     },
     beforeDestroy() {
       window.removeEventListener('resize', this.onResize)
@@ -195,14 +211,18 @@
       requestHandling
     ],
     methods: {
-      runAnalysisWrapper () {
+      runAnalysisWrapper ({init}) {
         // function made available via requestHandling mixin
         this.runAnalysis({job_name: 'compute-correlation', args: this.args})
           .then(response => {
             const results = JSON.parse(response)
             results.data = JSON.parse(results.data)
-            this.analysisResults = results
-            this.$nextTick()
+            if (init) {
+              this.shownAnalysisResults = results
+              this.tmpAnalysisResults = results
+            } else {
+              this.tmpAnalysisResults = results
+            }
           })
           .catch(error => console.error(error))
       },
