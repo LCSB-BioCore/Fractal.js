@@ -25,16 +25,14 @@
                   :cy="scales.y(point.y)"
                   r="4"
                   :data-idx="idx"
-                  v-for="(point, idx) in points">
+                  v-for="(point, idx) in points.shown">
           </circle>
-          <transition>
-            <line id="lin-reg-line"
-                  :x1="tweenedRegLine.x1"
-                  :x2="tweenedRegLine.x2"
-                  :y1="tweenedRegLine.y1"
-                  :y2="tweenedRegLine.y2">
-            </line>
-          </transition>
+          <line id="lin-reg-line"
+                :x1="tweenedRegLine.x1"
+                :x2="tweenedRegLine.x2"
+                :y1="tweenedRegLine.y1"
+                :y2="tweenedRegLine.y2">
+          </line>
           <g id="x-axis-1" class="fjs-corr-axis" :style="{ transform: `translate(0px, ${padded.height}px)` }"></g>
           <g id="x-axis-2" class="fjs-corr-axis"></g>
           <g id="y-axis-1" class="fjs-corr-axis"></g>
@@ -107,20 +105,32 @@
         return { width, height }
       },
       points () {
-        return Object.keys(this.shownAnalysisResults.data.id).map(key => {
+        const shown = Object.keys(this.shownAnalysisResults.data.id).map(key => {
           return {
             x: this.shownAnalysisResults.data[this.shownAnalysisResults.x_label][key],
             y: this.shownAnalysisResults.data[this.shownAnalysisResults.y_label][key],
             id: this.shownAnalysisResults.data.id[key]
           }
         })
+        const temp = Object.keys(this.shownAnalysisResults.data.id).map(key => {
+          return {
+            x: this.shownAnalysisResults.data[this.shownAnalysisResults.x_label][key],
+            y: this.shownAnalysisResults.data[this.shownAnalysisResults.y_label][key],
+            id: this.shownAnalysisResults.data.id[key]
+          }
+        })
+        return { shown, temp }
+      },
+      valid () {
+        const tmpAnalysisResults = Object.keys(this.tmpAnalysisResults).length && this.points.temp.length
+        return { tmpAnalysisResults }
       },
       scales () {
         const x = d3.scaleLinear()
-          .domain(d3.extent(this.points.map(d => d.x)))
+          .domain(d3.extent(this.points.shown.map(d => d.x)))
           .range([0, this.padded.width])
         const y = d3.scaleLinear()
-          .domain(d3.extent(this.points.map(d => d.y)))
+          .domain(d3.extent(this.points.shown.map(d => d.y)))
           .range([this.padded.height, 0])
         return { x, y }
       },
@@ -136,7 +146,10 @@
         return { x1, x2, y1, y2 }
       },
       regLine () {
-        const xarr = this.points.map(d => d.x)
+        if (! this.valid.tmpAnalysisResults) {
+          return { x1: 0, x2: 0, y1: 0, y2: 0 }
+        }
+        const xarr = this.points.temp.map(d => d.x)
         const minX = Math.min.apply(null, xarr)
         const maxX = Math.max.apply(null, xarr)
         let x1 = this.scales.x(minX)
@@ -162,8 +175,13 @@
         return d3.brush()
           .extent([[0, 0], [this.padded.width, this.padded.height]])
           .on('end', () => {
+            if (! d3.event.selection) {
+              this.selectedPoints = []
+              this.runAnalysisWrapper({init: false})
+              return
+            }
             const [[x0, y0], [x1, y1]] = d3.event.selection
-            this.selectedPoints = this.points.filter(d => {
+            this.selectedPoints = this.points.shown.filter(d => {
               const x = this.scales.x(d.x)
               const y = this.scales.y(d.y)
               return x0 <= x && x <= x1 && y0 <= y && y <= y1;
