@@ -25,7 +25,7 @@
                   :cy="scales.y(point.y)"
                   r="4"
                   :data-idx="idx"
-                  v-for="(point, idx) in points.shown">
+                  v-for="(point, idx) in shownPoints.all">
           </circle>
           <line id="lin-reg-line"
                 :x1="tweenedRegLine.x1"
@@ -95,7 +95,22 @@
             }
           }
         },
-        tmpAnalysisResults: {},
+        tmpAnalysisResults: {
+          coef: 0,
+          p_value: 0,
+          slope: 0,
+          intercept: 0,
+          method: '',
+          x_label: '',
+          y_label: '',
+          get data() {
+            return {
+              id: [],
+              [this.x_label]: [],
+              [this.y_label]: []
+            }
+          }
+        },
         selectedPoints: [],
         tweenedRegLine: {}
       }
@@ -116,34 +131,52 @@
         const height = this.height - this.margin.top - this.margin.bottom
         return { width, height }
       },
-      points () {
-        const shown = Object.keys(this.shownAnalysisResults.data.id).map(key => {
-          return {
-            x: this.shownAnalysisResults.data[this.shownAnalysisResults.x_label][key],
-            y: this.shownAnalysisResults.data[this.shownAnalysisResults.y_label][key],
-            id: this.shownAnalysisResults.data.id[key]
-          }
+      shownPoints () {
+        const xs = [], ys = [], ids = []
+        const all = Object.keys(this.shownAnalysisResults.data.id).map(key => {
+          const x = this.shownAnalysisResults.data[this.shownAnalysisResults.x_label][key]
+          const y = this.shownAnalysisResults.data[this.shownAnalysisResults.y_label][key]
+          const id = this.shownAnalysisResults.data.id[key]
+          xs.push(x)
+          ys.push(y)
+          ids.push(id)
+          return { x, y, id }
         })
-        const temp = Object.keys(this.shownAnalysisResults.data.id).map(key => {
-          return {
-            x: this.tmpAnalysisResults.data[this.tmpAnalysisResults.x_label][key],
-            y: this.tmpAnalysisResults.data[this.tmpAnalysisResults.y_label][key],
-            id: this.tmpAnalysisResults.data.id[key]
-          }
+        return { xs, ys, ids, all }
+      },
+      tmpPoints() {
+        const xs = [], ys = [], ids = []
+        const all = Object.keys(this.tmpAnalysisResults.data.id).map(key => {
+          const x = this.tmpAnalysisResults.data[this.tmpAnalysisResults.x_label][key]
+          const y = this.tmpAnalysisResults.data[this.tmpAnalysisResults.y_label][key]
+          const id = this.tmpAnalysisResults.data.id[key]
+          xs.push(x)
+          ys.push(y)
+          ids.push(id)
+          return { x, y, id }
         })
-        return { shown, temp }
+        return { xs, ys, ids, all }
       },
       valid () {
-        const tmpAnalysisResults = Object.keys(this.tmpAnalysisResults).length && this.points.temp.length
+        const tmpAnalysisResults = this.tmpPoints.all.length  // TODO
         return { tmpAnalysisResults }
       },
       scales () {
         const x = d3.scaleLinear()
-          .domain(d3.extent(this.points.shown.map(d => d.x)))
+          .domain(d3.extent(this.shownPoints.xs))
           .range([0, this.padded.width])
         const y = d3.scaleLinear()
-          .domain(d3.extent(this.points.shown.map(d => d.y)))
+          .domain(d3.extent(this.shownPoints.ys))
           .range([this.padded.height, 0])
+        return { x, y }
+      },
+      tmpScales () {
+        const x = d3.scaleLinear()
+          .domain(d3.extent(this.tmpPoints.xs))
+          .range([this.scales.x(d3.min(this.tmpPoints.xs)), this.scales.x(d3.max(this.tmpPoints.xs))])
+        const y = d3.scaleLinear()
+          .domain(d3.extent(this.tmpPoints.ys))
+          .range([this.scales.y(this.tmpPoints.max), this.scales.x(this.tmpPoints.min)])
         return { x, y }
       },
       axis () {
@@ -161,9 +194,8 @@
         if (! this.valid.tmpAnalysisResults) {
           return { x1: 0, x2: 0, y1: 0, y2: 0 }
         }
-        const xarr = this.points.temp.map(d => d.x)
-        const minX = Math.min.apply(null, xarr)
-        const maxX = Math.max.apply(null, xarr)
+        const minX = d3.min(this.tmpPoints.xs)
+        const maxX = d3.max(this.tmpPoints.xs)
         let x1 = this.scales.x(minX)
         let y1 = this.scales.y(this.tmpAnalysisResults.intercept + this.tmpAnalysisResults.slope * minX)
         let x2 = this.scales.x(maxX)
@@ -193,7 +225,7 @@
               return
             }
             const [[x0, y0], [x1, y1]] = d3.event.selection
-            this.selectedPoints = this.points.shown.filter(d => {
+            this.selectedPoints = this.shownPoints.all.filter(d => {
               const x = this.scales.x(d.x)
               const y = this.scales.y(d.y)
               return x0 <= x && x <= x1 && y0 <= y && y <= y1;
@@ -203,12 +235,11 @@
       },
       histograms () {
         const xBins = d3.histogram()
-          .domain(this.scales.x.domain())
-          .thresholds(this.scales.x.ticks(10))(this.points.temp.map(d => d.x))
+          .domain(this.tmpScales.x.domain())
+          .thresholds(this.tmpScales.x.ticks(10))(this.tmpPoints.xs)
         const yBins = d3.histogram()
-          .domain(this.scales.y.domain())
-          .thresholds(this.scales.y.ticks(10))(this.points.temp.map(d => d.y))
-        console.log(yBins)
+          .domain(this.tmpScales.y.domain())
+          .thresholds(this.tmpScales.y.ticks(10))(this.tmpPoints.ys)
         return { xBins, yBins }
       },
       histogramScales () {
