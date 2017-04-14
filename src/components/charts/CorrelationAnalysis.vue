@@ -38,6 +38,18 @@
           <g id="y-axis-1" class="fjs-corr-axis"></g>
           <g id="y-axis-2" class="fjs-corr-axis" :style="{ transform: `translate(${padded.width}px, 0px)` }"></g>
           <g id="brush"></g>
+          <rect :x="scales.x(bin.x0)"
+                :y="padded.height"
+                :width="scales.x(bin.x1) - scales.x(bin.x0)"
+                :height="histogramScales.y(bin.length)"
+                v-for="(bin, idx) in histograms.xBins">
+          </rect>
+          <rect :x="-histogramScales.x(bin.length)"
+                :y="scales.y(bin.x1)"
+                :width="histogramScales.x(bin.length)"
+                :height="scales.y(bin.x0) - scales.y(bin.x1)"
+                v-for="(bin, idx) in histograms.yBins">
+          </rect>
         </g>
       </svg>
     </div>
@@ -57,13 +69,6 @@
       return {
         width: 0,
         height: 0,
-        margin: {
-          left: 50,
-          top: 50,
-          right: 50,
-          bottom: 50
-        },
-
         xyData: [],
         annotationData: [],
         get args () {
@@ -99,6 +104,13 @@
       disabled () {
         return this.xyData.length !== 2
       },
+      margin () {
+        const left = this.width / 3
+        const top = 0
+        const right = 0
+        const bottom = this.height / 3
+        return { left, top, right, bottom }
+      },
       padded () {
         const width = this.width - this.margin.left - this.margin.right
         const height = this.height - this.margin.top - this.margin.bottom
@@ -114,9 +126,9 @@
         })
         const temp = Object.keys(this.shownAnalysisResults.data.id).map(key => {
           return {
-            x: this.shownAnalysisResults.data[this.shownAnalysisResults.x_label][key],
-            y: this.shownAnalysisResults.data[this.shownAnalysisResults.y_label][key],
-            id: this.shownAnalysisResults.data.id[key]
+            x: this.tmpAnalysisResults.data[this.tmpAnalysisResults.x_label][key],
+            y: this.tmpAnalysisResults.data[this.tmpAnalysisResults.y_label][key],
+            id: this.tmpAnalysisResults.data.id[key]
           }
         })
         return { shown, temp }
@@ -188,7 +200,27 @@
             })
             this.runAnalysisWrapper({init: false})
           })
-      }
+      },
+      histograms () {
+        const xBins = d3.histogram()
+          .domain(this.scales.x.domain())
+          .thresholds(this.scales.x.ticks(10))(this.points.temp.map(d => d.x))
+        const yBins = d3.histogram()
+          .domain(this.scales.y.domain())
+          .thresholds(this.scales.y.ticks(10))(this.points.temp.map(d => d.y))
+        console.log(yBins)
+        return { xBins, yBins }
+      },
+      histogramScales () {
+        // no, I didn't mix up xBins and yBins.
+        const x = d3.scaleLinear()
+          .domain(d3.extent(this.histograms.yBins.map(d => d.length)))
+          .range([0, this.margin.left])
+        const y = d3.scaleLinear()
+          .domain(d3.extent(this.histograms.xBins.map(d => d.length)))
+          .range([0, this.margin.bottom])
+        return { x, y }
+      },
     },
     watch: {
       'axis': {
