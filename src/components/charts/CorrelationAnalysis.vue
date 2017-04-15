@@ -19,7 +19,7 @@
            :disabled="disabled"/>
 
     <div id="visualisation-section" style="height: 75%;">
-      <svg width="100%" height="100%">
+      <svg width="100%" height="100%" v-show="! shownAnalysisResults.init">
         <g :style="{ transform: `translate(${margin.left}px, ${margin.top}px)` }">
           <circle :cx="scales.x(point.x)"
                   :cy="scales.y(point.y)"
@@ -28,27 +28,29 @@
                   v-for="(point, idx) in shownPoints.all">
           </circle>
           <line id="lin-reg-line"
-                :x1="tweenedRegLine.x1"
-                :x2="tweenedRegLine.x2"
-                :y1="tweenedRegLine.y1"
-                :y2="tweenedRegLine.y2">
+                :x1="tweened.regLine.x1"
+                :x2="tweened.regLine.x2"
+                :y1="tweened.regLine.y1"
+                :y2="tweened.regLine.y2">
           </line>
           <g id="x-axis-1" class="fjs-corr-axis" :style="{ transform: `translate(0px, ${padded.height}px)` }"></g>
           <g id="x-axis-2" class="fjs-corr-axis"></g>
           <g id="y-axis-1" class="fjs-corr-axis"></g>
           <g id="y-axis-2" class="fjs-corr-axis" :style="{ transform: `translate(${padded.width}px, 0px)` }"></g>
           <g id="brush"></g>
-          <rect :x="scales.x(bin.x0)"
-                :y="padded.height"
-                :width="scales.x(bin.x1) - scales.x(bin.x0)"
-                :height="histogramScales.y(bin.length)"
-                v-for="(bin, idx) in histograms.xBins">
+          <rect class="histogram-rect"
+                :x="attr.x"
+                :y="attr.y"
+                :width="attr.width"
+                :height="attr.height"
+                v-for="attr in tweened.histogramAttr.xAttr">
           </rect>
-          <rect :x="-histogramScales.x(bin.length)"
-                :y="scales.y(bin.x1)"
-                :width="histogramScales.x(bin.length)"
-                :height="scales.y(bin.x0) - scales.y(bin.x1)"
-                v-for="(bin, idx) in histograms.yBins">
+          <rect class="histogram-rect"
+                :x="attr.x"
+                :y="attr.y"
+                :width="attr.width"
+                :height="attr.height"
+                v-for="attr in tweened.histogramAttr.yAttr">
           </rect>
         </g>
       </svg>
@@ -80,6 +82,7 @@
         },
 
         shownAnalysisResults: {
+          init: true,  // will disappear after being initially set
           coef: 0,
           p_value: 0,
           slope: 0,
@@ -96,6 +99,7 @@
           }
         },
         tmpAnalysisResults: {
+          init: true,  // will disappear after being initially set
           coef: 0,
           p_value: 0,
           slope: 0,
@@ -112,7 +116,13 @@
           }
         },
         selectedPoints: [],
-        tweenedRegLine: {}
+        tweened: {
+          regLine: {},
+          histogramAttr: {
+            xAttr: [],
+            yAttr: []
+          },
+        }
       }
     },
     computed: {
@@ -121,8 +131,8 @@
       },
       margin () {
         const left = this.width / 3
-        const top = 0
-        const right = 0
+        const top = 20
+        const right = 20
         const bottom = this.height / 3
         return { left, top, right, bottom }
       },
@@ -133,33 +143,35 @@
       },
       shownPoints () {
         const xs = [], ys = [], ids = []
-        const all = Object.keys(this.shownAnalysisResults.data.id).map(key => {
-          const x = this.shownAnalysisResults.data[this.shownAnalysisResults.x_label][key]
-          const y = this.shownAnalysisResults.data[this.shownAnalysisResults.y_label][key]
-          const id = this.shownAnalysisResults.data.id[key]
-          xs.push(x)
-          ys.push(y)
-          ids.push(id)
-          return { x, y, id }
-        })
+        let all = []
+        if (! this.shownAnalysisResults.init) {
+          all = Object.keys(this.shownAnalysisResults.data.id).map(key => {
+            const x = this.shownAnalysisResults.data[this.shownAnalysisResults.x_label][key]
+            const y = this.shownAnalysisResults.data[this.shownAnalysisResults.y_label][key]
+            const id = this.shownAnalysisResults.data.id[key]
+            xs.push(x)
+            ys.push(y)
+            ids.push(id)
+            return {x, y, id}
+          })
+        }
         return { xs, ys, ids, all }
       },
       tmpPoints() {
         const xs = [], ys = [], ids = []
-        const all = Object.keys(this.tmpAnalysisResults.data.id).map(key => {
-          const x = this.tmpAnalysisResults.data[this.tmpAnalysisResults.x_label][key]
-          const y = this.tmpAnalysisResults.data[this.tmpAnalysisResults.y_label][key]
-          const id = this.tmpAnalysisResults.data.id[key]
-          xs.push(x)
-          ys.push(y)
-          ids.push(id)
-          return { x, y, id }
-        })
+        let all = []
+        if (! this.tmpAnalysisResults.init) {
+          const all = Object.keys(this.tmpAnalysisResults.data.id).map(key => {
+            const x = this.tmpAnalysisResults.data[this.tmpAnalysisResults.x_label][key]
+            const y = this.tmpAnalysisResults.data[this.tmpAnalysisResults.y_label][key]
+            const id = this.tmpAnalysisResults.data.id[key]
+            xs.push(x)
+            ys.push(y)
+            ids.push(id)
+            return {x, y, id}
+          })
+        }
         return { xs, ys, ids, all }
-      },
-      valid () {
-        const tmpAnalysisResults = this.tmpPoints.all.length  // TODO
-        return { tmpAnalysisResults }
       },
       scales () {
         const x = d3.scaleLinear()
@@ -191,7 +203,7 @@
         return { x1, x2, y1, y2 }
       },
       regLine () {
-        if (! this.valid.tmpAnalysisResults) {
+        if (this.tmpAnalysisResults.init) {
           return { x1: 0, x2: 0, y1: 0, y2: 0 }
         }
         const minX = d3.min(this.tmpPoints.xs)
@@ -234,12 +246,20 @@
           })
       },
       histograms () {
-        const xBins = d3.histogram()
-          .domain(this.tmpScales.x.domain())
-          .thresholds(this.tmpScales.x.ticks(10))(this.tmpPoints.xs)
-        const yBins = d3.histogram()
-          .domain(this.tmpScales.y.domain())
-          .thresholds(this.tmpScales.y.ticks(10))(this.tmpPoints.ys)
+        const BINS = 10
+        let xBins = [], yBins = []
+        if (! this.tmpAnalysisResults.init) {
+          const [xMin, xMax] = this.tmpScales.x.domain()
+          const [yMin, yMax] = this.tmpScales.y.domain()
+          const xThresholds = d3.range(xMin, xMax, (xMax - xMin) / BINS)
+          const yThresholds = d3.range(yMin, yMax, (yMax - yMin) / BINS)
+          xBins = d3.histogram()
+            .domain(this.tmpScales.x.domain())
+            .thresholds(xThresholds)(this.tmpPoints.xs)
+          yBins = d3.histogram()
+            .domain(this.tmpScales.y.domain())
+            .thresholds(yThresholds)(this.tmpPoints.ys)
+        }
         return { xBins, yBins }
       },
       histogramScales () {
@@ -252,6 +272,26 @@
           .range([0, this.margin.bottom])
         return { x, y }
       },
+      histogramAttr () {
+        const xAttr = this.histograms.xBins.map(d => {
+          return {
+            x: this.scales.x(d.x0),
+            y: this.padded.height,
+            width: this.scales.x(d.x1) - this.scales.x(d.x0),
+            height: this.histogramScales.y(d.length)
+          }
+        })
+        const yAttr = this.histograms.yBins.map(d => {
+          return {
+            x: - this.histogramScales.x(d.length),
+            y: this.scales.y(d.x1),
+            width: this.histogramScales.x(d.length),
+            height: this.scales.y(d.x0) - this.scales.y(d.x1)
+          }
+        })
+
+        return { xAttr, yAttr }
+      }
     },
     watch: {
       'axis': {
@@ -260,21 +300,41 @@
           d3.select('#x-axis-2').call(newAxis.x2)
           d3.select('#y-axis-1').call(newAxis.y1)
           d3.select('#y-axis-2').call(newAxis.y2)
-        },
-        deep: true
+        }
       },
       'brush': {
         handler: function(newBrush) {
           d3.select('#brush').call(newBrush)
-        },
-        deep: true
+        }
       },
       'regLine': {
         handler: function(newRegLine, oldRegLine) {
-          let coords = oldRegLine
-          TweenLite.to(coords, 0.5, Object.assign(newRegLine, {onUpdate: () => { this.tweenedRegLine = coords }}))
-        },
-        deep: true
+          const coords = oldRegLine
+          const targetCoords = newRegLine
+          targetCoords.onUpdate = () => { this.tweened.regLine = coords }
+          TweenLite.to(coords, 0.5, targetCoords)
+        }
+      },
+      'histogramAttr': {
+        handler: function(newHistogramAttr, oldHistogramAttr) {
+          // this is a bit like fibonacci. We need a previous value to start with initially
+          if (! oldHistogramAttr.xAttr.length || ! oldHistogramAttr.yAttr.length) {
+            this.tweened.histogramAttr = newHistogramAttr
+            return
+          }
+          oldHistogramAttr.xAttr.forEach((d, i) => {
+            const attr = oldHistogramAttr.xAttr[i]
+            const targetAttr = newHistogramAttr.xAttr[i]
+            targetAttr.onUpdate = () => { this.tweened.histogramAttr.xAttr[i] = attr }
+            TweenLite.to(attr, 0.5, targetAttr)
+          })
+          oldHistogramAttr.yAttr.forEach((d, i) => {
+            const attr = oldHistogramAttr.yAttr[i]
+            const targetAttr = newHistogramAttr.yAttr[i]
+            targetAttr.onUpdate = () => { this.tweened.histogramAttr.yAttr[i] = attr }
+            TweenLite.to(attr, 0.5, targetAttr)
+          })
+        }
       }
     },
     mounted() {
@@ -338,6 +398,13 @@
   #lin-reg-line {
     stroke: #ff5e00;
     stroke-width: 4px;
+  }
+
+  .histogram-rect {
+    stroke: #FFF;
+    shape-rendering: crispEdges;
+    stroke-width: 1px;
+    fill: #ffd100;
   }
 </style>
 
