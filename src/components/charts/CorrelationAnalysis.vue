@@ -19,8 +19,36 @@
            :disabled="disabled"/>
 
     <div id="visualisation-section" style="height: 75%;">
+      <table class="stats-table" v-show="! shownAnalysisResults.init">
+        <tr>
+          <td>Corr. Coef.</td>
+          <td>{{ tmpAnalysisResults.coef }}</td>
+        </tr>
+        <tr>
+          <td>p-value</td>
+          <td>{{ tmpAnalysisResults.p_value }}</td>
+        </tr>
+      </table>
       <svg width="100%" height="100%" v-show="! shownAnalysisResults.init">
         <g :style="{ transform: `translate(${margin.left}px, ${margin.top}px)` }">
+          <g id="x-axis-1" class="fjs-corr-axis" :style="{ transform: `translate(0px, ${padded.height}px)` }"></g>
+          <g id="x-axis-2" class="fjs-corr-axis"></g>
+          <g id="y-axis-1" class="fjs-corr-axis"></g>
+          <g id="y-axis-2" class="fjs-corr-axis" :style="{ transform: `translate(${padded.width}px, 0px)` }"></g>
+          <g id="brush"></g>
+          <text :x="padded.width / 2"
+                y="-10"
+                text-anchor="middle"
+                font-size="16">
+            {{ shownAnalysisResults.x_label }}
+          </text>
+          <text :x="padded.width + 10"
+                :y="padded.height / 2"
+                text-anchor="middle"
+                font-size="16"
+                :transform="`rotate(90 ${padded.width + 10} ${padded.height / 2})`">
+            {{ shownAnalysisResults.y_label }}
+          </text>
           <circle :cx="scales.x(point.x)"
                   :cy="scales.y(point.y)"
                   r="4"
@@ -33,11 +61,6 @@
                 :y1="tweened.regLine.y1"
                 :y2="tweened.regLine.y2">
           </line>
-          <g id="x-axis-1" class="fjs-corr-axis" :style="{ transform: `translate(0px, ${padded.height}px)` }"></g>
-          <g id="x-axis-2" class="fjs-corr-axis"></g>
-          <g id="y-axis-1" class="fjs-corr-axis"></g>
-          <g id="y-axis-2" class="fjs-corr-axis" :style="{ transform: `translate(${padded.width}px, 0px)` }"></g>
-          <g id="brush"></g>
           <rect class="histogram-rect"
                 :x="attr.x"
                 :y="attr.y"
@@ -131,8 +154,8 @@
       },
       margin () {
         const left = this.width / 3
-        const top = 20
-        const right = 20
+        const top = 50
+        const right = 50
         const bottom = this.height / 3
         return { left, top, right, bottom }
       },
@@ -276,7 +299,7 @@
         const xAttr = this.histograms.xBins.map(d => {
           return {
             x: this.scales.x(d.x0),
-            y: this.padded.height,
+            y: this.padded.height + 2,
             width: this.scales.x(d.x1) - this.scales.x(d.x0),
             height: this.histogramScales.y(d.length)
           }
@@ -403,8 +426,20 @@
   .histogram-rect {
     stroke: #FFF;
     shape-rendering: crispEdges;
-    stroke-width: 1px;
+    stroke-width: 0px;
     fill: #ffd100;
+  }
+
+  .stats-table {
+    margin: 5px;
+    border-spacing: 0;
+    border-collapse: collapse;
+  }
+
+  .stats-table, .stats-table td, .stats-table th {
+    border: 1px black solid;
+    border-collapse: collapse;
+    padding: 5px;
   }
 </style>
 
