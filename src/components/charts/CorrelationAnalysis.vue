@@ -49,7 +49,8 @@
                 :transform="`rotate(90 ${padded.width + 10} ${padded.height / 2})`">
             {{ shownAnalysisResults.y_label }}
           </text>
-          <circle :cx="scales.x(point.x)"
+          <circle class="scatterplot-point"
+                  :cx="scales.x(point.x)"
                   :cy="scales.y(point.y)"
                   r="4"
                   :data-idx="idx"
@@ -338,13 +339,18 @@
         }
       },
       'shownPoints': {
-        handler: function() {
+        handler: function(newShownPoints) {
           const vm = this
           vm.$nextTick(() => {  // wait until `circle` is actually rendered based on new shownPoints
-            d3.selectAll('circle').on('mouseover', function(d) {
+            d3.selectAll('circle').on('mouseover', function() {
               const circle = d3.select(this)
-              const idx = circle.attr('data-idx')
-              vm.tip.show(`<span>${idx}</span>`)
+              const idx = parseInt(circle.attr('data-idx'))
+              const point = newShownPoints.all[idx]
+              const html = `
+<span>${vm.shownAnalysisResults.x_label}: ${point.x}</span><br/>
+<span>${vm.shownAnalysisResults.y_label}: ${point.y}</span>
+`
+              vm.tip.show(html)
             })
             d3.selectAll('circle').on('mouseout', vm.tip.hide)
           })
@@ -352,9 +358,20 @@
       },
       'regLine': {
         handler: function(newRegLine, oldRegLine) {
+          const vm = this
           const coords = oldRegLine
           const targetCoords = newRegLine
           targetCoords.onUpdate = () => { this.tweened.regLine = coords }
+          targetCoords.onComplete = () => {
+            d3.select('#lin-reg-line').on('mouseover', function() {
+              const html = `
+<span>Slope: ${vm.tmpAnalysisResults.slope}</span><br/>
+<span>Intercept: ${vm.tmpAnalysisResults.intercept}</span>
+`
+              vm.tip.show(html)
+            })
+            d3.select('#lin-reg-line').on('mouseout', vm.tip.hide)
+          }
           TweenLite.to(coords, 0.5, targetCoords)
         }
       },
@@ -428,6 +445,10 @@
 
 
 <style scoped>
+  *, text {
+    font-family: 'Roboto', sans-serif;
+  }
+
   #data-box-section {
     display: flex;
     flex-direction: row;
@@ -444,8 +465,12 @@
     stroke-width: 4px;
   }
 
+  #lin-reg-line :hover {
+
+  }
+
   .histogram-rect {
-    stroke: #FFF;
+    stroke: #fff;
     shape-rendering: crispEdges;
     stroke-width: 0px;
     fill: #ffd100;
@@ -462,11 +487,16 @@
     border-collapse: collapse;
     padding: 5px;
   }
+
+  .scatterplot-point :hover {
+    fill: #f00;
+  }
 </style>
 
 <!--CSS for dynamically created components-->
 
 <style src="../../assets/tooltip.css"></style>
+<style src="../../assets/base.css"></style>
 <style>
   .fjs-corr-axis .tick {
     shape-rendering: crispEdges;
