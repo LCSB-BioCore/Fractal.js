@@ -87,6 +87,7 @@
   import DataBox from '../DataBox.vue'
   import requestHandling from '../mixins/request-handling'
   import * as d3 from 'd3'
+  import d3Tip from 'd3-tip'; d3.tip = d3Tip
   import { TweenLite } from 'gsap'
   export default {
     name: 'correlation-analysis',
@@ -113,7 +114,7 @@
           method: '',
           x_label: '',
           y_label: '',
-          get data() {
+          get data () {
             return {
               id: [],
               [this.x_label]: [],
@@ -130,7 +131,7 @@
           method: '',
           x_label: '',
           y_label: '',
-          get data() {
+          get data () {
             return {
               id: [],
               [this.x_label]: [],
@@ -164,6 +165,12 @@
         const height = this.height - this.margin.top - this.margin.bottom
         return { width, height }
       },
+      tip () {
+        return d3.tip()
+          .attr('class', 'd3-tip')
+          .offset([-15, 0])
+          .html(d => d)
+      },
       shownPoints () {
         const xs = [], ys = [], ids = []
         let all = []
@@ -180,7 +187,7 @@
         }
         return { xs, ys, ids, all }
       },
-      tmpPoints() {
+      tmpPoints () {
         const xs = [], ys = [], ids = []
         let all = []
         if (! this.tmpAnalysisResults.init) {
@@ -330,6 +337,19 @@
           d3.select('#brush').call(newBrush)
         }
       },
+      'shownPoints': {
+        handler: function() {
+          const vm = this
+          vm.$nextTick(() => {  // wait until `circle` is actually rendered based on new shownPoints
+            d3.selectAll('circle').on('mouseover', function(d) {
+              const circle = d3.select(this)
+              const idx = circle.attr('data-idx')
+              vm.tip.show(`<span>${idx}</span>`)
+            })
+            d3.selectAll('circle').on('mouseout', vm.tip.hide)
+          })
+        }
+      },
       'regLine': {
         handler: function(newRegLine, oldRegLine) {
           const coords = oldRegLine
@@ -360,12 +380,13 @@
         }
       }
     },
-    mounted() {
+    mounted () {
       window.addEventListener('resize', this.onResize)
       this.onResize() // initial call
       this.tmpAnalysisResults = this.shownAnalysisResults
+      d3.select('svg').call(this.tip)
     },
-    beforeDestroy() {
+    beforeDestroy () {
       window.removeEventListener('resize', this.onResize)
     },
     components: {
@@ -444,6 +465,8 @@
 </style>
 
 <!--CSS for dynamically created components-->
+
+<style src="../../assets/tooltip.css"></style>
 <style>
   .fjs-corr-axis .tick {
     shape-rendering: crispEdges;

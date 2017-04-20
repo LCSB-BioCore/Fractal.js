@@ -38,7 +38,9 @@ module.exports = {
       {
         test: /\.vue$/,
         loader: 'vue-loader',
-        exclude: /node_modules/,
+        include: [
+          path.resolve(__dirname, 'src', 'components')
+        ],
         options: {
           // compile the <script></script> part of vue components with babel
           loaders: {
@@ -52,8 +54,14 @@ module.exports = {
         include: [
           path.resolve(__dirname, 'src'),
           path.resolve(__dirname, 'test')
-        ],
-        exclude: /node_modules/
+        ]
+      },
+      {
+        test: /\.css$/,
+        loader: 'css-loader',
+        include: [
+          path.resolve(__dirname, 'src', 'assets'),
+        ]
       }
     ]
   },
