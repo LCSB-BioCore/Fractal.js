@@ -1,3 +1,5 @@
+'use strict'
+
 import store from '../../store/store'
 
 export default {

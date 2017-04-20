@@ -66,13 +66,15 @@
                   :cy="scales.y(point.y)"
                   r="4"
                   :data-idx="idx"
-                  v-for="(point, idx) in shownPoints.all">
+                  v-for="(point, idx) in shownPoints.all"
+                  v-tooltip="point.tooltip">
           </circle>
           <line id="lin-reg-line"
                 :x1="tweened.regLine.x1"
                 :x2="tweened.regLine.x2"
                 :y1="tweened.regLine.y1"
-                :y2="tweened.regLine.y2">
+                :y2="tweened.regLine.y2"
+                v-tooltip="regLine.tooltip">
           </line>
           <rect class="histogram-rect"
                 :x="attr.x"
@@ -100,7 +102,7 @@
   import DataBox from '../DataBox.vue'
   import requestHandling from '../mixins/request-handling'
   import * as d3 from 'd3'
-  import d3Tip from 'd3-tip'; d3.tip = d3Tip
+  import tooltip from '../directives/v-tooltip'
   import { TweenLite } from 'gsap'
   export default {
     name: 'correlation-analysis',
@@ -178,12 +180,6 @@
         const height = this.height - this.margin.top - this.margin.bottom
         return { width, height }
       },
-      tip () {
-        return d3.tip()
-          .attr('class', 'd3-tip')
-          .offset([-15, 0])
-          .html(d => d)
-      },
       shownPoints () {
         const xs = [], ys = [], ids = []
         let all = []
@@ -192,10 +188,11 @@
             const x = this.shownAnalysisResults.data[this.shownAnalysisResults.x_label][key]
             const y = this.shownAnalysisResults.data[this.shownAnalysisResults.y_label][key]
             const id = this.shownAnalysisResults.data.id[key]
+            const tooltip = {[this.shownAnalysisResults.x_label]: x, [this.shownAnalysisResults.y_label]: y}
             xs.push(x)
             ys.push(y)
             ids.push(id)
-            return {x, y, id}
+            return {x, y, id, tooltip}
           })
         }
         return { xs, ys, ids, all }
@@ -276,7 +273,9 @@
         y2 = y2 < 0 ? 0 : y2;
         y2 = y2 > this.height ? this.height : y2;
 
-        return { x1, x2, y1, y2 }
+        const tooltip = {Slope: this.tmpAnalysisResults.slope, Intercept: this.tmpAnalysisResults.intercept}
+
+        return { x1, x2, y1, y2, tooltip }
       },
       brush () {
         return d3.brush()
@@ -358,40 +357,12 @@
           d3.select('#brush').call(newBrush)
         }
       },
-      'shownPoints': {
-        handler: function(newShownPoints) {
-          const vm = this
-          vm.$nextTick(() => {  // wait until `circle` is actually rendered based on new shownPoints
-            d3.selectAll('circle').on('mouseover', function() {
-              const circle = d3.select(this)
-              const idx = parseInt(circle.attr('data-idx'))
-              const point = newShownPoints.all[idx]
-              const html = `
-<span>${vm.shownAnalysisResults.x_label}: ${point.x}</span><br/>
-<span>${vm.shownAnalysisResults.y_label}: ${point.y}</span>
-`
-              vm.tip.show(html)
-            })
-            d3.selectAll('circle').on('mouseout', vm.tip.hide)
-          })
-        }
-      },
       'regLine': {
         handler: function(newRegLine, oldRegLine) {
           const vm = this
           const coords = oldRegLine
           const targetCoords = newRegLine
           targetCoords.onUpdate = () => { this.tweened.regLine = coords }
-          targetCoords.onComplete = () => {
-            d3.select('#lin-reg-line').on('mouseover', function() {
-              const html = `
-<span>Slope: ${vm.tmpAnalysisResults.slope}</span><br/>
-<span>Intercept: ${vm.tmpAnalysisResults.intercept}</span>
-`
-              vm.tip.show(html)
-            })
-            d3.select('#lin-reg-line').on('mouseout', vm.tip.hide)
-          }
           TweenLite.to(coords, 0.5, targetCoords)
         }
       },
@@ -421,7 +392,6 @@
       window.addEventListener('resize', this.onResize)
       this.onResize() // initial call
       this.tmpAnalysisResults = this.shownAnalysisResults
-      d3.select('svg').call(this.tip)
     },
     beforeDestroy () {
       window.removeEventListener('resize', this.onResize)
@@ -430,7 +400,8 @@
       DataBox
     },
     mixins: [
-      requestHandling
+      requestHandling,
+      tooltip
     ],
     methods: {
       runAnalysisWrapper ({init}) {
@@ -512,6 +483,7 @@
 
   .scatterplot-point :hover {
     fill: #f00;
+    opacity: 0.4;
   }
 </style>
 
