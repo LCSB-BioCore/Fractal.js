@@ -28,6 +28,18 @@
           <td>p-value</td>
           <td>{{ tmpAnalysisResults.p_value }}</td>
         </tr>
+        <tr>
+          <td>Correlation statistic</td>
+          <td>{{ tmpAnalysisResults.method }}</td>
+        </tr>
+        <tr>
+          <td>#Selected points</td>
+          <td>{{ tmpPoints.all.length }}</td>
+        </tr>
+        <tr>
+          <td>#Total shown points</td>
+          <td>{{ shownPoints.all.length }}</td>
+        </tr>
       </table>
       <svg width="100%" height="100%" v-show="! shownAnalysisResults.init">
         <g :style="{ transform: `translate(${margin.left}px, ${margin.top}px)` }">
@@ -192,7 +204,7 @@
         const xs = [], ys = [], ids = []
         let all = []
         if (! this.tmpAnalysisResults.init) {
-          const all = Object.keys(this.tmpAnalysisResults.data.id).map(key => {
+          all = Object.keys(this.tmpAnalysisResults.data.id).map(key => {
             const x = this.tmpAnalysisResults.data[this.tmpAnalysisResults.x_label][key]
             const y = this.tmpAnalysisResults.data[this.tmpAnalysisResults.y_label][key]
             const id = this.tmpAnalysisResults.data.id[key]
@@ -206,10 +218,18 @@
       },
       scales () {
         const x = d3.scaleLinear()
-          .domain(d3.extent(this.shownPoints.xs))
+          .domain((() => {
+            const xExtent = d3.extent(this.shownPoints.xs)
+            const xPadding = (xExtent[1] - xExtent[0]) / 10
+            return [xExtent[0] - xPadding, xExtent[1] + xPadding]
+          })())
           .range([0, this.padded.width])
         const y = d3.scaleLinear()
-          .domain(d3.extent(this.shownPoints.ys))
+          .domain((() => {
+            const yExtent = d3.extent(this.shownPoints.ys)
+            const yPadding = (yExtent[1] - yExtent[0]) / 10
+            return [yExtent[0] - yPadding, yExtent[1] + yPadding]
+          })())
           .range([this.padded.height, 0])
         return { x, y }
       },
@@ -445,8 +465,8 @@
 
 
 <style scoped>
-  *, text {
-    font-family: 'Roboto', sans-serif;
+  * {
+    font-family: Roboto, sans-serif;
   }
 
   #data-box-section {
@@ -466,7 +486,7 @@
   }
 
   #lin-reg-line :hover {
-
+    opacity: 0.4;
   }
 
   .histogram-rect {
@@ -480,6 +500,8 @@
     margin: 5px;
     border-spacing: 0;
     border-collapse: collapse;
+    font-size: 14px;
+    float: right;
   }
 
   .stats-table, .stats-table td, .stats-table th {
@@ -500,5 +522,9 @@
 <style>
   .fjs-corr-axis .tick {
     shape-rendering: crispEdges;
+  }
+
+  .fjs-corr-axis line {
+    stroke: #999;
   }
 </style>
