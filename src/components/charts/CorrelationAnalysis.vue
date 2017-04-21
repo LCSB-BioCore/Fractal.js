@@ -359,7 +359,6 @@
       },
       'regLine': {
         handler: function(newRegLine, oldRegLine) {
-          const vm = this
           const coords = oldRegLine
           const targetCoords = newRegLine
           targetCoords.onUpdate = () => { this.tweened.regLine = coords }
@@ -405,8 +404,12 @@
     ],
     methods: {
       runAnalysisWrapper ({init}) {
+        let args = this.args
+        if (init) {
+          args.ids = []
+        }
         // function made available via requestHandling mixin
-        this.runAnalysis({job_name: 'compute-correlation', args: this.args})
+        this.runAnalysis({job_name: 'compute-correlation', args: args})
           .then(response => {
             const results = JSON.parse(response)
             results.data = JSON.parse(results.data)
