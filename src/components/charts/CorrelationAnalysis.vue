@@ -12,12 +12,15 @@
       </data-box>
     </div>
 
-    <input id="run-analysis-btn"
-           type="button"
-           @click="runAnalysisWrapper({init: true})"
-           value="Run Analysis"
-           :disabled="disabled"/>
-
+    <div style="text-align: center;">
+      <button id="run-analysis-btn"
+              type="button"
+              @click="runAnalysisWrapper({init: true})"
+              :disabled="disabled">Run Analysis</button><br/>
+      <br/>
+      <span>{{ error }}</span>
+    </div>
+    <br/>
     <div id="visualisation-section" style="height: 75%;">
       <table class="stats-table" v-show="! shownAnalysisResults.init">
         <tr>
@@ -108,6 +111,7 @@
     name: 'correlation-analysis',
     data () {
       return {
+        error: '',
         width: 0,
         height: 0,
         xyData: [],
@@ -281,6 +285,7 @@
         return d3.brush()
           .extent([[0, 0], [this.padded.width, this.padded.height]])
           .on('end', () => {
+            this.error = ''
             if (! d3.event.selection) {
               this.selectedPoints = []
               this.runAnalysisWrapper({init: false})
@@ -292,11 +297,15 @@
               const y = this.scales.y(d.y)
               return x0 <= x && x <= x1 && y0 <= y && y <= y1;
             })
-            this.runAnalysisWrapper({init: false})
+            if (this.selectedPoints.length > 0 && this.selectedPoints.length < 3) {
+              this.error = 'Selection must be zero (everything is selected) or greater than two.'
+            } else {
+              this.runAnalysisWrapper({init: false})
+            }
           })
       },
       histograms () {
-        const BINS = 10
+        const BINS = 14
         let xBins = [], yBins = []
         if (! this.tmpAnalysisResults.init) {
           const [xMin, xMax] = this.tmpScales.x.domain()
@@ -495,6 +504,16 @@
 
   #brush {
     stroke-width: 0;
+  }
+
+  #run-analysis-btn {
+    width: 200px;
+    height: 30px;
+    box-shadow: 2px 2px 4px 0 #999;
+  }
+
+  #run-analysis-btn:not([disabled]):hover {
+    cursor: pointer;
   }
 </style>
 
