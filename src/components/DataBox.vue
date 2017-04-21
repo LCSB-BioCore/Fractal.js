@@ -58,11 +58,12 @@
   #data-container {
     border: 1px solid #ccc;
     border-radius: 8px;
+    font-size: 14px;
     overflow-y: scroll;
     padding: 5px 5px 5px 5px;
   }
 
   #data-container .data-item:nth-child(odd) {
-    background: #ccc;
+    background: #ddd;
   }
 </style>

@@ -37,7 +37,7 @@
           <td>{{ tmpPoints.all.length }}</td>
         </tr>
         <tr>
-          <td>#Total shown points</td>
+          <td>#Displayed points</td>
           <td>{{ shownPoints.all.length }}</td>
         </tr>
       </table>
@@ -326,7 +326,7 @@
         const xAttr = this.histograms.xBins.map(d => {
           return {
             x: this.scales.x(d.x0),
-            y: this.padded.height + 2,
+            y: this.padded.height + 1,
             width: this.scales.x(d.x1) - this.scales.x(d.x0),
             height: this.histogramScales.y(d.length)
           }
@@ -456,7 +456,7 @@
     stroke-width: 4px;
   }
 
-  #lin-reg-line :hover {
+  #lin-reg-line:hover {
     opacity: 0.4;
   }
 
@@ -475,15 +475,23 @@
     float: right;
   }
 
+  .stats-table tr:nth-child(even) {
+    background-color: #ddd;
+  }
+
   .stats-table, .stats-table td, .stats-table th {
-    border: 1px black solid;
+    border: 1px #ccc solid;
     border-collapse: collapse;
     padding: 5px;
   }
 
-  .scatterplot-point :hover {
+  .scatterplot-point:hover {
     fill: #f00;
     opacity: 0.4;
+  }
+
+  #brush {
+    stroke-width: 0;
   }
 </style>
 
@@ -492,6 +500,10 @@
 <style src="../../assets/tooltip.css"></style>
 <style src="../../assets/base.css"></style>
 <style>
+  .fjs-corr-axis {
+    shape-rendering: crispEdges;
+  }
+
   .fjs-corr-axis .tick {
     shape-rendering: crispEdges;
   }
