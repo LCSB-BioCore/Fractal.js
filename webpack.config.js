@@ -25,6 +25,7 @@ module.exports = {
   devServer: {
     hot: true,
     inline: true,
+    publicPath: 'http://localhost:8080/'
   },
   plugins: plugins,
   output: {
@@ -32,6 +33,9 @@ module.exports = {
     library: library,
     libraryTarget: 'var',
     filename: filename,
+    publicPath: 'http://localhost:8080/',
+    hotUpdateChunkFilename: 'hot/hot-update.js',
+    hotUpdateMainFilename: 'hot/hot-update.json'
   },
   module: {
     rules: [
@@ -60,7 +64,7 @@ module.exports = {
         test: /\.css$/,
         loader: 'css-loader',
         include: [
-          path.resolve(__dirname, 'src', 'assets'),
+          path.resolve(__dirname, 'src', 'assets')
         ]
       }
     ]
