@@ -9,8 +9,9 @@ let plugins = [
 let filename = ''
 const library = 'fractal'
 
-if (env === 'build') {
+if (env === 'production') {
   plugins.push(new webpack.optimize.UglifyJsPlugin({minimize: true}))
+  plugins.push(new webpack.DefinePlugin({'process.env': {'NODE_ENV': JSON.stringify('production')}}))
   filename = library + '.min.js'
 } else {
   filename = library + '.js'
@@ -18,7 +19,6 @@ if (env === 'build') {
 
 module.exports = {
   entry: [
-    'babel-polyfill',
     path.resolve(__dirname, 'src/main.js')
   ],
   devtool: '#inline-source-map',

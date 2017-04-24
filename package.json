@@ -5,7 +5,7 @@
   "author": "Sascha Herzinger",
   "private": true,
   "scripts": {
-    "build": "./node_modules/webpack/bin/webpack.js --config webpack.config.js --env build",
+    "build": "./node_modules/webpack/bin/webpack.js --config webpack.config.js --env production",
     "devbuild": "./node_modules/webpack/bin/webpack.js --config webpack.config.js",
     "test": "./node_modules/karma/bin/karma start karma.config.js"
   },
@@ -18,7 +18,7 @@
   "devDependencies": {
     "babel-core": "^7.0.0-alpha.3",
     "babel-preset-latest": "^7.0.0-alpha.3",
-    "babel-polyfill": "^7.0.0-alpha.3",
+    "babel-plugin-transform-runtime": "^7.0.0-alpha.9",
 
     "webpack": "^2.3.3",
     "webpack-dev-server": "^2.4.2",
