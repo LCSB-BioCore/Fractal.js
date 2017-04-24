@@ -322,13 +322,15 @@
         return { xBins, yBins }
       },
       histogramScales () {
+        const xExtent = d3.extent(this.histograms.xBins.map(d => d.length))
+        const yExtent = d3.extent(this.histograms.yBins.map(d => d.length))
         // no, I didn't mix up xBins and yBins.
         const x = d3.scaleLinear()
-          .domain(d3.extent(this.histograms.yBins.map(d => d.length)))
-          .range([0, this.margin.left])
+          .domain(yExtent)
+          .range([yExtent[0] ? 10 : 0, this.margin.left])
         const y = d3.scaleLinear()
-          .domain(d3.extent(this.histograms.xBins.map(d => d.length)))
-          .range([0, this.margin.bottom])
+          .domain(xExtent)
+          .range([xExtent[0] ? 10 : 0, this.margin.bottom])
         return { x, y }
       },
       histogramAttr () {
@@ -376,23 +378,26 @@
       },
       'histogramAttr': {
         handler: function(newHistogramAttr, oldHistogramAttr) {
-          // this is a bit like fibonacci. We need a previous value to start with initially
-          if (! oldHistogramAttr.xAttr.length || ! oldHistogramAttr.yAttr.length) {
-            this.tweened.histogramAttr = newHistogramAttr
-            return
+          let i = Math.max.apply(null, [newHistogramAttr.xAttr.length, oldHistogramAttr.xAttr.length])
+          let j = Math.max.apply(null, [newHistogramAttr.yAttr.length, oldHistogramAttr.yAttr.length])
+
+          while (i --) {
+            const ii = i
+            const xAttr = oldHistogramAttr.xAttr[i] ?
+              oldHistogramAttr.xAttr[i] : { x: this.padded.width / 2, y: this.padded.height, width: 0, height: 0 }
+            const xAttr_target = newHistogramAttr.xAttr[i] ? newHistogramAttr.xAttr[i] : { width: 0 }
+            xAttr_target.onUpdate = () => { this.tweened.histogramAttr.xAttr[ii] = xAttr }
+            TweenLite.to(xAttr, 0.5, xAttr_target)
           }
-          oldHistogramAttr.xAttr.forEach((d, i) => {
-            const attr = oldHistogramAttr.xAttr[i]
-            const targetAttr = newHistogramAttr.xAttr[i]
-            targetAttr.onUpdate = () => { this.tweened.histogramAttr.xAttr[i] = attr }
-            TweenLite.to(attr, 0.5, targetAttr)
-          })
-          oldHistogramAttr.yAttr.forEach((d, i) => {
-            const attr = oldHistogramAttr.yAttr[i]
-            const targetAttr = newHistogramAttr.yAttr[i]
-            targetAttr.onUpdate = () => { this.tweened.histogramAttr.yAttr[i] = attr }
-            TweenLite.to(attr, 0.5, targetAttr)
-          })
+
+          while (j --) {
+            const jj = j
+            const yAttr = oldHistogramAttr.yAttr[j] ?
+              oldHistogramAttr.yAttr[j] : { x: 0, y: this.padded.height / 2, width: 0, height: 0 }
+            const yAttr_target = newHistogramAttr.yAttr[j] ? newHistogramAttr.yAttr[j] : { height: 0 }
+            yAttr_target.onUpdate = () => { this.tweened.histogramAttr.yAttr[jj] = yAttr }
+            TweenLite.to(yAttr, 0.5, yAttr_target)
+          }
         }
       }
     },
