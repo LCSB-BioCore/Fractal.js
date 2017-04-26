@@ -18,7 +18,7 @@ export default {
         if (jobInfo.state === 'SUCCESS') {
           return jobInfo.result
         } else if (jobInfo.state === 'FAILURE') {
-          throw jobInfo.result
+          throw new Error(jobInfo.result)
         } else if (jobInfo.state === 'PENDING') {
         } else {
           throw new Error(`Analysis Job has unknown state: ${jobInfo.state}`)

@@ -20,9 +20,9 @@ describe('runAnalysis method', () => {
 
   it('fails if unknown job state', done => {
     spyOn(store.getters.requestManager, 'createAnalysis')
-      .and.returnValue(Promise.resolve(123))
+      .and.returnValue(Promise.resolve({data: {job_id: 123}}))
     spyOn(store.getters.requestManager, 'getAnalysisStatus')
-      .and.returnValue(Promise.resolve({state: 'FOO', result: ''}))
+      .and.returnValue(Promise.resolve({data: {state: 'FOO', result: ''}}))
     runAnalysis({name: '', args: {}})
       .then(done.fail)
       .catch(done)
@@ -30,9 +30,9 @@ describe('runAnalysis method', () => {
 
   it('resolves if job state is successful', done => {
     spyOn(store.getters.requestManager, 'createAnalysis')
-      .and.returnValue(Promise.resolve(123))
+      .and.returnValue(Promise.resolve({data: {job_id: 123}}))
     spyOn(store.getters.requestManager, 'getAnalysisStatus')
-      .and.returnValue(Promise.resolve({state: 'SUCCESS', result: 123}))
+      .and.returnValue(Promise.resolve({data: {state: 'SUCCESS', result: 123}}))
     runAnalysis({name: '', args: {}})
       .then(response => {
         expect(response).toBe(123)
@@ -43,9 +43,9 @@ describe('runAnalysis method', () => {
 
   it('rejects if job state is unsuccessful', done => {
     spyOn(store.getters.requestManager, 'createAnalysis')
-      .and.returnValue(Promise.resolve(123))
+      .and.returnValue(Promise.resolve({data: {job_id: 123}}))
     spyOn(store.getters.requestManager, 'getAnalysisStatus')
-      .and.returnValue(Promise.resolve({state: 'FAILURE', result: ''}))
+      .and.returnValue(Promise.resolve({data: {state: 'FAILURE', result: ''}}))
     runAnalysis({name: '', args: {}})
       .then(done.fail)
       .catch(done)
@@ -53,13 +53,13 @@ describe('runAnalysis method', () => {
 
   it('does wait for job state to switch from PENDING to final state', done => {
     spyOn(store.getters.requestManager, 'createAnalysis')
-      .and.returnValue(Promise.resolve(123))
+      .and.returnValue(Promise.resolve({data: {job_id: 123}}))
     spyOn(store.getters.requestManager, 'getAnalysisStatus')
       .and.returnValues(
-        Promise.resolve({state: 'PENDING', result: ''}),
-        Promise.resolve({state: 'PENDING', result: ''}),
-        Promise.resolve({state: 'PENDING', result: ''}),
-        Promise.resolve({state: 'SUCCESS', result: 123})
+        Promise.resolve({data: {state: 'PENDING', result: ''}}),
+        Promise.resolve({data: {state: 'PENDING', result: ''}}),
+        Promise.resolve({data: {state: 'PENDING', result: ''}}),
+        Promise.resolve({data: {state: 'SUCCESS', result: 123}})
       )
     runAnalysis({name: '', args: {}})
       .then(response => {
