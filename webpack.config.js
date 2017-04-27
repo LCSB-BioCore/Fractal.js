@@ -25,7 +25,8 @@ module.exports = {
   devServer: {
     hot: true,
     inline: true,
-    publicPath: 'http://localhost:8080/'
+    publicPath: 'http://localhost:8080/',
+    headers: { 'Access-Control-Allow-Origin': '*' }
   },
   plugins: plugins,
   output: {

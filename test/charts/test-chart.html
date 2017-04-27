@@ -15,7 +15,7 @@
   const fjs = fractal.init({
     handler: 'ada',
     thisBaseURL: 'http://10.79.2.192:8080',
-    fractalisBaseURL: 'http://10.240.6.46:8080',
+    fractalisBaseURL: 'http://127.0.0.1:5000',
     getAuth () {
       return credentials
     }
@@ -41,6 +41,14 @@
       data_type: 'Double',
       data_set: 'denopa.clinical_baseline',
       projection: 'a_AESD_I_mean',
+      get description () {
+        return `${this.projection} (${this.data_set})`
+      }
+    },
+    {
+      data_type: 'Enum',
+      data_set: 'foo',
+      projection: 'baraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       get description () {
         return `${this.projection} (${this.data_set})`
       }

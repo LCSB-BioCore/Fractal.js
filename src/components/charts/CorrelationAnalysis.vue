@@ -70,14 +70,14 @@
                   r="4"
                   :data-idx="idx"
                   v-for="(point, idx) in shownPoints.all"
-                  v-tooltip="point.tooltip">
+                  v-svgtooltip="point.tooltip">
           </circle>
           <line id="lin-reg-line"
                 :x1="tweened.regLine.x1"
                 :x2="tweened.regLine.x2"
                 :y1="tweened.regLine.y1"
                 :y2="tweened.regLine.y2"
-                v-tooltip="regLine.tooltip">
+                v-svgtooltip="regLine.tooltip">
           </line>
           <rect class="histogram-rect"
                 :x="attr.x"
@@ -105,7 +105,7 @@
   import DataBox from '../DataBox.vue'
   import requestHandling from '../mixins/request-handling'
   import * as d3 from 'd3'
-  import tooltip from '../directives/v-tooltip'
+  import tooltip from '../directives/v-svgtooltip'
   import { TweenLite } from 'gsap'
   export default {
     name: 'correlation-analysis',
