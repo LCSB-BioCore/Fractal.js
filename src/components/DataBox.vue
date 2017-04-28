@@ -5,22 +5,24 @@
       <div class="data-entry-container"
            :data-state="item.state"
            v-for="item in items">
-
         <div class="data-entry-header"
              :data-state="item.state"
              @click="toggleDataEntryBody(item.message, $event)">
+          <span class="cross" v-if="item.state === 'FAILURE'">&#xd7</span>
           <input type="checkbox"
                  :id="'data-check-' + item.data_id"
                  :value="item.data_id"
                  v-model="selectedIDs"
                  @click="updateSelected"
-                 v-if="item.state == 'SUCCESS'"/>
+                 v-if="item.state === 'SUCCESS'"/>
           <label :for="'data-check-' + item.data_id">
             {{ item.description }}
           </label>
         </div>
 
-        <div class="data-entry-body">{{ item.message }}</div>
+        <div class="data-entry-body" :data-state="item.state">
+          {{ item.message }}
+        </div>
 
       </div>
     </div>
@@ -84,25 +86,8 @@
     padding: 5px 5px 5px 5px;
   }
 
-  .data-entry-container[data-state='SUCCESS'] {
-
-  }
-
-  .data-entry-container[data-state='FAILURE'] {
-
-  }
-
-  .data-entry-container[data-state='PENDING'] {
-
-  }
-
-  .data-entry-body {
-    display: none;
-    padding: 3px;
-  }
-
   .data-entry-header {
-    background: #eee;
+    background-color: #eee;
     padding: 2px;
     display: inline-block;
     white-space: nowrap;
@@ -111,16 +96,12 @@
     width: 98%;
   }
 
-  .data-entry-header label {
-    width: 80%
-  }
-
   .data-entry-header:nth-child(odd)[data-state="SUCCESS"] {
 
   }
 
   .data-entry-header[data-state="FAILURE"], .data-entry-header[data-state="FAILURE"] * {
-    background: #ffcbcb;
+    background-color: #ffcbcb;
     cursor: pointer;
   }
 
@@ -128,4 +109,21 @@
     color: #bbb;
   }
 
+  .data-entry-body {
+    display: none;
+    padding: 3px;
+  }
+
+  .data-entry-body[data-state="FAILURE"] {
+    background-color: #ffcbcb;
+  }
+
+  .cross {
+    color: red;
+    padding: 5px;
+  }
+
+  .data-entry-header label {
+    width: 80%
+  }
 </style>
