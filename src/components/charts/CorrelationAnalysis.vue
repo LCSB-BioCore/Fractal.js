@@ -105,7 +105,7 @@
   import DataBox from '../DataBox.vue'
   import requestHandling from '../mixins/request-handling'
   import * as d3 from 'd3'
-  import tooltip from '../directives/v-svgtooltip'
+  import svgtooltip from '../mixins/v-svgtooltip'
   import { TweenLite } from 'gsap'
   export default {
     name: 'correlation-analysis',
@@ -414,7 +414,7 @@
     },
     mixins: [
       requestHandling,
-      tooltip
+      svgtooltip
     ],
     methods: {
       runAnalysisWrapper ({init}) {
@@ -524,8 +524,8 @@
 
 <!--CSS for dynamically created components-->
 
-<style src="../../assets/tooltip.css"></style>
 <style src="../../assets/base.css"></style>
+<style src="../../assets/svgtooltip.css"></style>
 <style>
   .fjs-corr-axis {
     shape-rendering: crispEdges;

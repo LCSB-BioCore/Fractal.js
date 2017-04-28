@@ -21,7 +21,7 @@ export default {
     d3.select('svg').call(tip)
   },
   directives: {
-    tooltip: {
+    svgtooltip: {
       update: function (el, binding) {
         d3.select(el).on('mouseover', () => {
           tip.show(binding.value)

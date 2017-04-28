@@ -1,20 +1,27 @@
 <template>
   <div id="data-box">
-    <label for="data-container" :tooltip="tooltip">{{ header }}</label>
-    <div id="data-container" style="height: 80%;">
-      <div class="data-item"
+    <label for="data-window" :tooltip="tooltip">{{ header }}</label>
+    <div id="data-window" style="height: 80%;">
+      <div class="data-entry-container"
            :data-state="item.state"
            v-for="item in items">
-        <input type="checkbox"
-               :id="'data-check-' + item.data_id"
-               :value="item.data_id"
-               v-model="selectedIDs"
-               @click="updateSelected"
-               v-if="item.state == 'SUCCESS'"/>
-        <div class="info-box" v-if="item.state == 'FAILURE'">i</div>
-        <label :for="'data-check-' + item.data_id">
-          {{ item.description }}
-        </label>
+
+        <div class="data-entry-header"
+             :data-state="item.state"
+             @click="toggleDataEntryBody(item.message, $event)">
+          <input type="checkbox"
+                 :id="'data-check-' + item.data_id"
+                 :value="item.data_id"
+                 v-model="selectedIDs"
+                 @click="updateSelected"
+                 v-if="item.state == 'SUCCESS'"/>
+          <label :for="'data-check-' + item.data_id">
+            {{ item.description }}
+          </label>
+        </div>
+
+        <div class="data-entry-body">{{ item.message }}</div>
+
       </div>
     </div>
   </div>
@@ -22,6 +29,7 @@
 
 <script>
   import store from '../store/store'
+  import $ from 'jquery'
   export default {
     name: 'data-box',
     data () {
@@ -51,10 +59,14 @@
     methods: {
       updateSelected () {
         this.$emit('update', this.selectedIDs)
+      },
+      toggleDataEntryBody (message, $event) {
+        if (message) {
+          const $header = $($event.currentTarget)
+          const $content = $header.next()
+          $content.slideToggle(500)
+        }
       }
-    },
-    components: {
-
     }
   }
 </script>
@@ -64,7 +76,7 @@
     width: 30%;
   }
 
-  #data-container {
+  #data-window {
     border: 1px solid #ccc;
     border-radius: 8px;
     font-size: 14px;
@@ -72,7 +84,24 @@
     padding: 5px 5px 5px 5px;
   }
 
-  .data-item {
+  .data-entry-container[data-state='SUCCESS'] {
+
+  }
+
+  .data-entry-container[data-state='FAILURE'] {
+
+  }
+
+  .data-entry-container[data-state='PENDING'] {
+
+  }
+
+  .data-entry-body {
+    display: none;
+    padding: 3px;
+  }
+
+  .data-entry-header {
     background: #eee;
     padding: 2px;
     display: inline-block;
@@ -82,30 +111,21 @@
     width: 98%;
   }
 
-  .data-item label {
+  .data-entry-header label {
     width: 80%
   }
 
-  .data-item:nth-child(odd)[data-state="SUCCESS"] {
+  .data-entry-header:nth-child(odd)[data-state="SUCCESS"] {
 
   }
 
-  .data-item[data-state="FAILURE"] {
+  .data-entry-header[data-state="FAILURE"], .data-entry-header[data-state="FAILURE"] * {
     background: #ffcbcb;
+    cursor: pointer;
   }
 
-  .data-item[data-state="PENDING"] {
+  .data-entry-header[data-state="PENDING"] {
     color: #bbb;
   }
 
-  .info-box {
-    font-style: italic;
-    float: left;
-    margin: 0 3px 0 3px;
-    height: 15px;
-    width: 15px;
-    background: white;
-    border-radius: 10px;
-    text-align: center;
-  }
 </style>
