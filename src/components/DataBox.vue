@@ -13,7 +13,6 @@
                  :id="'data-check-' + item.data_id"
                  :value="item.data_id"
                  v-model="selectedIDs"
-                 @click="updateSelected"
                  v-if="item.state === 'SUCCESS'"/>
           <label :for="'data-check-' + item.data_id">
             {{ item.description }}
@@ -21,6 +20,10 @@
         </div>
 
         <div class="data-entry-body" :data-state="item.state">
+          <div class="action-btns">
+            <button class="reload-btn">&#8635</button>
+            <button class="delete-btn">&#215</button><br/>
+          </div>
           {{ item.message }}
         </div>
 
@@ -58,16 +61,26 @@
         return store.getters.data.filter(item => item.data_type === this.dataType)
       }
     },
-    methods: {
-      updateSelected () {
-        this.$emit('update', this.selectedIDs)
+    watch: {
+      'selectedIDs': {
+        handler: function(newSelectedIDs) {
+          this.$emit('update', newSelectedIDs)
+        }
       },
+    },
+    methods: {
       toggleDataEntryBody (message, $event) {
         if (message) {
           const $header = $($event.currentTarget)
           const $content = $header.next()
           $content.slideToggle(500)
         }
+      },
+      reloadData (dataID) {
+        alert("Not implemented, yet.")
+      },
+      deleteData (dataID) {
+        store.getters.requestManager.deleteData({dataID})
       }
     }
   }
@@ -96,6 +109,10 @@
     width: 98%;
   }
 
+  .data-entry-header label {
+    width: 80%
+  }
+
   .data-entry-header:nth-child(odd)[data-state="SUCCESS"] {
 
   }
@@ -118,12 +135,18 @@
     background-color: #ffcbcb;
   }
 
+  .action-btns {
+    text-align: center;
+  }
+
+  .action-btns button {
+    height: 25px;
+    font-size: 14px;
+    font-weight: bold;
+  }
+
   .cross {
     color: red;
     padding: 5px;
-  }
-
-  .data-entry-header label {
-    width: 80%
   }
 </style>

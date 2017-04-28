@@ -12,7 +12,7 @@ class FractalJS {
 
   // noinspection JSMethodCanBeStatic
   loadData (descriptors) {
-    store.state.requestManager.createData(descriptors)
+    store.state.requestManager.createData({descriptors})
   }
 
   setChart ({chart, selector}) {

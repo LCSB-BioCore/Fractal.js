@@ -13,7 +13,7 @@ export default class {
     })
   }
 
-  createData (descriptors) {
+  createData ({descriptors}) {
     return this._axios.post('/data', {
       descriptors,
       auth: this._getAuth(),
@@ -22,17 +22,21 @@ export default class {
     })
   }
 
-  getDataStatusByParams (descriptor) {
+  getDataStatusByParams ({descriptor}) {
     const params = JSON.stringify({server: this._thisBaseURL, descriptor})
     return this._axios.get(`/data/${params}`)
   }
 
-  getDataStatusByID (dataID) {
+  getDataStatusByID ({dataID}) {
     return this._axios.get(`/data/${dataID}`)
   }
 
   getAllDataStatus () {
     return this._axios.get('/data')
+  }
+
+  deleteData ({dataID}) {
+    return this._axios.delete(`/data/${dataID}`)
   }
 
   createAnalysis ({job_name, args}) {
@@ -43,7 +47,7 @@ export default class {
     return this._axios.get(`/analytics/${jobID}`)
   }
 
-  cancelAnalysis (jobID) {
+  cancelAnalysis ({jobID}) {
     return this._axios.delete(`/analytics/${jobID}`)
   }
 }
