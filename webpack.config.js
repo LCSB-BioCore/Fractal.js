@@ -11,7 +11,7 @@ const library = 'fractal'
 
 if (env === 'production') {
   plugins.push(new webpack.optimize.UglifyJsPlugin({minimize: true}))
-  plugins.push(new webpack.DefinePlugin({'process.env': {'NODE_ENV': JSON.stringify('production')}}))
+  plugins.push(new webpack.DefinePlugin({'process.env': {NODE_ENV: '"production"'}}))
   filename = library + '.min.js'
 } else {
   filename = library + '.js'

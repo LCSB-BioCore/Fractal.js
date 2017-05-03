@@ -45,11 +45,11 @@
         </tr>
       </table>
       <svg width="100%" height="100%" v-show="! shownAnalysisResults.init">
-        <g :style="{ transform: `translate(${margin.left}px, ${margin.top}px)` }">
-          <g id="x-axis-1" class="fjs-corr-axis" :style="{ transform: `translate(0px, ${padded.height}px)` }"></g>
+        <g :transform="`translate(${margin.left}, ${margin.top})`">
+          <g id="x-axis-1" class="fjs-corr-axis" :transform="`translate(0, ${padded.height})`"></g>
           <g id="x-axis-2" class="fjs-corr-axis"></g>
           <g id="y-axis-1" class="fjs-corr-axis"></g>
-          <g id="y-axis-2" class="fjs-corr-axis" :style="{ transform: `translate(${padded.width}px, 0px)` }"></g>
+          <g id="y-axis-2" class="fjs-corr-axis" :transform="`translate(${padded.width}, 0)`"></g>
           <g id="brush"></g>
           <text :x="padded.width / 2"
                 y="-10"
