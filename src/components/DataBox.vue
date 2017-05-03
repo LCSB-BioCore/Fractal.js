@@ -63,10 +63,10 @@
     },
     watch: {
       'selectedIDs': {
-        handler: function(newSelectedIDs) {
+        handler: function (newSelectedIDs) {
           this.$emit('update', newSelectedIDs)
         }
-      },
+      }
     },
     methods: {
       toggleDataEntryBody (message, $event) {
@@ -77,7 +77,7 @@
         }
       },
       reloadData (dataID) {
-        alert("Not implemented, yet.")
+        window.alert('Not implemented, yet.')
       },
       deleteData (dataID) {
         store.getters.requestManager.deleteData({dataID})

@@ -22,7 +22,7 @@
     </div>
     <br/>
     <div id="visualisation-section" style="height: 75%;">
-      <table class="stats-table" v-show="! shownAnalysisResults.init">
+      <table class="stats-table" v-show="!shownAnalysisResults.init">
         <tr>
           <td>Corr. Coef.</td>
           <td>{{ tmpAnalysisResults.coef }}</td>
@@ -44,7 +44,7 @@
           <td>{{ shownPoints.all.length }}</td>
         </tr>
       </table>
-      <svg width="100%" height="100%" v-show="! shownAnalysisResults.init">
+      <svg width="100%" height="100%" v-show="!shownAnalysisResults.init">
         <g :transform="`translate(${margin.left}, ${margin.top})`">
           <g id="x-axis-1" class="fjs-corr-axis" :transform="`translate(0, ${padded.height})`"></g>
           <g id="x-axis-2" class="fjs-corr-axis"></g>
@@ -164,7 +164,7 @@
           histogramAttr: {
             xAttr: [],
             yAttr: []
-          },
+          }
         }
       }
     },
@@ -185,9 +185,11 @@
         return { width, height }
       },
       shownPoints () {
-        const xs = [], ys = [], ids = []
+        const xs = []
+        const ys = []
+        const ids = []
         let all = []
-        if (! this.shownAnalysisResults.init) {
+        if (!this.shownAnalysisResults.init) {
           all = Object.keys(this.shownAnalysisResults.data.id).map(key => {
             const x = this.shownAnalysisResults.data[this.shownAnalysisResults.x_label][key]
             const y = this.shownAnalysisResults.data[this.shownAnalysisResults.y_label][key]
@@ -202,9 +204,11 @@
         return { xs, ys, ids, all }
       },
       tmpPoints () {
-        const xs = [], ys = [], ids = []
+        const xs = []
+        const ys = []
+        const ids = []
         let all = []
-        if (! this.tmpAnalysisResults.init) {
+        if (!this.tmpAnalysisResults.init) {
           all = Object.keys(this.tmpAnalysisResults.data.id).map(key => {
             const x = this.tmpAnalysisResults.data[this.tmpAnalysisResults.x_label][key]
             const y = this.tmpAnalysisResults.data[this.tmpAnalysisResults.y_label][key]
@@ -265,17 +269,17 @@
         let x2 = this.scales.x(maxX)
         let y2 = this.scales.y(this.tmpAnalysisResults.intercept + this.tmpAnalysisResults.slope * maxX)
 
-        x1 = x1 < 0 ? 0 : x1;
-        x1 = x1 > this.width ? this.width : x1;
+        x1 = x1 < 0 ? 0 : x1
+        x1 = x1 > this.width ? this.width : x1
 
-        x2 = x2 < 0 ? 0 : x2;
-        x2 = x2 > this.width ? this.width : x2;
+        x2 = x2 < 0 ? 0 : x2
+        x2 = x2 > this.width ? this.width : x2
 
-        y1 = y1 < 0 ? 0 : y1;
-        y1 = y1 > this.height ? this.height : y1;
+        y1 = y1 < 0 ? 0 : y1
+        y1 = y1 > this.height ? this.height : y1
 
-        y2 = y2 < 0 ? 0 : y2;
-        y2 = y2 > this.height ? this.height : y2;
+        y2 = y2 < 0 ? 0 : y2
+        y2 = y2 > this.height ? this.height : y2
 
         const tooltip = {Slope: this.tmpAnalysisResults.slope, Intercept: this.tmpAnalysisResults.intercept}
 
@@ -286,7 +290,7 @@
           .extent([[0, 0], [this.padded.width, this.padded.height]])
           .on('end', () => {
             this.error = ''
-            if (! d3.event.selection) {
+            if (!d3.event.selection) {
               this.selectedPoints = []
               this.runAnalysisWrapper({init: false})
               return
@@ -295,7 +299,7 @@
             this.selectedPoints = this.shownPoints.all.filter(d => {
               const x = this.scales.x(d.x)
               const y = this.scales.y(d.y)
-              return x0 <= x && x <= x1 && y0 <= y && y <= y1;
+              return x0 <= x && x <= x1 && y0 <= y && y <= y1
             })
             if (this.selectedPoints.length > 0 && this.selectedPoints.length < 3) {
               this.error = 'Selection must be zero (everything is selected) or greater than two.'
@@ -306,8 +310,9 @@
       },
       histograms () {
         const BINS = 14
-        let xBins = [], yBins = []
-        if (! this.tmpAnalysisResults.init) {
+        let xBins = []
+        let yBins = []
+        if (!this.tmpAnalysisResults.init) {
           const [xMin, xMax] = this.tmpScales.x.domain()
           const [yMin, yMax] = this.tmpScales.y.domain()
           const xThresholds = d3.range(xMin, xMax, (xMax - xMin) / BINS)
@@ -344,7 +349,7 @@
         })
         const yAttr = this.histograms.yBins.map(d => {
           return {
-            x: - this.histogramScales.x(d.length),
+            x: -this.histogramScales.x(d.length),
             y: this.scales.y(d.x1),
             width: this.histogramScales.x(d.length),
             height: this.scales.y(d.x0) - this.scales.y(d.x1)
@@ -356,7 +361,7 @@
     },
     watch: {
       'axis': {
-        handler: function(newAxis) {
+        handler: function (newAxis) {
           d3.select('#x-axis-1').call(newAxis.x1)
           d3.select('#x-axis-2').call(newAxis.x2)
           d3.select('#y-axis-1').call(newAxis.y1)
@@ -364,12 +369,12 @@
         }
       },
       'brush': {
-        handler: function(newBrush) {
+        handler: function (newBrush) {
           d3.select('#brush').call(newBrush)
         }
       },
       'regLine': {
-        handler: function(newRegLine, oldRegLine) {
+        handler: function (newRegLine, oldRegLine) {
           const coords = oldRegLine
           const targetCoords = newRegLine
           targetCoords.onUpdate = () => { this.tweened.regLine = coords }
@@ -377,26 +382,26 @@
         }
       },
       'histogramAttr': {
-        handler: function(newHistogramAttr, oldHistogramAttr) {
+        handler: function (newHistogramAttr, oldHistogramAttr) {
           let i = Math.max.apply(null, [newHistogramAttr.xAttr.length, oldHistogramAttr.xAttr.length])
           let j = Math.max.apply(null, [newHistogramAttr.yAttr.length, oldHistogramAttr.yAttr.length])
 
-          while (i --) {
+          while (i--) {
             const ii = i
-            const xAttr = oldHistogramAttr.xAttr[i] ?
-              oldHistogramAttr.xAttr[i] : { x: this.padded.width / 2, y: this.padded.height, width: 0, height: 0 }
-            const xAttr_target = newHistogramAttr.xAttr[i] ? newHistogramAttr.xAttr[i] : { width: 0 }
-            xAttr_target.onUpdate = () => { this.tweened.histogramAttr.xAttr[ii] = xAttr }
-            TweenLite.to(xAttr, 0.5, xAttr_target)
+            let xAttr = oldHistogramAttr.xAttr[i] ? oldHistogramAttr.xAttr[i]
+: { x: this.padded.width / 2, y: this.padded.height, width: 0, height: 0 }
+            const xAttrTarget = newHistogramAttr.xAttr[i] ? newHistogramAttr.xAttr[i] : { width: 0 }
+            xAttrTarget.onUpdate = () => { this.tweened.histogramAttr.xAttr[ii] = xAttr }
+            TweenLite.to(xAttr, 0.5, xAttrTarget)
           }
 
-          while (j --) {
+          while (j--) {
             const jj = j
-            const yAttr = oldHistogramAttr.yAttr[j] ?
-              oldHistogramAttr.yAttr[j] : { x: 0, y: this.padded.height / 2, width: 0, height: 0 }
-            const yAttr_target = newHistogramAttr.yAttr[j] ? newHistogramAttr.yAttr[j] : { height: 0 }
-            yAttr_target.onUpdate = () => { this.tweened.histogramAttr.yAttr[jj] = yAttr }
-            TweenLite.to(yAttr, 0.5, yAttr_target)
+            const yAttr = oldHistogramAttr.yAttr[j] ? oldHistogramAttr.yAttr[j]
+: { x: 0, y: this.padded.height / 2, width: 0, height: 0 }
+            const yAttrTarget = newHistogramAttr.yAttr[j] ? newHistogramAttr.yAttr[j] : { height: 0 }
+            yAttrTarget.onUpdate = () => { this.tweened.histogramAttr.yAttr[jj] = yAttr }
+            TweenLite.to(yAttr, 0.5, yAttrTarget)
           }
         }
       }

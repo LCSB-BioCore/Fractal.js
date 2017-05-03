@@ -2,5 +2,6 @@
   "extends": "standard",
   "env": {
     "jasmine": true
-  }
+  },
+  "plugins": ["html"]
 }
