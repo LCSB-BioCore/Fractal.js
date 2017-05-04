@@ -1,4 +1,5 @@
 import axios from 'axios'
+import store from '../store/store'
 
 export default class {
   constructor ({handler, thisBaseURL, fractalisBaseURL, getAuth}) {
@@ -22,6 +23,12 @@ export default class {
     })
   }
 
+  reloadData ({dataID}) {
+    const dataItem = store.getters.data.find(d => d.data_id === dataID)
+    const descriptors = [dataItem.descriptor]
+    this.createData({descriptors})
+  }
+
   getDataStatusByParams ({descriptor}) {
     const params = JSON.stringify({server: this._thisBaseURL, descriptor})
     return this._axios.get(`/data/${params}`)
@@ -37,6 +44,10 @@ export default class {
 
   deleteData ({dataID}) {
     return this._axios.delete(`/data/${dataID}`)
+  }
+
+  deleteAllData () {
+    return this._axios.delete('/data')
   }
 
   createAnalysis ({job_name, args}) {

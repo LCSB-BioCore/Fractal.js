@@ -13,9 +13,9 @@ describe('DataBox', () => {
 
   it('renders 3 checkboxes for 3 elements in data', () => {
     store.state.data = [
-      {data_type: 'numeric', description: ''},
-      {data_type: 'numeric', description: ''},
-      {data_type: 'numeric', description: ''}
+      {data_type: 'numeric', label: ''},
+      {data_type: 'numeric', label: ''},
+      {data_type: 'numeric', label: ''}
     ]
     const Component = Vue.extend(DataBox)
     const propsData = {dataType: 'numeric', header: ''}
@@ -25,8 +25,8 @@ describe('DataBox', () => {
 
   it('only renders checkboxes for data with correct type', () => {
     store.state.data = [
-      {data_type: 'numeric', description: ''},
-      {data_type: 'categoric', description: ''},
+      {data_type: 'numeric', label: ''},
+      {data_type: 'categoric', label: ''},
     ]
     const Component = Vue.extend(DataBox)
     const propsData = {dataType: 'numeric', header: ''}
@@ -36,8 +36,8 @@ describe('DataBox', () => {
 
   it('checkboxes are linked to data', () => {
     store.state.data = [
-      {data_type: 'numeric', description: '', data_id: 'A'},
-      {data_type: 'numeric', description: '', data_id: ''}
+      {data_type: 'numeric', label: '', data_id: 'A'},
+      {data_type: 'numeric', label: '', data_id: ''}
     ]
     const Component = Vue.extend(DataBox)
     const propsData = {dataType: 'numeric', header: ''}

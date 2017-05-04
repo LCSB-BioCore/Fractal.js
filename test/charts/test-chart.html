@@ -17,7 +17,7 @@
     thisBaseURL: 'http://10.79.2.192:8080',
     fractalisBaseURL: 'http://127.0.0.1:5000',
     getAuth () {
-      return credentials
+      return credentials1
     }
   })
   fjs.loadData([
@@ -25,7 +25,7 @@
       data_type: 'Enum',
       data_set: 'denopa.clinical_baseline',
       projection: 'Geschlecht',
-      get description () {
+      get label () {
         return `${this.projection} (${this.data_set})`
       }
     },
@@ -33,7 +33,7 @@
       data_type: 'Integer',
       data_set: 'denopa.clinical_baseline',
       projection: 'a_Alter',
-      get description () {
+      get label () {
         return `${this.projection} (${this.data_set})`
       }
     },
@@ -41,7 +41,7 @@
       data_type: 'Double',
       data_set: 'denopa.clinical_baseline',
       projection: 'a_AESD_I_mean',
-      get description () {
+      get label () {
         return `${this.projection} (${this.data_set})`
       }
     },
@@ -49,7 +49,7 @@
       data_type: 'Enum',
       data_set: 'foo',
       projection: 'baraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      get description () {
+      get label () {
         return `${this.projection} (${this.data_set})`
       }
     }

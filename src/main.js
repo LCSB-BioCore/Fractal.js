@@ -20,6 +20,11 @@ class FractalJS {
   }
 
   // noinspection JSMethodCanBeStatic
+  clearCache () {
+    store.state.requestManager.deleteAllData()
+  }
+
+  // noinspection JSMethodCanBeStatic
   setSubsets (...subsets) {
     store.dispatch('setSubsets', subsets)
   }

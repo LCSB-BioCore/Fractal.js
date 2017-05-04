@@ -7,7 +7,7 @@
            v-for="item in items">
         <div class="data-entry-header"
              :data-state="item.state"
-             @click="toggleDataEntryBody(item.message, $event)">
+             @click="toggleDataEntryBody($event)">
           <span class="cross" v-if="item.state === 'FAILURE'">&#xd7</span>
           <input type="checkbox"
                  :id="'data-check-' + item.data_id"
@@ -15,14 +15,14 @@
                  v-model="selectedIDs"
                  v-if="item.state === 'SUCCESS'"/>
           <label :for="'data-check-' + item.data_id">
-            {{ item.description }}
+            {{ item.label }}
           </label>
         </div>
 
         <div class="data-entry-body" :data-state="item.state">
           <div class="action-btns">
-            <button class="reload-btn">&#8635</button>
-            <button class="delete-btn">&#215</button><br/>
+            <button class="reload-btn" @click="reloadData(item.data_id)">&#8635</button>
+            <button class="delete-btn" @click="deleteData(item.data_id)">&#215</button><br/>
           </div>
           {{ item.message }}
         </div>
@@ -69,15 +69,13 @@
       }
     },
     methods: {
-      toggleDataEntryBody (message, $event) {
-        if (message) {
-          const $header = $($event.currentTarget)
-          const $content = $header.next()
-          $content.slideToggle(500)
-        }
+      toggleDataEntryBody ($event) {
+        const $header = $($event.currentTarget)
+        const $content = $header.next()
+        $content.slideToggle(500)
       },
       reloadData (dataID) {
-        window.alert('Not implemented, yet.')
+        store.getters.requestManager.reloadData({dataID})
       },
       deleteData (dataID) {
         store.getters.requestManager.deleteData({dataID})
@@ -107,19 +105,20 @@
     overflow: hidden;
     text-overflow: ellipsis;
     width: 98%;
+    cursor: pointer;
   }
 
   .data-entry-header label {
-    width: 80%
+    width: 80%;
+    pointer-events: none;
   }
 
   .data-entry-header:nth-child(odd)[data-state="SUCCESS"] {
 
   }
 
-  .data-entry-header[data-state="FAILURE"], .data-entry-header[data-state="FAILURE"] * {
+  .data-entry-header[data-state="FAILURE"] {
     background-color: #ffcbcb;
-    cursor: pointer;
   }
 
   .data-entry-header[data-state="PENDING"] {
