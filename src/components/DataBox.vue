@@ -6,9 +6,8 @@
            :data-state="item.state"
            v-for="item in items">
         <div class="data-entry-header"
-             :data-state="item.state"
-             @click="toggleDataEntryBody($event)">
-          <span class="cross" v-if="item.state === 'FAILURE'">&#xd7</span>
+             :data-state="item.state">
+          <span class="cross" v-if="item.state === 'FAILURE'">&#xd7;</span>
           <input type="checkbox"
                  :id="'data-check-' + item.data_id"
                  :value="item.data_id"
@@ -17,16 +16,16 @@
           <label :for="'data-check-' + item.data_id">
             {{ item.label }}
           </label>
+          <span class="options" @click="toggleDataEntryBody(item.data_id)">&#9776;</span>
         </div>
 
-        <div class="data-entry-body" :data-state="item.state">
+        <div class="data-entry-body" :data-state="item.state" :data-id="item.data_id">
           <div class="action-btns">
-            <button class="reload-btn" @click="reloadData(item.data_id)">&#8635</button>
-            <button class="delete-btn" @click="deleteData(item.data_id)">&#215</button><br/>
+            <button class="reload-btn" @click="reloadData(item.data_id)">&#8635;</button>
+            <button class="delete-btn" @click="deleteData(item.data_id)">&#215;</button><br/>
           </div>
           {{ item.message }}
         </div>
-
       </div>
     </div>
   </div>
@@ -69,10 +68,9 @@
       }
     },
     methods: {
-      toggleDataEntryBody ($event) {
-        const $header = $($event.currentTarget)
-        const $content = $header.next()
-        $content.slideToggle(500)
+      toggleDataEntryBody (dataID) {
+        const $body = $(`.data-entry-body[data-id="${dataID}"]`)
+        $body.slideToggle(500)
       },
       reloadData (dataID) {
         store.getters.requestManager.reloadData({dataID})
@@ -99,18 +97,21 @@
 
   .data-entry-header {
     background-color: #eee;
-    padding: 2px;
+    padding: 5px;
+    margin: 2px;
+    width: 95%;
+  }
+
+  .data-entry-header > * {
     display: inline-block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 98%;
-    cursor: pointer;
+    vertical-align: middle;
   }
 
   .data-entry-header label {
-    width: 80%;
-    pointer-events: none;
+    width: 85%;
+    word-break: keep-all;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .data-entry-header:nth-child(odd)[data-state="SUCCESS"] {
@@ -147,5 +148,10 @@
   .cross {
     color: red;
     padding: 5px;
+  }
+
+  .options {
+    cursor: pointer;
+    white-space: nowrap;
   }
 </style>
