@@ -1,7 +1,7 @@
 <template>
   <div id="data-box">
     <label for="data-window" :tooltip="tooltip">{{ header }}</label>
-    <div id="data-window" style="height: 80%;">
+    <div id="data-window">
       <div class="data-entry-container"
            :data-state="item.state"
            v-for="item in items">
@@ -82,76 +82,53 @@
   }
 </script>
 
-<style scoped>
-  #data-box {
-    width: 30%;
-  }
-
-  #data-window {
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 14px;
-    overflow-y: scroll;
-    padding: 5px 5px 5px 5px;
-  }
-
-  .data-entry-header {
-    background-color: #eee;
-    padding: 5px;
-    margin: 2px;
-    width: 95%;
-  }
-
-  .data-entry-header > * {
-    display: inline-block;
-    vertical-align: middle;
-  }
-
-  .data-entry-header label {
-    width: 85%;
-    word-break: keep-all;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .data-entry-header:nth-child(odd)[data-state="SUCCESS"] {
-
-  }
-
-  .data-entry-header[data-state="FAILURE"] {
-    background-color: #ffcbcb;
-  }
-
-  .data-entry-header[data-state="PENDING"] {
-    color: #bbb;
-  }
-
-  .data-entry-body {
-    display: none;
-    padding: 3px;
-  }
-
-  .data-entry-body[data-state="FAILURE"] {
-    background-color: #ffcbcb;
-  }
-
-  .action-btns {
-    text-align: center;
-  }
-
-  .action-btns button {
-    height: 25px;
-    font-size: 14px;
-    font-weight: bold;
-  }
-
-  .cross {
-    color: red;
-    padding: 5px;
-  }
-
-  .options {
-    cursor: pointer;
-    white-space: nowrap;
-  }
+<style lang="sass" scoped>
+  #data-box
+    width: 40%
+    height: 90%
+    margin: 10px
+    > label
+      font-size: 16px
+    #data-window
+      height: 80%
+      width: 100%
+      border: 1px solid #ccc
+      border-radius: 8px
+      font-size: 14px
+      overflow-y: scroll
+      padding: 5px
+    .data-entry-header
+      background-color: #eee
+      padding: 5px
+      margin: 2px
+      width: 95%
+      > *
+        display: inline-block
+        vertical-align: middle
+      label
+        width: 85%
+        word-break: keep-all
+        overflow: hidden
+        text-overflow: ellipsis
+      &[data-state="FAILURE"]
+        background-color: #ffcbcb
+      &[data-state="PENDING"]
+        color: #bbb
+      .cross
+        color: red
+        padding: 5px
+      .options
+        cursor: pointer
+        white-space: nowrap
+    .data-entry-body
+      display: none
+      padding: 3px
+      &[data-state="FAILURE"]
+        background-color: #ffcbcb
+      .action-btns
+        text-align: center
+        button
+          height: 25px
+          font-size: 14px
+          font-weight: bold
 </style>

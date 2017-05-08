@@ -26,6 +26,10 @@
     "babel-loader": "^7.0.0-beta.1",
     "vue-loader": "^11.1.4",
     "css-loader": "^0.27.3",
+    "style-loader": "^0.17.0",
+    "sass-loader": "^6.0.3",
+    "node-sass": "^4.5.2",
+    "url-loader": "^0.5.8",
 
     "eslint": "^3.17.1",
     "eslint-config-standard": "^7.0.1",

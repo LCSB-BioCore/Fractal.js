@@ -43,30 +43,25 @@ module.exports = {
       {
         test: /\.vue$/,
         loader: 'vue-loader',
-        include: [
-          path.resolve(__dirname, 'src', 'components')
-        ],
+        exclude: /node_modules/,
         options: {
-          // compile the <script></script> part of vue components with babel
           loaders: {
-            js: 'babel-loader'
+            sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax' // <style lang="sass">
           }
         }
       },
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        include: [
-          path.resolve(__dirname, 'src'),
-          path.resolve(__dirname, 'test')
-        ]
+        exclude: /node_modules/,
       },
       {
-        test: /\.css$/,
-        loader: 'css-loader',
-        include: [
-          path.resolve(__dirname, 'src', 'assets')
-        ]
+        test: /\.sass$/,
+        loader: 'style-loader!css-loader!sass-loader?indentedSyntax'
+      },
+      {
+        test: /\.(png|woff|woff2|eot|ttf|svg)$/,
+        loader: 'url-loader?limit=100000',
       }
     ]
   },

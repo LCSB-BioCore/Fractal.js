@@ -1,7 +1,7 @@
 <template>
-  <div style="height: 100%; width: 100%">
+  <div id="root">
 
-    <div id="data-box-section" style="height: 25%;">
+    <div id="data-box-section">
       <data-box header="X and Y variables"
                 dataType="numerical"
                 v-on:update="update_xyData">
@@ -12,16 +12,16 @@
       </data-box>
     </div>
 
-    <div style="text-align: center;">
+    <div id="controls-section">
       <button id="run-analysis-btn"
               type="button"
               @click="runAnalysisWrapper({init: true})"
-              :disabled="disabled">Run Analysis</button><br/>
+              :disabled="disabled">&#9654;</button><br/>
       <br/>
       <span>{{ error }}</span>
     </div>
-    <br/>
-    <div id="visualisation-section" style="height: 75%;">
+
+    <div id="visualisation-section">
       <table class="stats-table" v-show="!shownAnalysisResults.init">
         <tr>
           <td>Corr. Coef.</td>
@@ -44,7 +44,9 @@
           <td>{{ shownPoints.all.length }}</td>
         </tr>
       </table>
-      <svg width="100%" height="100%" v-show="!shownAnalysisResults.init">
+      <svg :width="width"
+           :height="height"
+           v-show="!shownAnalysisResults.init">
         <g :transform="`translate(${margin.left}, ${margin.top})`">
           <g id="x-axis-1" class="fjs-corr-axis" :transform="`translate(0, ${padded.height})`"></g>
           <g id="x-axis-2" class="fjs-corr-axis"></g>
@@ -107,6 +109,7 @@
   import * as d3 from 'd3'
   import svgtooltip from '../mixins/v-svgtooltip'
   import { TweenLite } from 'gsap'
+  import $ from 'jquery'
   export default {
     name: 'correlation-analysis',
     data () {
@@ -408,8 +411,9 @@
     },
     mounted () {
       window.addEventListener('resize', this.onResize)
-      this.onResize() // initial call
-      this.tmpAnalysisResults = this.shownAnalysisResults
+      this.onResize()  // initial call
+      // saves us one manual initialization
+      this.tmpAnalysisResults = JSON.parse(JSON.stringify(this.shownAnalysisResults))
     },
     beforeDestroy () {
       window.removeEventListener('resize', this.onResize)
@@ -442,9 +446,13 @@
           .catch(error => console.error(error))
       },
       onResize () {
+        const tableHeight = $(this.$el.querySelector('table')).outerHeight(true)
         const section = this.$el.querySelector('#visualisation-section')
-        this.height = section.clientHeight
-        this.width = section.clientWidth
+        const height = section.clientHeight - tableHeight
+        const width = section.clientWidth
+        this.height = height > width ? width : height // we want to have a square
+        // noinspection JSSuspiciousNameCombination
+        this.width = this.height
       },
       update_xyData (ids) {
         this.xyData = ids
@@ -457,90 +465,73 @@
 </script>
 
 
-<style scoped>
-  * {
-    font-family: Roboto, sans-serif;
-  }
+<style lang="sass" scoped>
+  @import './src/assets/base.sass'
 
-  #data-box-section {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-  }
+  *
+    font-family: Roboto, sans-serif
 
-  #run-analysis-btn {
-    width: 100%;
-    height: 20px;
-  }
+  #root
+    height: 100%
+    width: 100%
 
-  #lin-reg-line {
-    stroke: #ff5e00;
-    stroke-width: 4px;
-  }
+  #data-box-section
+    text-align: center
+    height: 15%
+    > *
+      display: inline-block
 
-  #lin-reg-line:hover {
-    opacity: 0.4;
-  }
+  #controls-section
+    height: 5%
+    text-align: center
+    #run-analysis-btn
+      margin: 10px
+      width: 100px
+      height: 30px
+      box-shadow: 2px 2px 4px 0 #999
+      font-size: 20px
+    #run-analysis-btn:not([disabled]):hover
+      cursor: pointer
 
-  .histogram-rect {
-    stroke: #fff;
-    shape-rendering: crispEdges;
-    stroke-width: 0px;
-    fill: #ffd100;
-  }
-
-  .stats-table {
-    margin: 5px;
-    border-spacing: 0;
-    border-collapse: collapse;
-    font-size: 14px;
-    float: right;
-  }
-
-  .stats-table tr:nth-child(even) {
-    background-color: #ddd;
-  }
-
-  .stats-table, .stats-table td, .stats-table th {
-    border: 1px #ccc solid;
-    border-collapse: collapse;
-    padding: 5px;
-  }
-
-  .scatterplot-point:hover {
-    fill: #f00;
-    opacity: 0.4;
-  }
-
-  #brush {
-    stroke-width: 0;
-  }
-
-  #run-analysis-btn {
-    width: 200px;
-    height: 30px;
-    box-shadow: 2px 2px 4px 0 #999;
-  }
-
-  #run-analysis-btn:not([disabled]):hover {
-    cursor: pointer;
-  }
+  #visualisation-section
+    height: 80%
+    #lin-reg-line
+      stroke: #ff5e00
+      stroke-width: 4px
+    #lin-reg-line:hover
+      opacity: 0.4
+    .histogram-rect
+      stroke: #fff
+      shape-rendering: crispEdges
+      stroke-width: 0px
+      fill: #ffd100
+    .stats-table
+      margin: 5px
+      border-spacing: 0
+      border-collapse: collapse
+      font-size: 14px
+      float: right
+    .stats-table tr:nth-child(even)
+      background-color: #ddd
+    .stats-table, .stats-table td, .stats-table th
+      border: 1px #ccc solid
+      border-collapse: collapse
+      padding: 5px
+    .scatterplot-point:hover
+      fill: #f00
+      opacity: 0.4
+    #brush
+      stroke-width: 0
 </style>
 
 <!--CSS for dynamically created components-->
+<style lang="sass">
+  @import './src/assets/svgtooltip.sass'
 
-<style src="../../assets/base.css"></style>
-<style src="../../assets/svgtooltip.css"></style>
-<style>
-  .fjs-corr-axis {
-    shape-rendering: crispEdges;
-  }
-
-  .fjs-corr-axis .tick {
-    shape-rendering: crispEdges;
-  }
-
-  .fjs-corr-axis line {
-    stroke: #999;
-  }
+  .fjs-corr-axis
+    shape-rendering: crispEdges
+    .tick
+      shape-rendering: crispEdges
+    line
+      stroke: #999
 </style>
