@@ -36,8 +36,8 @@ describe('DataBox', () => {
 
   it('checkboxes are linked to data', () => {
     store.state.data = [
-      {data_type: 'numeric', label: '', data_id: 'A'},
-      {data_type: 'numeric', label: '', data_id: ''}
+      {data_type: 'numeric', label: '', task_id: 'A'},
+      {data_type: 'numeric', label: '', task_id: ''}
     ]
     const Component = Vue.extend(DataBox)
     const propsData = {dataType: 'numeric', header: ''}

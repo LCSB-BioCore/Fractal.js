@@ -8,7 +8,7 @@ export default {
     context.commit(types.SET_SUBSETS, subsets)
   },
   updateData: context => {
-    context.getters.requestManager.getAllDataStatus().then(response => {
+    context.getters.requestManager.getAllDataStates().then(response => {
       context.commit(types.SET_DATA, response.data.data_states)
     }).catch(error => {
       console.error(error) // TODO: Notify user about this

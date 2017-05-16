@@ -14,12 +14,13 @@
 <script>
   const fjs = fractal.init({
     handler: 'ada',
-    thisBaseURL: 'http://10.79.2.192:8080',
+    thisBaseURL: 'https://ada.parkinson.lu',
     fractalisBaseURL: 'http://127.0.0.1:5000',
     getAuth () {
       return credentials1
     }
   })
+  fjs.clearCache()
   fjs.loadData([
     {
       data_type: 'Enum',

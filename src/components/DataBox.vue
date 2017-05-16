@@ -3,28 +3,28 @@
     <label for="data-window" :tooltip="tooltip">{{ header }}</label>
     <div id="data-window">
       <div class="data-entry-container"
-           :data-state="item.state"
+           :data-state="item.etl_state"
            v-for="item in items">
         <div class="data-entry-header"
-             :data-state="item.state">
-          <span class="cross" v-if="item.state === 'FAILURE'">&#xd7;</span>
+             :data-state="item.etl_state">
+          <span class="cross" v-if="item.etl_state === 'FAILURE'">&#xd7;</span>
           <input type="checkbox"
-                 :id="'data-check-' + item.data_id"
-                 :value="item.data_id"
+                 :id="'data-check-' + item.task_id"
+                 :value="item.task_id"
                  v-model="selectedIDs"
-                 v-if="item.state === 'SUCCESS'"/>
-          <label :for="'data-check-' + item.data_id">
+                 v-if="item.etl_state === 'SUCCESS'"/>
+          <label :for="'data-check-' + item.task_id">
             {{ item.label }}
           </label>
-          <span class="options" @click="toggleDataEntryBody(item.data_id)">&#9776;</span>
+          <span class="options" @click="toggleDataEntryBody(item.task_id)">&#9776;</span>
         </div>
 
-        <div class="data-entry-body" :data-state="item.state" :data-id="item.data_id">
+        <div class="data-entry-body" :data-state="item.etl_state" :data-id="item.task_id">
           <div class="action-btns">
-            <button class="reload-btn" @click="reloadData(item.data_id)">&#8635;</button>
-            <button class="delete-btn" @click="deleteData(item.data_id)">&#215;</button><br/>
+            <button class="reload-btn" @click="reloadData(item.task_id)">&#8635;</button>
+            <button class="delete-btn" @click="deleteData(item.task_id)">&#215;</button><br/>
           </div>
-          {{ item.message }}
+          {{ item.etl_message }}
         </div>
       </div>
     </div>
@@ -68,15 +68,15 @@
       }
     },
     methods: {
-      toggleDataEntryBody (dataID) {
-        const $body = $(`.data-entry-body[data-id="${dataID}"]`)
+      toggleDataEntryBody (taskID) {
+        const $body = $(`.data-entry-body[data-id="${taskID}"]`)
         $body.slideToggle(500)
       },
-      reloadData (dataID) {
-        store.getters.requestManager.reloadData({dataID})
+      reloadData (taskID) {
+        store.getters.requestManager.reloadData({taskID})
       },
-      deleteData (dataID) {
-        store.getters.requestManager.deleteData({dataID})
+      deleteData (taskID) {
+        store.getters.requestManager.deleteData({taskID})
       }
     }
   }

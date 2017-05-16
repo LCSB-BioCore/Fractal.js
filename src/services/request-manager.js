@@ -15,7 +15,7 @@ export default class {
   }
 
   createData ({descriptors}) {
-    return this._axios.post('/data', {
+    this._axios.post('/data', {
       descriptors,
       auth: this._getAuth(),
       handler: this._handler,
@@ -23,42 +23,34 @@ export default class {
     })
   }
 
-  reloadData ({dataID}) {
-    const dataItem = store.getters.data.find(d => d.data_id === dataID)
+  reloadData ({taskID}) {
+    const dataItem = store.getters.data.find(d => d.task_id === taskID)
     const descriptors = [dataItem.descriptor]
+    this.deleteData({taskID})
     this.createData({descriptors})
   }
 
-  getDataStatusByParams ({descriptor}) {
-    const params = JSON.stringify({server: this._thisBaseURL, descriptor})
-    return this._axios.get(`/data/${params}`)
-  }
-
-  getDataStatusByID ({dataID}) {
-    return this._axios.get(`/data/${dataID}`)
-  }
-
-  getAllDataStatus () {
+  getAllDataStates () {
     return this._axios.get('/data')
   }
 
-  deleteData ({dataID}) {
-    return this._axios.delete(`/data/${dataID}`)
+  deleteData ({taskID}) {
+    return this._axios.delete(`/data/${taskID}`)
   }
 
   deleteAllData () {
     return this._axios.delete('/data')
   }
 
-  createAnalysis ({job_name, args}) {
-    return this._axios.post('/analytics', {job_name, args})
+  createAnalysis ({task_name, args}) {
+    return this._axios.post('/analytics', {task_name, args})
   }
 
-  getAnalysisStatus ({jobID}) {
-    return this._axios.get(`/analytics/${jobID}`)
+  getAnalysisStatus ({taskID}) {
+    return this._axios.get(`/analytics/${taskID}`)
   }
 
-  cancelAnalysis ({jobID}) {
-    return this._axios.delete(`/analytics/${jobID}`)
+  cancelAnalysis ({taskID}) {
+    return this._axios.delete(`/analytics/${taskID}`)
   }
 }

@@ -1,5 +1,3 @@
-'use strict'
-
 import Vue from 'vue'
 import CorrelationAnalysis from '../components/charts/CorrelationAnalysis.vue'
 

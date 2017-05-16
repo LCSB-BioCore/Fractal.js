@@ -432,7 +432,7 @@
           args.ids = []
         }
         // function made available via requestHandling mixin
-        this.runAnalysis({job_name: 'compute-correlation', args: args})
+        this.runAnalysis({task_name: 'compute-correlation', args: args})
           .then(response => {
             const results = JSON.parse(response)
             results.data = JSON.parse(results.data)

@@ -1,27 +1,25 @@
-'use strict'
-
 import store from '../../store/store'
 
 export default {
   methods: {
-    async runAnalysis ({job_name, args}) {
+    async runAnalysis ({task_name, args}) {
       function timeout (ms) {
         return new Promise(resolve => setTimeout(resolve, ms))
       }
-      const rv1 = await store.getters.requestManager.createAnalysis({job_name, args})
-      const jobID = rv1.data.job_id
+      const rv1 = await store.getters.requestManager.createAnalysis({task_name, args})
+      const taskID = rv1.data.task_id
       let counter = 0
       while (counter < 1000) {
         await timeout(++counter * 200)
-        const rv2 = await store.getters.requestManager.getAnalysisStatus({jobID})
-        const jobInfo = rv2.data
-        if (jobInfo.state === 'SUCCESS') {
-          return jobInfo.result
-        } else if (jobInfo.state === 'FAILURE') {
-          throw new Error(jobInfo.result)
-        } else if (jobInfo.state === 'PENDING') {
+        const rv2 = await store.getters.requestManager.getAnalysisStatus({taskID})
+        const taskInfo = rv2.data
+        if (taskInfo.state === 'SUCCESS') {
+          return taskInfo.result
+        } else if (taskInfo.state === 'FAILURE') {
+          throw new Error(taskInfo.result)
+        } else if (taskInfo.state === 'PENDING') {
         } else {
-          throw new Error(`Analysis Job has unknown state: ${jobInfo.state}`)
+          throw new Error(`Analysis Task has unknown state: ${taskInfo.state}`)
         }
       }
     }
