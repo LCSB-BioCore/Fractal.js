@@ -1,19 +1,32 @@
 {
-  "name": "Fractal.js",
-  "description": "Fractal.js",
-  "version": "1.0.0",
-  "author": "Sascha Herzinger",
-  "private": true,
+  "name": "Fractalis",
+  "description": "The front-end component of the Fractalis visual analytics project.",
+  "version": "0.1.0",
+  "author": "Sascha Herzinger <sascha.herzinger@uni.lu>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://git-r3lab.uni.lu/sascha.herzinger/fractal.js",
+    "email": "sascha.herzinger@uni.lu"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git-r3lab.uni.lu/sascha.herzinger/fractal.js"
+  },
   "scripts": {
     "build": "./node_modules/webpack/bin/webpack.js --config webpack.config.js --env production",
     "devbuild": "./node_modules/webpack/bin/webpack.js --config webpack.config.js",
     "test": "./node_modules/karma/bin/karma start karma.config.js"
   },
+  "main": "lib/fractal.min.js",
   "dependencies": {
     "vue": "^2.2.5",
     "vue-template-compiler": "^2.2.5",
     "vuex": "^2.2.1",
-    "axios": "^0.15.3"
+    "axios": "^0.15.3",
+    "d3": "^4.7.4",
+    "d3-tip": "^0.7.1",
+    "gsap": "^1.19.1",
+    "jquery": "^3.2.1"
   },
   "devDependencies": {
     "babel-core": "^7.0.0-alpha.3",
@@ -46,10 +59,5 @@
     "karma-jasmine": "^1.1.0",
 
     "jsdoc": "^3.4.3",
-
-    "d3": "^4.7.4",
-    "d3-tip": "^0.7.1",
-    "gsap": "^1.19.1",
-    "jquery": "^3.2.1"
   }
 }
