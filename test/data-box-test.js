@@ -20,31 +20,31 @@ describe('DataBox', () => {
     const Component = Vue.extend(DataBox)
     const propsData = {dataType: 'numeric', header: ''}
     const vm = new Component({propsData}).$mount()
-    expect(vm.$el.querySelectorAll('.data-item').length).toBe(3)
+    expect(vm.$el.querySelectorAll('.data-entry-container').length).toBe(3)
   })
 
   it('only renders checkboxes for data with correct type', () => {
     store.state.data = [
       {data_type: 'numeric', label: ''},
-      {data_type: 'categoric', label: ''},
+      {data_type: 'categoric', label: ''}
     ]
     const Component = Vue.extend(DataBox)
     const propsData = {dataType: 'numeric', header: ''}
     const vm = new Component({propsData}).$mount()
-    expect(vm.$el.querySelectorAll('.data-item').length).toBe(1)
+    expect(vm.$el.querySelectorAll('.data-entry-container').length).toBe(1)
   })
 
   it('checkboxes are linked to data', () => {
     store.state.data = [
-      {data_type: 'numeric', label: '', task_id: 'A'},
-      {data_type: 'numeric', label: '', task_id: ''}
+      {data_type: 'numeric', label: '', task_id: 'A', etl_state: 'SUCCESS'},
+      {data_type: 'numeric', label: '', task_id: 'B', etl_state: 'SUCCESS'}
     ]
     const Component = Vue.extend(DataBox)
     const propsData = {dataType: 'numeric', header: ''}
     const data = {selectedIDs: ['A']}
     const vm = new Component({propsData, data}).$mount()
-    expect(vm.$el.querySelectorAll('.data-item').length).toBe(2)
-    expect(vm.$el.querySelector('#data-check-0').checked).toBeTruthy()
-    expect(vm.$el.querySelector('#data-check-1').checked).toBeFalsy()
+    expect(vm.$el.querySelectorAll('.data-entry-container').length).toBe(2)
+    expect(vm.$el.querySelector('#data-check-A').checked).toBeTruthy()
+    expect(vm.$el.querySelector('#data-check-B').checked).toBeFalsy()
   })
 })
