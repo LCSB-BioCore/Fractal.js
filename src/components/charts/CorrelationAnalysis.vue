@@ -1,7 +1,7 @@
 <template>
-  <div id="root">
+  <div :class="`fjs-vm-root fjs-vm-root-${this._uid}`">
 
-    <div id="data-box-section">
+    <div class="fjs-data-box-section">
       <data-box header="X and Y variables"
                 dataType="numerical"
                 v-on:update="update_xyData">
@@ -12,8 +12,8 @@
       </data-box>
     </div>
 
-    <div id="controls-section">
-      <button id="run-analysis-btn"
+    <div class="fjs-controls-section">
+      <button class="fjs-run-analysis-btn"
               type="button"
               @click="runAnalysisWrapper({init: true})"
               :disabled="disabled">&#9654;</button><br/>
@@ -21,8 +21,8 @@
       <span>{{ error }}</span>
     </div>
 
-    <div id="visualisation-section">
-      <table class="stats-table" v-show="!shownAnalysisResults.init">
+    <div class="fjs-visualisation-section">
+      <table class="fjs-stats-table" v-show="!shownAnalysisResults.init">
         <tr>
           <td>Corr. Coef.</td>
           <td>{{ tmpAnalysisResults.coef }}</td>
@@ -48,11 +48,11 @@
            :height="height"
            v-show="!shownAnalysisResults.init">
         <g :transform="`translate(${margin.left}, ${margin.top})`">
-          <g id="x-axis-1" class="fjs-corr-axis" :transform="`translate(0, ${padded.height})`"></g>
-          <g id="x-axis-2" class="fjs-corr-axis"></g>
-          <g id="y-axis-1" class="fjs-corr-axis"></g>
-          <g id="y-axis-2" class="fjs-corr-axis" :transform="`translate(${padded.width}, 0)`"></g>
-          <g id="brush"></g>
+          <g class="fjs-corr-axis fjs-x-axis-1" :transform="`translate(0, ${padded.height})`"></g>
+          <g class="fjs-corr-axis fjs-x-axis-2"></g>
+          <g class="fjs-corr-axis fjs-y-axis-1"></g>
+          <g class="fjs-corr-axis fjs-y-axis-2" :transform="`translate(${padded.width}, 0)`"></g>
+          <g class="fjs-brush"></g>
           <text :x="padded.width / 2"
                 y="-10"
                 text-anchor="middle"
@@ -66,7 +66,7 @@
                 :transform="`rotate(90 ${padded.width + 10} ${padded.height / 2})`">
             {{ shownAnalysisResults.y_label }}
           </text>
-          <circle class="scatterplot-point"
+          <circle class="fjs-scatterplot-point"
                   :cx="scales.x(point.x)"
                   :cy="scales.y(point.y)"
                   r="4"
@@ -74,21 +74,21 @@
                   v-for="(point, idx) in shownPoints.all"
                   v-svgtooltip="point.tooltip">
           </circle>
-          <line id="lin-reg-line"
+          <line class="fjs-lin-reg-line"
                 :x1="tweened.regLine.x1"
                 :x2="tweened.regLine.x2"
                 :y1="tweened.regLine.y1"
                 :y2="tweened.regLine.y2"
                 v-svgtooltip="regLine.tooltip">
           </line>
-          <rect class="histogram-rect"
+          <rect class="fjs-histogram-rect"
                 :x="attr.x"
                 :y="attr.y"
                 :width="attr.width"
                 :height="attr.height"
                 v-for="attr in tweened.histogramAttr.xAttr">
           </rect>
-          <rect class="histogram-rect"
+          <rect class="fjs-histogram-rect"
                 :x="attr.x"
                 :y="attr.y"
                 :width="attr.width"
@@ -365,15 +365,15 @@
     watch: {
       'axis': {
         handler: function (newAxis) {
-          d3.select('#x-axis-1').call(newAxis.x1)
-          d3.select('#x-axis-2').call(newAxis.x2)
-          d3.select('#y-axis-1').call(newAxis.y1)
-          d3.select('#y-axis-2').call(newAxis.y2)
+          d3.select(`.fjs-vm-root-${this._uid} .fjs-x-axis-1`).call(newAxis.x1)
+          d3.select(`.fjs-vm-root-${this._uid} .fjs-x-axis-2`).call(newAxis.x2)
+          d3.select(`.fjs-vm-root-${this._uid} .fjs-y-axis-1`).call(newAxis.y1)
+          d3.select(`.fjs-vm-root-${this._uid} .fjs-y-axis-2`).call(newAxis.y2)
         }
       },
       'brush': {
         handler: function (newBrush) {
-          d3.select('#brush').call(newBrush)
+          d3.select(`.fjs-vm-root-${this._uid} .fjs-brush`).call(newBrush)
         }
       },
       'regLine': {
@@ -446,8 +446,8 @@
           .catch(error => console.error(error))
       },
       onResize () {
-        const tableHeight = $(this.$el.querySelector('table')).outerHeight(true)
-        const section = this.$el.querySelector('#visualisation-section')
+        const tableHeight = $(this.$el.querySelector(`.fjs-vm-root-${this._uid} .fjs-stats-table`)).outerHeight(true)
+        const section = this.$el.querySelector(`.fjs-vm-root-${this._uid} .fjs-visualisation-section`)
         const height = section.clientHeight - tableHeight
         const width = section.clientWidth
         this.height = height > width ? width : height // we want to have a square
@@ -471,57 +471,57 @@
   *
     font-family: Roboto, sans-serif
 
-  #root
+  .fjs-vm-root
     height: 100%
     width: 100%
 
-  #data-box-section
-    text-align: center
-    height: 15%
-    > *
-      display: inline-block
+    .fjs-data-box-section
+      text-align: center
+      height: 15%
+      > *
+        display: inline-block
 
-  #controls-section
-    height: 5%
-    text-align: center
-    #run-analysis-btn
-      margin: 10px
-      width: 100px
-      height: 30px
-      box-shadow: 2px 2px 4px 0 #999
-      font-size: 20px
-    #run-analysis-btn:not([disabled]):hover
-      cursor: pointer
+    .fjs-controls-section
+      height: 5%
+      text-align: center
+      .fjs-run-analysis-btn
+        margin: 10px
+        width: 100px
+        height: 30px
+        box-shadow: 2px 2px 4px 0 #999
+        font-size: 20px
+      .fjs-run-analysis-btn:not([disabled]):hover
+        cursor: pointer
 
-  #visualisation-section
-    height: 80%
-    #lin-reg-line
-      stroke: #ff5e00
-      stroke-width: 4px
-    #lin-reg-line:hover
-      opacity: 0.4
-    .histogram-rect
-      stroke: #fff
-      shape-rendering: crispEdges
-      stroke-width: 0px
-      fill: #ffd100
-    .stats-table
-      margin: 5px
-      border-spacing: 0
-      border-collapse: collapse
-      font-size: 14px
-      float: right
-    .stats-table tr:nth-child(even)
-      background-color: #ddd
-    .stats-table, .stats-table td, .stats-table th
-      border: 1px #ccc solid
-      border-collapse: collapse
-      padding: 5px
-    .scatterplot-point:hover
-      fill: #f00
-      opacity: 0.4
-    #brush
-      stroke-width: 0
+    .fjs-visualisation-section
+      height: 80%
+      .fjs-lin-reg-line
+        stroke: #ff5e00
+        stroke-width: 4px
+      .fjs-lin-reg-line:hover
+        opacity: 0.4
+      .fjs-histogram-rect
+        stroke: #fff
+        shape-rendering: crispEdges
+        stroke-width: 0px
+        fill: #ffd100
+      .fjs-stats-table
+        margin: 5px
+        border-spacing: 0
+        border-collapse: collapse
+        font-size: 14px
+        float: right
+      .fjs-stats-table tr:nth-child(even)
+        background-color: #ddd
+      .fjs-stats-table, .fjs-stats-table td, .fjs-stats-table th
+        border: 1px #ccc solid
+        border-collapse: collapse
+        padding: 5px
+      .fjs-scatterplot-point:hover
+        fill: #f00
+        opacity: 0.4
+      .fjs-brush
+        stroke-width: 0
 </style>
 
 <!--CSS for dynamically created components-->

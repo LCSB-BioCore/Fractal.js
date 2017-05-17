@@ -1,28 +1,25 @@
 <template>
-  <div id="data-box">
-    <label for="data-window" :tooltip="tooltip">{{ header }}</label>
-    <div id="data-window">
-      <div class="data-entry-container"
+  <div :class="`fjs-vm-root fjs-vm-root-${_uid}`">
+    <label :for="`fjs-data-window-${_uid}`" :tooltip="tooltip">{{ header }}</label>
+    <div :id="`fjs-data-window-${_uid}`" class="fjs-data-window">
+      <div class="fjs-data-entry-container"
            :data-state="item.etl_state"
            v-for="item in items">
-        <div class="data-entry-header"
+        <div class="fjs-data-entry-header"
              :data-state="item.etl_state">
-          <span class="cross" v-if="item.etl_state === 'FAILURE'">&#xd7;</span>
-          <input type="checkbox"
-                 :id="'data-check-' + item.task_id"
+          <span class="fjs-cross" v-if="item.etl_state === 'FAILURE'">&#xd7;</span>
+          <input :id="`fjs-checkbox-${item.task_id}-${_uid}`"
+                 type="checkbox"
                  :value="item.task_id"
                  v-model="selectedIDs"
                  v-if="item.etl_state === 'SUCCESS'"/>
-          <label :for="'data-check-' + item.task_id">
-            {{ item.label }}
-          </label>
-          <span class="options" @click="toggleDataEntryBody(item.task_id)">&#9776;</span>
+          <label :for="`fjs-checkbox-${item.task_id}-${_uid}`">{{ item.label }}</label>
+          <span class="fjs-options" @click="toggleDataEntryBody(item.task_id)">&#9776;</span>
         </div>
-
-        <div class="data-entry-body" :data-state="item.etl_state" :data-id="item.task_id">
-          <div class="action-btns">
-            <button class="reload-btn" @click="reloadData(item.task_id)">&#8635;</button>
-            <button class="delete-btn" @click="deleteData(item.task_id)">&#215;</button><br/>
+        <div class="fjs-data-entry-body" :data-state="item.etl_state" :data-id="item.task_id">
+          <div class="fjs-action-btns">
+            <button class="fjs-reload-btn" @click="reloadData(item.task_id)">&#8635;</button>
+            <button class="fjs-delete-btn" @click="deleteData(item.task_id)">&#215;</button><br/>
           </div>
           {{ item.etl_message }}
         </div>
@@ -69,7 +66,7 @@
     },
     methods: {
       toggleDataEntryBody (taskID) {
-        const $body = $(`.data-entry-body[data-id="${taskID}"]`)
+        const $body = $(`.fjs-vm-root-${this._uid} .fjs-data-entry-body[data-id="${taskID}"]`)
         $body.slideToggle(500)
       },
       reloadData (taskID) {
@@ -83,13 +80,13 @@
 </script>
 
 <style lang="sass" scoped>
-  #data-box
+  .fjs-vm-root
     width: 40%
     height: 90%
     margin: 10px
     > label
       font-size: 16px
-    #data-window
+    .fjs-data-window
       height: 80%
       width: 100%
       border: 1px solid #ccc
@@ -97,7 +94,7 @@
       font-size: 14px
       overflow-y: scroll
       padding: 5px
-    .data-entry-header
+    .fjs-data-entry-header
       background-color: #eee
       padding: 5px
       margin: 2px
@@ -120,12 +117,12 @@
       .options
         cursor: pointer
         white-space: nowrap
-    .data-entry-body
+    .fjs-data-entry-body
       display: none
       padding: 3px
       &[data-state="FAILURE"]
         background-color: #ffcbcb
-      .action-btns
+      .fjs-action-btns
         text-align: center
         button
           height: 25px
