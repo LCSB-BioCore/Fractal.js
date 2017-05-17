@@ -2,7 +2,7 @@ import * as d3 from 'd3'
 import d3Tip from 'd3-tip'; d3.tip = d3Tip
 
 const tip = d3.tip()
-  .attr('class', 'd3-tip')
+  .attr('class', 'fjs-d3-tip')
   .offset([-15, 0])
   .html(d => {
     let html = ''
@@ -16,7 +16,7 @@ const tip = d3.tip()
 
 export default {
   mounted () {
-    d3.select('svg').call(tip)
+    d3.select(this.$el.querySelector('svg')).call(tip)
   },
   directives: {
     svgtooltip: {
