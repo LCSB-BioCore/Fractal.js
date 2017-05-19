@@ -15,7 +15,7 @@
     <div class="fjs-controls-section">
       <button class="fjs-run-analysis-btn"
               type="button"
-              @click="runAnalysisWrapper({init: true})"
+              @click="runAnalysisWrapper({init: true, args})"
               :disabled="disabled">&#9654;</button><br/>
       <br/>
       <span>{{ error }}</span>
@@ -105,6 +105,8 @@
 
 <script>
   import DataBox from '../DataBox.vue'
+  import store from '../../store/store'
+  import types from '../../store/mutation-types'
   import requestHandling from '../mixins/request-handling'
   import * as d3 from 'd3'
   import svgtooltip from '../mixins/v-svgtooltip'
@@ -119,14 +121,6 @@
         height: 0,
         xyData: [],
         annotationData: [],
-        get args () {
-          return {
-            x: `$${this.xyData[0]}$`,
-            y: `$${this.xyData[1]}$`,
-            ids: this.selectedPoints.map(d => d.id)
-          }
-        },
-
         shownAnalysisResults: {
           init: true,  // will disappear after being initially set
           coef: 0,
@@ -172,8 +166,18 @@
       }
     },
     computed: {
+      idFilter () {
+        return store.getters.filter('ids')
+      },
       disabled () {
         return this.xyData.length !== 2
+      },
+      args () {
+        return {
+          x: `$${this.xyData[0]}$`,
+          y: `$${this.xyData[1]}$`,
+          ids: this.selectedPoints.map(d => d.id)
+        }
       },
       margin () {
         const left = this.width / 3
@@ -295,20 +299,21 @@
             this.error = ''
             if (!d3.event.selection) {
               this.selectedPoints = []
-              this.runAnalysisWrapper({init: false})
-              return
-            }
-            const [[x0, y0], [x1, y1]] = d3.event.selection
-            this.selectedPoints = this.shownPoints.all.filter(d => {
-              const x = this.scales.x(d.x)
-              const y = this.scales.y(d.y)
-              return x0 <= x && x <= x1 && y0 <= y && y <= y1
-            })
-            if (this.selectedPoints.length > 0 && this.selectedPoints.length < 3) {
-              this.error = 'Selection must be zero (everything is selected) or greater than two.'
+              this.runAnalysisWrapper({init: false, args: this.args})
             } else {
-              this.runAnalysisWrapper({init: false})
+              const [[x0, y0], [x1, y1]] = d3.event.selection
+              this.selectedPoints = this.shownPoints.all.filter(d => {
+                const x = this.scales.x(d.x)
+                const y = this.scales.y(d.y)
+                return x0 <= x && x <= x1 && y0 <= y && y <= y1
+              })
+              if (this.selectedPoints.length > 0 && this.selectedPoints.length < 3) {
+                this.error = 'Selection must be zero (everything is selected) or greater than two.'
+              } else {
+                this.runAnalysisWrapper({init: false, args: this.args})
+              }
             }
+            store.commit(types.SET_FILTER, {filter: 'ids', value: this.selectedPoints.map(d => d.id)})
           })
       },
       histograms () {
@@ -407,12 +412,23 @@
             TweenLite.to(yAttr, 0.5, yAttrTarget)
           }
         }
+      },
+      'idFilter': {
+        handler: function (newIDFilter) {
+          const isFiltered = (newIDFilter.length === this.selectedPoints.length) &&
+            this.selectedPoints.map(d => d.id).every(id => newIDFilter.indexOf(id) !== -1)
+          if (!isFiltered) {
+            const args = this.args
+            args.ids = newIDFilter
+            this.runAnalysisWrapper({init: false, args})
+          }
+        }
       }
     },
     mounted () {
       window.addEventListener('resize', this.onResize)
       this.onResize()  // initial call
-      // saves us one manual initialization
+      // saves us the manual initialization of tmpAnalysisResults
       this.tmpAnalysisResults = JSON.parse(JSON.stringify(this.shownAnalysisResults))
     },
     beforeDestroy () {
@@ -426,13 +442,9 @@
       svgtooltip
     ],
     methods: {
-      runAnalysisWrapper ({init}) {
-        let args = this.args
-        if (init) {
-          args.ids = []
-        }
+      runAnalysisWrapper ({init, args}) {
         // function made available via requestHandling mixin
-        this.runAnalysis({task_name: 'compute-correlation', args: args})
+        this.runAnalysis({task_name: 'compute-correlation', args})
           .then(response => {
             const results = JSON.parse(response)
             results.data = JSON.parse(results.data)

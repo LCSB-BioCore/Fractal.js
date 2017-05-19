@@ -9,5 +9,8 @@ export default {
   },
   [types.SET_SUBSETS] (state, subsets) {
     state.subsets = subsets
+  },
+  [types.SET_FILTER] (state, {filter, value}) {
+    state.filters[filter] = value
   }
 }

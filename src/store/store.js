@@ -9,7 +9,10 @@ Vue.use(Vuex)
 const state = {
   data: [],
   requestManager: null,
-  subsets: []
+  subsets: [],
+  filters: {
+    ids: []
+  }
 }
 
 export default new Vuex.Store({

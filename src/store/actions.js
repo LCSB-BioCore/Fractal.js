@@ -17,5 +17,8 @@ export default {
         context.dispatch('updateData')
       }, 2000)
     })
+  },
+  setFilter: (context, {filter, value}) => {
+    context.commit(types.SET_FILTER, {filter, value})
   }
 }
