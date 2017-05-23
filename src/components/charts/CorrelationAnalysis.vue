@@ -66,14 +66,15 @@
                 :transform="`rotate(90 ${padded.width + 10} ${padded.height / 2})`">
             {{ shownAnalysisResults.y_label }}
           </text>
-          <circle class="fjs-scatterplot-point"
-                  :cx="scales.x(point.x)"
-                  :cy="scales.y(point.y)"
-                  r="4"
-                  :data-idx="idx"
-                  v-for="(point, idx) in shownPoints.all"
-                  v-svgtooltip="point.tooltip">
-          </circle>
+          <icon class="fjs-scatterplot-point"
+                shape="diamond"
+                :cx="scales.x(point.x)"
+                :cy="scales.y(point.y)"
+                :size="10"
+                v-for="point in shownPoints.all"
+                :key="point.id"
+                v-svgtooltip="point.tooltip">
+          </icon>
           <line class="fjs-lin-reg-line"
                 :x1="tweened.regLine.x1"
                 :x2="tweened.regLine.x2"
@@ -105,11 +106,12 @@
 
 <script>
   import DataBox from '../DataBox.vue'
+  import Icon from '../Icon.vue'
   import store from '../../store/store'
   import types from '../../store/mutation-types'
-  import requestHandling from '../mixins/request-handling'
+  import requestHandling from '../methods/request-handling'
   import * as d3 from 'd3'
-  import svgtooltip from '../mixins/v-svgtooltip'
+  import svgtooltip from '../directives/v-svgtooltip'
   import { TweenLite } from 'gsap'
   import $ from 'jquery'
   export default {
@@ -309,6 +311,7 @@
               })
               if (this.selectedPoints.length > 0 && this.selectedPoints.length < 3) {
                 this.error = 'Selection must be zero (everything is selected) or greater than two.'
+                return
               } else {
                 this.runAnalysisWrapper({init: false, args: this.args})
               }
@@ -397,7 +400,7 @@
           while (i--) {
             const ii = i
             let xAttr = oldHistogramAttr.xAttr[i] ? oldHistogramAttr.xAttr[i]
-: { x: this.padded.width / 2, y: this.padded.height, width: 0, height: 0 }
+              : { x: this.padded.width / 2, y: this.padded.height, width: 0, height: 0 }
             const xAttrTarget = newHistogramAttr.xAttr[i] ? newHistogramAttr.xAttr[i] : { width: 0 }
             xAttrTarget.onUpdate = () => { this.tweened.histogramAttr.xAttr[ii] = xAttr }
             TweenLite.to(xAttr, 0.5, xAttrTarget)
@@ -406,7 +409,7 @@
           while (j--) {
             const jj = j
             const yAttr = oldHistogramAttr.yAttr[j] ? oldHistogramAttr.yAttr[j]
-: { x: 0, y: this.padded.height / 2, width: 0, height: 0 }
+              : { x: 0, y: this.padded.height / 2, width: 0, height: 0 }
             const yAttrTarget = newHistogramAttr.yAttr[j] ? newHistogramAttr.yAttr[j] : { height: 0 }
             yAttrTarget.onUpdate = () => { this.tweened.histogramAttr.yAttr[jj] = yAttr }
             TweenLite.to(yAttr, 0.5, yAttrTarget)
@@ -435,7 +438,8 @@
       window.removeEventListener('resize', this.onResize)
     },
     components: {
-      DataBox
+      DataBox,
+      Icon
     },
     mixins: [
       requestHandling,
@@ -529,9 +533,11 @@
         border: 1px #ccc solid
         border-collapse: collapse
         padding: 5px
+      .fjs-scatterplot-point
+        fill: #000
+        shape-rendering: crispEdges
       .fjs-scatterplot-point:hover
         fill: #f00
-        opacity: 0.4
       .fjs-brush
         stroke-width: 0
 </style>
