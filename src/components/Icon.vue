@@ -7,7 +7,6 @@
     name: 'icon',
     props: {
       shape: {
-        type: String,
         required: true
       },
       size: {
@@ -34,7 +33,11 @@
     },
     computed: {
       path () {
-        return this.shapes[this.shape]
+        if (isNaN(this.shape)) {
+          return this.shapes[this.shape]
+        } else {
+          return this.shapes[Object.keys(this.shapes)[parseInt(this.shape)]]
+        }
       }
     }
   }

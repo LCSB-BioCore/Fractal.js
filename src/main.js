@@ -28,6 +28,11 @@ class FractalJS {
   setSubsets (...subsets) {
     store.dispatch('setSubsets', subsets)
   }
+
+  // noinspection JSMethodCanBeStatic
+  deleteSubsets () {
+    store.dispatch('setSubsets', [])
+  }
 }
 
 // TODO: Link to external documentation where supported services are listed

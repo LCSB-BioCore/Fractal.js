@@ -37,7 +37,7 @@
         </tr>
         <tr>
           <td>#Selected points</td>
-          <td>{{ tmpPoints.all.length }}</td>
+          <td>{{ tmpPoints.xs.length }}</td>
         </tr>
         <tr>
           <td>#Displayed points</td>
@@ -67,10 +67,10 @@
             {{ shownAnalysisResults.y_label }}
           </text>
           <icon class="fjs-scatterplot-point"
-                shape="diamond"
+                :shape="point.subset"
                 :cx="scales.x(point.x)"
                 :cy="scales.y(point.y)"
-                :size="10"
+                :size="9"
                 v-for="point in shownPoints.all"
                 :key="point.id"
                 v-svgtooltip="point.tooltip">
@@ -178,7 +178,8 @@
         return {
           x: `$${this.xyData[0]}$`,
           y: `$${this.xyData[1]}$`,
-          ids: this.selectedPoints.map(d => d.id)
+          id_filter: this.selectedPoints.map(d => d.id),
+          method: 'pearson'
         }
       },
       margin () {
@@ -197,38 +198,40 @@
         const xs = []
         const ys = []
         const ids = []
+        const subsets = []
         let all = []
         if (!this.shownAnalysisResults.init) {
           all = Object.keys(this.shownAnalysisResults.data.id).map(key => {
             const x = this.shownAnalysisResults.data[this.shownAnalysisResults.x_label][key]
             const y = this.shownAnalysisResults.data[this.shownAnalysisResults.y_label][key]
             const id = this.shownAnalysisResults.data.id[key]
-            const tooltip = {[this.shownAnalysisResults.x_label]: x, [this.shownAnalysisResults.y_label]: y}
+            const subset = this.shownAnalysisResults.data.subset[key]
+            const tooltip = {
+              [this.shownAnalysisResults.x_label]: x,
+              [this.shownAnalysisResults.y_label]: y,
+              subset: subset
+            }
             xs.push(x)
             ys.push(y)
             ids.push(id)
-            return {x, y, id, tooltip}
+            subsets.push(subset)
+            return {x, y, id, subset, tooltip}
           })
         }
-        return { xs, ys, ids, all }
+        return { xs, ys, ids, subsets, all }
       },
       tmpPoints () {
         const xs = []
         const ys = []
-        const ids = []
-        let all = []
         if (!this.tmpAnalysisResults.init) {
-          all = Object.keys(this.tmpAnalysisResults.data.id).map(key => {
+          Object.keys(this.tmpAnalysisResults.data.id).forEach(key => {
             const x = this.tmpAnalysisResults.data[this.tmpAnalysisResults.x_label][key]
             const y = this.tmpAnalysisResults.data[this.tmpAnalysisResults.y_label][key]
-            const id = this.tmpAnalysisResults.data.id[key]
             xs.push(x)
             ys.push(y)
-            ids.push(id)
-            return {x, y, id}
           })
         }
-        return { xs, ys, ids, all }
+        return { xs, ys }
       },
       scales () {
         const x = d3.scaleLinear()
@@ -245,15 +248,6 @@
             return [yExtent[0] - yPadding, yExtent[1] + yPadding]
           })())
           .range([this.padded.height, 0])
-        return { x, y }
-      },
-      tmpScales () {
-        const x = d3.scaleLinear()
-          .domain(d3.extent(this.tmpPoints.xs))
-          .range([this.scales.x(d3.min(this.tmpPoints.xs)), this.scales.x(d3.max(this.tmpPoints.xs))])
-        const y = d3.scaleLinear()
-          .domain(d3.extent(this.tmpPoints.ys))
-          .range([this.scales.y(this.tmpPoints.max), this.scales.x(this.tmpPoints.min)])
         return { x, y }
       },
       axis () {
@@ -324,15 +318,15 @@
         let xBins = []
         let yBins = []
         if (!this.tmpAnalysisResults.init) {
-          const [xMin, xMax] = this.tmpScales.x.domain()
-          const [yMin, yMax] = this.tmpScales.y.domain()
+          const [xMin, xMax] = d3.extent(this.tmpPoints.xs)
+          const [yMin, yMax] = d3.extent(this.tmpPoints.ys)
           const xThresholds = d3.range(xMin, xMax, (xMax - xMin) / BINS)
           const yThresholds = d3.range(yMin, yMax, (yMax - yMin) / BINS)
           xBins = d3.histogram()
-            .domain(this.tmpScales.x.domain())
+            .domain([xMin, xMax])
             .thresholds(xThresholds)(this.tmpPoints.xs)
           yBins = d3.histogram()
-            .domain(this.tmpScales.y.domain())
+            .domain([yMin, yMax])
             .thresholds(yThresholds)(this.tmpPoints.ys)
         }
         return { xBins, yBins }
@@ -340,7 +334,7 @@
       histogramScales () {
         const xExtent = d3.extent(this.histograms.xBins.map(d => d.length))
         const yExtent = d3.extent(this.histograms.yBins.map(d => d.length))
-        // no, I didn't mix up xBins and yBins.
+        // no, I didn't mix up x and y.
         const x = d3.scaleLinear()
           .domain(yExtent)
           .range([yExtent[0] ? 10 : 0, this.margin.left])
@@ -422,7 +416,7 @@
             this.selectedPoints.map(d => d.id).every(id => newIDFilter.indexOf(id) !== -1)
           if (!isFiltered) {
             const args = this.args
-            args.ids = newIDFilter
+            args.id_filter = newIDFilter
             this.runAnalysisWrapper({init: false, args})
           }
         }
@@ -431,8 +425,6 @@
     mounted () {
       window.addEventListener('resize', this.onResize)
       this.onResize()  // initial call
-      // saves us the manual initialization of tmpAnalysisResults
-      this.tmpAnalysisResults = JSON.parse(JSON.stringify(this.shownAnalysisResults))
     },
     beforeDestroy () {
       window.removeEventListener('resize', this.onResize)
@@ -447,6 +439,7 @@
     ],
     methods: {
       runAnalysisWrapper ({init, args}) {
+        args['subsets'] = store.getters.subsets
         // function made available via requestHandling mixin
         this.runAnalysis({task_name: 'compute-correlation', args})
           .then(response => {
@@ -535,7 +528,7 @@
         padding: 5px
       .fjs-scatterplot-point
         fill: #000
-        shape-rendering: crispEdges
+        stroke-width: 0
       .fjs-scatterplot-point:hover
         fill: #f00
       .fjs-brush
