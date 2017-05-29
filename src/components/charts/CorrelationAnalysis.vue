@@ -171,6 +171,9 @@
       idFilter () {
         return store.getters.filter('ids')
       },
+      subsets () {
+        return store.getters.subsets
+      },
       disabled () {
         return this.xyData.length !== 2
       },
@@ -419,6 +422,11 @@
             args.id_filter = newIDFilter
             this.runAnalysisWrapper({init: false, args})
           }
+        }
+      },
+      'subsets': {
+        handler: function () {
+          this.runAnalysisWrapper({init: false, args: this.args})
         }
       }
     },
