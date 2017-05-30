@@ -36,7 +36,7 @@
         if (isNaN(this.shape)) {
           return this.shapes[this.shape]
         } else {
-          return this.shapes[Object.keys(this.shapes)[parseInt(this.shape)]]
+          return this.shapes[Object.keys(this.shapes)[parseInt(this.shape) % Object.keys(this.shapes).length]]
         }
       }
     }

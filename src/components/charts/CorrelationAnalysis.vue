@@ -22,7 +22,9 @@
     </div>
 
     <div class="fjs-visualisation-section">
-      <table class="fjs-stats-table" v-show="!shownAnalysisResults.init">
+      <table class="fjs-stats-table"
+             v-show="!shownAnalysisResults.init">
+        <caption>Selected points</caption>
         <tr>
           <td>Corr. Coef.</td>
           <td>{{ tmpAnalysisResults.coef }}</td>
@@ -32,16 +34,33 @@
           <td>{{ tmpAnalysisResults.p_value }}</td>
         </tr>
         <tr>
-          <td>Correlation statistic</td>
+          <td>Correlation method</td>
           <td>{{ tmpAnalysisResults.method }}</td>
         </tr>
         <tr>
-          <td>#Selected points</td>
-          <td>{{ tmpPoints.xs.length }}</td>
+          <td>#Points</td>
+          <td>{{ tmpPoints.all.length }}</td>
+        </tr>
+      </table>
+      <table class="fjs-stats-table"
+             v-show="!shownAnalysisResults.init"
+             v-for="(stats, i) in shownAnalysisResults.subsets">
+        <caption>Subset: {{ i + 1 }}</caption>
+        <tr>
+          <td>Corr. Coef.</td>
+          <td>{{ stats.coef }}</td>
         </tr>
         <tr>
-          <td>#Displayed points</td>
-          <td>{{ shownPoints.all.length }}</td>
+          <td>p-value</td>
+          <td>{{ stats.p_value }}</td>
+        </tr>
+        <tr>
+          <td>Correlation method</td>
+          <td>{{ tmpAnalysisResults.method }}</td>
+        </tr>
+        <tr>
+          <td>#Points</td>
+          <td>{{ tmpPoints.subsets.filter(d => d === i).length }}</td>
         </tr>
       </table>
       <svg :width="width"
@@ -71,9 +90,10 @@
                 :cx="scales.x(point.x)"
                 :cy="scales.y(point.y)"
                 :size="9"
-                v-for="point in shownPoints.all"
+                v-svgtooltip="point.tooltip"
+                :fill="annotationColors[annotations.indexOf(point.annotation) % annotationColors.length]"
                 :key="point.id"
-                v-svgtooltip="point.tooltip">
+                v-for="point in shownPoints.all">
           </icon>
           <line class="fjs-lin-reg-line"
                 :x1="tweened.regLine.x1"
@@ -123,6 +143,7 @@
         height: 0,
         xyData: [],
         annotationData: [],
+        annotationColors: d3.schemeCategory10,
         shownAnalysisResults: {
           init: true,  // will disappear after being initially set
           coef: 0,
@@ -198,6 +219,9 @@
         const height = this.height - this.margin.top - this.margin.bottom
         return { width, height }
       },
+      annotations () {
+        return this.shownPoints.annotations.filter((d, i, arr) => arr.indexOf(d) === i)  // make unique
+      },
       shownPoints () {
         const xs = []
         const ys = []
@@ -233,15 +257,26 @@
       tmpPoints () {
         const xs = []
         const ys = []
+        const ids = []
+        const subsets = []
+        const annotations = []
+        let all = []
         if (!this.tmpAnalysisResults.init) {
-          this.tmpAnalysisResults.data.forEach(d => {
-            const x = d[this.shownAnalysisResults.x_label]
-            const y = d[this.shownAnalysisResults.y_label]
+          all = this.tmpAnalysisResults.data.map(d => {
+            const x = d[this.tmpAnalysisResults.x_label]
+            const y = d[this.tmpAnalysisResults.y_label]
+            const id = d.id
+            const subset = d.subset
+            const annotation = d.annotation
             xs.push(x)
             ys.push(y)
+            ids.push(id)
+            subsets.push(subset)
+            annotations.push(annotation)
+            return {x, y, id, subset, annotation}
           })
         }
-        return { xs, ys }
+        return { xs, ys, ids, subsets, annotations, all }
       },
       scales () {
         const x = d3.scaleLinear()
@@ -530,6 +565,9 @@
         shape-rendering: crispEdges
         stroke-width: 0px
         fill: #ffd100
+      .fjs-table-header
+        font-size: 16px
+        font-style: italic
       .fjs-stats-table
         margin: 5px
         border-spacing: 0
@@ -543,8 +581,8 @@
         border-collapse: collapse
         padding: 5px
       .fjs-scatterplot-point
-        fill: #000
         stroke-width: 0
+        shape-rendering: crispEdges
       .fjs-scatterplot-point:hover
         fill: #f00
       .fjs-brush
