@@ -182,7 +182,8 @@
           x: `$${this.xyData[0]}$`,
           y: `$${this.xyData[1]}$`,
           id_filter: this.selectedPoints.map(d => d.id),
-          method: 'pearson'
+          method: 'pearson',
+          annotations: this.annotationData.map(d => `$${d}$`)
         }
       },
       margin () {
@@ -202,34 +203,40 @@
         const ys = []
         const ids = []
         const subsets = []
+        const annotations = []
         let all = []
         if (!this.shownAnalysisResults.init) {
-          all = Object.keys(this.shownAnalysisResults.data.id).map(key => {
-            const x = this.shownAnalysisResults.data[this.shownAnalysisResults.x_label][key]
-            const y = this.shownAnalysisResults.data[this.shownAnalysisResults.y_label][key]
-            const id = this.shownAnalysisResults.data.id[key]
-            const subset = this.shownAnalysisResults.data.subset[key]
+          all = this.shownAnalysisResults.data.map(d => {
+            const x = d[this.shownAnalysisResults.x_label]
+            const y = d[this.shownAnalysisResults.y_label]
+            const id = d.id
+            const subset = d.subset
+            const annotation = d.annotation
             const tooltip = {
               [this.shownAnalysisResults.x_label]: x,
               [this.shownAnalysisResults.y_label]: y,
-              subset: subset
+              subset
+            }
+            if (typeof annotation !== 'undefined') {
+              tooltip.annotation = annotation
             }
             xs.push(x)
             ys.push(y)
             ids.push(id)
             subsets.push(subset)
-            return {x, y, id, subset, tooltip}
+            annotations.push(annotation)
+            return {x, y, id, subset, annotation, tooltip}
           })
         }
-        return { xs, ys, ids, subsets, all }
+        return { xs, ys, ids, subsets, annotations, all }
       },
       tmpPoints () {
         const xs = []
         const ys = []
         if (!this.tmpAnalysisResults.init) {
-          Object.keys(this.tmpAnalysisResults.data.id).forEach(key => {
-            const x = this.tmpAnalysisResults.data[this.tmpAnalysisResults.x_label][key]
-            const y = this.tmpAnalysisResults.data[this.tmpAnalysisResults.y_label][key]
+          this.tmpAnalysisResults.data.forEach(d => {
+            const x = d[this.shownAnalysisResults.x_label]
+            const y = d[this.shownAnalysisResults.y_label]
             xs.push(x)
             ys.push(y)
           })
@@ -452,7 +459,8 @@
         this.runAnalysis({task_name: 'compute-correlation', args})
           .then(response => {
             const results = JSON.parse(response)
-            results.data = JSON.parse(results.data)
+            const data = JSON.parse(results.data)
+            results.data = Object.keys(data).map(key => data[key])
             if (init) {
               this.shownAnalysisResults = results
               this.tmpAnalysisResults = results
