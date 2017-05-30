@@ -25,8 +25,8 @@
     data () {
       return {
         shapes: {
-          'rectangle': `M ${this.cx} ${this.cy} m ${-0.5 * this.size} ${-0.5 * this.size} h ${this.size} v ${this.size} h ${-this.size} Z`,
           'diamond': `M ${this.cx} ${this.cy} m 0 ${-0.5 * this.size} l ${0.5 * this.size} ${0.5 * this.size} l ${-0.5 * this.size} ${0.5 * this.size} l ${-0.5 * this.size} ${-0.5 * this.size} Z`,
+          'rectangle': `M ${this.cx} ${this.cy} m ${-0.5 * this.size} ${-0.5 * this.size} h ${this.size} v ${this.size} h ${-this.size} Z`,
           'triangle': `M ${this.cx} ${this.cy} m 0 ${-0.5 * this.size} l ${0.5 * this.size} ${this.size} h ${-this.size} Z`
         }
       }

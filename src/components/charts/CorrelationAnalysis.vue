@@ -473,11 +473,11 @@
       }
     },
     mounted () {
+      window.addEventListener('resize', this.handleResize)
       this.handleResize()
     },
     beforeDestroy () {
-      const svg = this.$el.querySelector(`.fjs-vm-root-${this._uid} .fjs-vis-container svg`)
-      svg.removeEventListener('resize', this.handleResize)
+      window.removeEventListener('resize', this.handleResize)
     },
     components: {
       DataBox,
