@@ -1,18 +1,20 @@
 <template>
   <div :class="`fjs-vm-root fjs-vm-root-${this._uid}`">
 
-    <div class="fjs-data-box-section">
-      <data-box header="X and Y variables"
+    <div class="fjs-data-box-container">
+      <data-box class="fjs-data-box"
+                header="X and Y variables"
                 dataType="numerical"
                 v-on:update="update_xyData">
       </data-box>
-      <data-box header="Annotations"
+      <data-box class="fjs-data-box"
+                header="Annotations"
                 dataType="categorical"
                 v-on:update="update_annotationData">
       </data-box>
     </div>
 
-    <div class="fjs-controls-section">
+    <div class="fjs-parameter-container">
       <button class="fjs-run-analysis-btn"
               type="button"
               @click="runAnalysisWrapper({init: true, args})"
@@ -21,51 +23,9 @@
       <span>{{ error }}</span>
     </div>
 
-    <div class="fjs-visualisation-section">
-      <table class="fjs-stats-table"
-             v-show="!shownAnalysisResults.init">
-        <caption>Selected points</caption>
-        <tr>
-          <td>Corr. Coef.</td>
-          <td>{{ tmpAnalysisResults.coef }}</td>
-        </tr>
-        <tr>
-          <td>p-value</td>
-          <td>{{ tmpAnalysisResults.p_value }}</td>
-        </tr>
-        <tr>
-          <td>Correlation method</td>
-          <td>{{ tmpAnalysisResults.method }}</td>
-        </tr>
-        <tr>
-          <td>#Points</td>
-          <td>{{ tmpPoints.all.length }}</td>
-        </tr>
-      </table>
-      <table class="fjs-stats-table"
-             v-show="!shownAnalysisResults.init"
-             v-for="(stats, i) in shownAnalysisResults.subsets">
-        <caption>Subset: {{ i + 1 }}</caption>
-        <tr>
-          <td>Corr. Coef.</td>
-          <td>{{ stats.coef }}</td>
-        </tr>
-        <tr>
-          <td>p-value</td>
-          <td>{{ stats.p_value }}</td>
-        </tr>
-        <tr>
-          <td>Correlation method</td>
-          <td>{{ tmpAnalysisResults.method }}</td>
-        </tr>
-        <tr>
-          <td>#Points</td>
-          <td>{{ tmpPoints.subsets.filter(d => d === i).length }}</td>
-        </tr>
-      </table>
+    <div class="fjs-vis-container">
       <svg :width="width"
-           :height="height"
-           v-show="!shownAnalysisResults.init">
+           :height="height">
         <g :transform="`translate(${margin.left}, ${margin.top})`">
           <g class="fjs-corr-axis fjs-x-axis-1" :transform="`translate(0, ${padded.height})`"></g>
           <g class="fjs-corr-axis fjs-x-axis-2"></g>
@@ -92,7 +52,7 @@
                 :size="9"
                 v-svgtooltip="point.tooltip"
                 :fill="annotationColors[annotations.indexOf(point.annotation) % annotationColors.length]"
-                :key="point.id"
+                :key="`${point.id}-${scales.x(point.x)}-${scales.y(point.y)}`"
                 v-for="point in shownPoints.all">
           </icon>
           <line class="fjs-lin-reg-line"
@@ -118,6 +78,47 @@
           </rect>
         </g>
       </svg>
+      <div class="fjs-table-container">
+        <table class="fjs-stats-table">
+          <caption>Selected points</caption>
+          <tr>
+            <td>Corr. Coef.</td>
+            <td>{{ tmpAnalysisResults.coef }}</td>
+          </tr>
+          <tr>
+            <td>p-value</td>
+            <td>{{ tmpAnalysisResults.p_value }}</td>
+          </tr>
+          <tr>
+            <td>Correlation method</td>
+            <td>{{ tmpAnalysisResults.method }}</td>
+          </tr>
+          <tr>
+            <td>#Points</td>
+            <td>{{ tmpPoints.all.length }}</td>
+          </tr>
+        </table>
+        <table class="fjs-stats-table"
+               v-for="(stats, i) in shownAnalysisResults.subsets">
+          <caption>Subset: {{ i + 1 }}</caption>
+          <tr>
+            <td>Corr. Coef.</td>
+            <td>{{ stats.coef }}</td>
+          </tr>
+          <tr>
+            <td>p-value</td>
+            <td>{{ stats.p_value }}</td>
+          </tr>
+          <tr>
+            <td>Correlation method</td>
+            <td>{{ tmpAnalysisResults.method }}</td>
+          </tr>
+          <tr>
+            <td>#Points</td>
+            <td>{{ tmpPoints.subsets.filter(d => d === i).length }}</td>
+          </tr>
+        </table>
+      </div>
     </div>
 
   </div>
@@ -133,7 +134,6 @@
   import * as d3 from 'd3'
   import svgtooltip from '../directives/v-svgtooltip'
   import { TweenLite } from 'gsap'
-  import $ from 'jquery'
   export default {
     name: 'correlation-analysis',
     data () {
@@ -473,11 +473,11 @@
       }
     },
     mounted () {
-      window.addEventListener('resize', this.onResize)
-      this.onResize()  // initial call
+      this.handleResize()
     },
     beforeDestroy () {
-      window.removeEventListener('resize', this.onResize)
+      const svg = this.$el.querySelector(`.fjs-vm-root-${this._uid} .fjs-vis-container svg`)
+      svg.removeEventListener('resize', this.handleResize)
     },
     components: {
       DataBox,
@@ -504,15 +504,13 @@
             }
           })
           .catch(error => console.error(error))
+          .then(this.handleResize)  // FIXME: it would be better to listen to the svg size directly.
       },
-      onResize () {
-        const tableHeight = $(this.$el.querySelector(`.fjs-vm-root-${this._uid} .fjs-stats-table`)).outerHeight(true)
-        const section = this.$el.querySelector(`.fjs-vm-root-${this._uid} .fjs-visualisation-section`)
-        const height = section.clientHeight - tableHeight
-        const width = section.clientWidth
-        this.height = height > width ? width : height // we want to have a square
+      handleResize () {
+        const container = this.$el.querySelector(`.fjs-vm-root-${this._uid} .fjs-vis-container svg`)
         // noinspection JSSuspiciousNameCombination
-        this.width = this.height
+        this.height = container.clientWidth
+        this.width = container.clientWidth
       },
       update_xyData (ids) {
         this.xyData = ids
@@ -534,15 +532,20 @@
   .fjs-vm-root
     height: 100%
     width: 100%
+    display: flex
+    flex-direction: column
 
-    .fjs-data-box-section
-      text-align: center
-      height: 15%
-      > *
-        display: inline-block
+    .fjs-data-box-container
+      width: 70%
+      height: 160px
+      overflow: hidden
+      margin: 0 auto
+      .fjs-data-box:nth-child(1)
+        float: left
+      .fjs-data-box:nth-child(2)
+        float: right
 
-    .fjs-controls-section
-      height: 5%
+    .fjs-parameter-container
       text-align: center
       .fjs-run-analysis-btn
         margin: 10px
@@ -553,40 +556,46 @@
       .fjs-run-analysis-btn:not([disabled]):hover
         cursor: pointer
 
-    .fjs-visualisation-section
-      height: 80%
-      .fjs-lin-reg-line
-        stroke: #ff5e00
-        stroke-width: 4px
-      .fjs-lin-reg-line:hover
-        opacity: 0.4
-      .fjs-histogram-rect
-        stroke: #fff
-        shape-rendering: crispEdges
-        stroke-width: 0px
-        fill: #ffd100
-      .fjs-table-header
-        font-size: 16px
-        font-style: italic
-      .fjs-stats-table
-        margin: 5px
-        border-spacing: 0
-        border-collapse: collapse
-        font-size: 14px
-        float: right
-      .fjs-stats-table tr:nth-child(even)
-        background-color: #ddd
-      .fjs-stats-table, .fjs-stats-table td, .fjs-stats-table th
-        border: 1px #ccc solid
-        border-collapse: collapse
-        padding: 5px
-      .fjs-scatterplot-point
-        stroke-width: 0
-        shape-rendering: crispEdges
-      .fjs-scatterplot-point:hover
-        fill: #f00
-      .fjs-brush
-        stroke-width: 0
+    .fjs-vis-container
+      flex: 1
+      display: flex
+      justify-content: center
+      svg
+        float: left
+        flex: 1
+        .fjs-lin-reg-line
+          stroke: #ff5e00
+          stroke-width: 4px
+        .fjs-lin-reg-line:hover
+          opacity: 0.4
+        .fjs-histogram-rect
+          stroke: #fff
+          shape-rendering: crispEdges
+          stroke-width: 0px
+          fill: #ffd100
+        .fjs-scatterplot-point
+          stroke-width: 0
+          shape-rendering: crispEdges
+        .fjs-scatterplot-point:hover
+          fill: #f00
+        .fjs-brush
+          stroke-width: 0
+      .fjs-table-container
+        float: left
+        display: flex
+        flex-direction: column
+        .fjs-stats-table
+          margin: 5px
+          border-spacing: 0
+          border-collapse: collapse
+          font-size: 14px
+          float: right
+        .fjs-stats-table tr:nth-child(even)
+          background-color: #ddd
+        .fjs-stats-table, .fjs-stats-table td, .fjs-stats-table th
+          border: 1px #ccc solid
+          border-collapse: collapse
+          padding: 5px
 </style>
 
 <!--CSS for dynamically created components-->

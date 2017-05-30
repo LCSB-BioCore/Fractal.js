@@ -81,6 +81,7 @@
 
 <style lang="sass" scoped>
   .fjs-vm-root
+    text-align: center
     width: 40%
     height: 90%
     margin: 10px
