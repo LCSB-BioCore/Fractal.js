@@ -15,12 +15,16 @@
     </div>
 
     <div class="fjs-parameter-container">
-      <button class="fjs-run-analysis-btn"
-              type="button"
-              @click="runAnalysisWrapper({init: true, args})"
-              :disabled="disabled">&#9654;</button><br/>
-      <br/>
       <span>{{ error }}</span>
+      <fieldset class="fjs-correlation-method">
+        <legend>Correlation Method</legend>
+        <input type="radio" id="fjs-param-method-1" value="pearson" v-model="params.method">
+        <label for="fjs-param-method-1">Pearson</label>
+        <input type="radio" id="fjs-param-method-2" value="spearman" v-model="params.method">
+        <label for="fjs-param-method-2">Spearman</label>
+        <input type="radio" id="fjs-param-method-3" value="kendall" v-model="params.method">
+        <label for="fjs-param-method-3">Kendall</label>
+      </fieldset>
     </div>
 
     <div class="fjs-vis-container">
@@ -144,6 +148,9 @@
         xyData: [],
         annotationData: [],
         annotationColors: d3.schemeCategory10,
+        params: {
+          method: 'pearson'
+        },
         shownAnalysisResults: {
           init: true,  // will disappear after being initially set
           coef: 0,
@@ -192,9 +199,6 @@
       idFilter () {
         return store.getters.filter('ids')
       },
-      subsets () {
-        return store.getters.subsets
-      },
       disabled () {
         return this.xyData.length !== 2
       },
@@ -203,7 +207,8 @@
           x: `$${this.xyData[0]}$`,
           y: `$${this.xyData[1]}$`,
           id_filter: this.selectedPoints.map(d => d.id),
-          method: 'pearson',
+          method: this.params.method,
+          subsets: store.getters.subsets,
           annotations: this.annotationData.map(d => `$${d}$`)
         }
       },
@@ -340,7 +345,6 @@
             this.error = ''
             if (!d3.event.selection) {
               this.selectedPoints = []
-              this.runAnalysisWrapper({init: false, args: this.args})
             } else {
               const [[x0, y0], [x1, y1]] = d3.event.selection
               this.selectedPoints = this.shownPoints.all.filter(d => {
@@ -351,8 +355,6 @@
               if (this.selectedPoints.length > 0 && this.selectedPoints.length < 3) {
                 this.error = 'Selection must be zero (everything is selected) or greater than two.'
                 return
-              } else {
-                this.runAnalysisWrapper({init: false, args: this.args})
               }
             }
             store.commit(types.SET_FILTER, {filter: 'ids', value: this.selectedPoints.map(d => d.id)})
@@ -410,6 +412,16 @@
       }
     },
     watch: {
+      'args': {
+        handler: function (newArgs, oldArgs) {
+          const init = newArgs.x !== oldArgs.x ||
+            newArgs.y !== oldArgs.y ||
+            JSON.stringify(newArgs.annotations) !== JSON.stringify(oldArgs.annotations)
+          if (!this.disabled) {
+            this.runAnalysisWrapper({init, args: this.args})
+          }
+        }
+      },
       'axis': {
         handler: function (newAxis) {
           d3.select(`.fjs-vm-root-${this._uid} .fjs-x-axis-1`).call(newAxis.x1)
@@ -462,13 +474,7 @@
           if (!isFiltered) {
             const args = this.args
             args.id_filter = newIDFilter
-            this.runAnalysisWrapper({init: false, args})
           }
-        }
-      },
-      'subsets': {
-        handler: function () {
-          this.runAnalysisWrapper({init: false, args: this.args})
         }
       }
     },
@@ -504,7 +510,7 @@
             }
           })
           .catch(error => console.error(error))
-          .then(this.handleResize)  // FIXME: it would be better to listen to the svg size directly.
+          .then(this.handleResize)
       },
       handleResize () {
         const container = this.$el.querySelector(`.fjs-vm-root-${this._uid} .fjs-vis-container svg`)
@@ -547,14 +553,11 @@
 
     .fjs-parameter-container
       text-align: center
-      .fjs-run-analysis-btn
-        margin: 10px
-        width: 100px
-        height: 30px
-        box-shadow: 2px 2px 4px 0 #999
-        font-size: 20px
-      .fjs-run-analysis-btn:not([disabled]):hover
-        cursor: pointer
+      .fjs-correlation-method
+        width: 0
+        margin: auto
+        white-space: nowrap
+
 
     .fjs-vis-container
       flex: 1
