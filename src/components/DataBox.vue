@@ -59,8 +59,17 @@
     },
     watch: {
       'selectedIDs': {
-        handler: function (newSelectedIDs) {
-          this.$emit('update', newSelectedIDs)
+        handler: function (newSelectedIDs, oldSelectedIDs) {
+          if (JSON.stringify(newSelectedIDs) !== JSON.stringify(oldSelectedIDs)) {
+            this.$emit('update', newSelectedIDs)
+          }
+        }
+      },
+      'items': {
+        handler: function (newItems) {
+          const existingIDs = newItems.map(d => d.task_id)
+          // this removes selected IDs when they expired in the back end
+          this.selectedIDs = this.selectedIDs.filter(id => existingIDs.indexOf(id) !== -1)
         }
       }
     },

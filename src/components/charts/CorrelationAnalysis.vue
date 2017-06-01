@@ -86,7 +86,7 @@
         <table class="fjs-stats-table">
           <caption>Selected points</caption>
           <tr>
-            <td>Corr. Coef.</td>
+            <td>Coefficient</td>
             <td>{{ tmpAnalysisResults.coef }}</td>
           </tr>
           <tr>
@@ -94,7 +94,7 @@
             <td>{{ tmpAnalysisResults.p_value }}</td>
           </tr>
           <tr>
-            <td>Correlation method</td>
+            <td>Method</td>
             <td>{{ tmpAnalysisResults.method }}</td>
           </tr>
           <tr>
@@ -103,10 +103,10 @@
           </tr>
         </table>
         <table class="fjs-stats-table"
-               v-for="(stats, i) in shownAnalysisResults.subsets">
+               v-for="(stats, i) in tmpAnalysisResults.subsets">
           <caption>Subset: {{ i + 1 }}</caption>
           <tr>
-            <td>Corr. Coef.</td>
+            <td>Coefficient</td>
             <td>{{ stats.coef }}</td>
           </tr>
           <tr>
@@ -114,7 +114,7 @@
             <td>{{ stats.p_value }}</td>
           </tr>
           <tr>
-            <td>Correlation method</td>
+            <td>Method</td>
             <td>{{ tmpAnalysisResults.method }}</td>
           </tr>
           <tr>
@@ -417,8 +417,10 @@
           const init = newArgs.x !== oldArgs.x ||
             newArgs.y !== oldArgs.y ||
             JSON.stringify(newArgs.annotations) !== JSON.stringify(oldArgs.annotations)
+          const args = this.args
+          args.id_filter = init ? [] : args.id_filter
           if (!this.disabled) {
-            this.runAnalysisWrapper({init, args: this.args})
+            this.runAnalysisWrapper({init, args})
           }
         }
       },
@@ -472,8 +474,8 @@
           const isFiltered = (newIDFilter.length === this.selectedPoints.length) &&
             this.selectedPoints.map(d => d.id).every(id => newIDFilter.indexOf(id) !== -1)
           if (!isFiltered) {
-            const args = this.args
-            args.id_filter = newIDFilter
+            // FIXME: This will probably not work because args is a computed property, not static data
+            this.args.id_filter = newIDFilter
           }
         }
       }
@@ -495,7 +497,6 @@
     ],
     methods: {
       runAnalysisWrapper ({init, args}) {
-        args['subsets'] = store.getters.subsets
         // function made available via requestHandling mixin
         this.runAnalysis({task_name: 'compute-correlation', args})
           .then(response => {
@@ -542,14 +543,9 @@
     flex-direction: column
 
     .fjs-data-box-container
-      width: 70%
       height: 160px
-      overflow: hidden
-      margin: 0 auto
-      .fjs-data-box:nth-child(1)
-        float: left
-      .fjs-data-box:nth-child(2)
-        float: right
+      display: flex
+      justify-content: space-around
 
     .fjs-parameter-container
       text-align: center
@@ -562,9 +558,7 @@
     .fjs-vis-container
       flex: 1
       display: flex
-      justify-content: center
       svg
-        float: left
         flex: 1
         .fjs-lin-reg-line
           stroke: #ff5e00
@@ -584,7 +578,7 @@
         .fjs-brush
           stroke-width: 0
       .fjs-table-container
-        float: left
+        width: 200px
         display: flex
         flex-direction: column
         .fjs-stats-table
@@ -592,13 +586,16 @@
           border-spacing: 0
           border-collapse: collapse
           font-size: 14px
-          float: right
-        .fjs-stats-table tr:nth-child(even)
-          background-color: #ddd
-        .fjs-stats-table, .fjs-stats-table td, .fjs-stats-table th
-          border: 1px #ccc solid
-          border-collapse: collapse
-          padding: 5px
+          tr:nth-child(even)
+            background-color: #ddd
+          td, th
+            max-width: 100px
+            overflow: hidden
+            text-overflow: ellipsis
+            white-space: nowrap
+            border: 1px #ccc solid
+            border-collapse: collapse
+            padding: 5px
 </style>
 
 <!--CSS for dynamically created components-->
