@@ -22,8 +22,8 @@ export default {
   setFilter: (context, {filter, value}) => {
     context.commit(types.SET_FILTER, {filter, value})
   },
-  setTask: (context, {taskID, taskName, taskState}) => {
-    context.commit(types.SET_TASK, {taskID, taskName, taskState})
+  setTask: (context, {taskID, taskName, taskState, taskMessage}) => {
+    context.commit(types.SET_TASK, { taskID, taskName, taskState, taskMessage })
   },
   unsetTask: (context, {taskID}) => {
     context.commit(types.UNSET_TASK, {taskID})

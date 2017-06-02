@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import types from './mutation-types'
 
 export default {
@@ -14,18 +15,17 @@ export default {
     state.subsets = subsets
   },
   [types.SET_FILTER] (state, {filter, value}) {
-    state.filters[filter] = value
+    Vue.set(state.filters, filter, value)
   },
-  [types.SET_TASK] (state, {taskID, taskName, taskState}) {
-    // assure to trigger possible external watchers by replacing the entire tasks object
-    const tasks = JSON.parse(JSON.stringify(state.tasks))
-    tasks[taskID] = {taskID, taskName, taskState}
-    state.tasks = tasks
+  [types.SET_TASK] (state, {taskID, taskName, taskState, taskMessage}) {
+    // avoid triggering possible watchers if task information remain the same
+    if (!state.tasks[taskID] ||
+        state.tasks[taskID].taskState !== taskState ||
+        state.tasks[taskID].taskMessage !== taskMessage) {
+      Vue.set(state.tasks, taskID, {taskID, taskName, taskState, taskMessage})
+    }
   },
   [types.UNSET_TASK] (state, {taskID}) {
-    // assure to trigger possible external watchers by replacing the entire tasks object
-    const tasks = JSON.parse(JSON.stringify(state.tasks))
-    delete tasks[taskID]
-    state.tasks = tasks
+    Vue.delete(state.tasks, taskID)
   }
 }

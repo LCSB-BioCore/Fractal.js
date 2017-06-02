@@ -1,5 +1,5 @@
 <template>
-  <div :class="`fjs-vm-root fjs-vm-root-${_uid}`">
+  <div :class="`fjs-data-box fjs-vm-uid-${_uid}`">
     <label :for="`fjs-data-window-${_uid}`" :tooltip="tooltip">{{ header }}</label>
     <div :id="`fjs-data-window-${_uid}`" class="fjs-data-window">
       <div class="fjs-data-entry-container"
@@ -76,7 +76,7 @@
     },
     methods: {
       toggleDataEntryBody (taskID) {
-        const $body = $(`.fjs-vm-root-${this._uid} .fjs-data-entry-body[data-id="${taskID}"]`)
+        const $body = $(`.fjs-vm-uid-${this._uid} .fjs-data-entry-body[data-id="${taskID}"]`)
         $body.slideToggle(500)
       },
       reloadData (taskID) {
@@ -90,7 +90,7 @@
 </script>
 
 <style lang="sass" scoped>
-  .fjs-vm-root
+  .fjs-data-box
     text-align: center
     width: 40%
     height: 90%

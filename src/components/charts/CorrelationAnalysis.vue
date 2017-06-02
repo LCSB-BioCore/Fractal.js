@@ -1,5 +1,5 @@
 <template>
-  <div :class="`fjs-vm-root fjs-vm-root-${this._uid}`">
+  <div :class="`fjs-correlation-analysis fjs-vm-uid-${this._uid}`">
     <div class="fjs-data-box-container">
       <data-box class="fjs-data-box"
                 header="X and Y variables"
@@ -426,15 +426,15 @@
       },
       'axis': {
         handler: function (newAxis) {
-          d3.select(`.fjs-vm-root-${this._uid} .fjs-x-axis-1`).call(newAxis.x1)
-          d3.select(`.fjs-vm-root-${this._uid} .fjs-x-axis-2`).call(newAxis.x2)
-          d3.select(`.fjs-vm-root-${this._uid} .fjs-y-axis-1`).call(newAxis.y1)
-          d3.select(`.fjs-vm-root-${this._uid} .fjs-y-axis-2`).call(newAxis.y2)
+          d3.select(`.fjs-vm-uid-${this._uid} .fjs-x-axis-1`).call(newAxis.x1)
+          d3.select(`.fjs-vm-uid-${this._uid} .fjs-x-axis-2`).call(newAxis.x2)
+          d3.select(`.fjs-vm-uid-${this._uid} .fjs-y-axis-1`).call(newAxis.y1)
+          d3.select(`.fjs-vm-uid-${this._uid} .fjs-y-axis-2`).call(newAxis.y2)
         }
       },
       'brush': {
         handler: function (newBrush) {
-          d3.select(`.fjs-vm-root-${this._uid} .fjs-brush`).call(newBrush)
+          d3.select(`.fjs-vm-uid-${this._uid} .fjs-brush`).call(newBrush)
         }
       },
       'regLine': {
@@ -515,7 +515,7 @@
           .then(this.handleResize)
       },
       handleResize () {
-        const container = this.$el.querySelector(`.fjs-vm-root-${this._uid} .fjs-vis-container svg`)
+        const container = this.$el.querySelector(`.fjs-vm-uid-${this._uid} .fjs-vis-container svg`)
         // noinspection JSSuspiciousNameCombination
         this.height = container.clientWidth
         this.width = container.clientWidth
@@ -537,7 +537,7 @@
   *
     font-family: Roboto, sans-serif
 
-  .fjs-vm-root
+  .fjs-correlation-analysis
     height: 100%
     width: 100%
     display: flex
