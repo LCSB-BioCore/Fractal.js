@@ -60,6 +60,7 @@
     watch: {
       'selectedIDs': {
         handler: function (newSelectedIDs, oldSelectedIDs) {
+          // avoid emitting signals and thus triggering watchers if selected ids didn't change
           if (JSON.stringify(newSelectedIDs) !== JSON.stringify(oldSelectedIDs)) {
             this.$emit('update', newSelectedIDs)
           }

@@ -1,6 +1,5 @@
 <template>
   <div :class="`fjs-vm-root fjs-vm-root-${this._uid}`">
-
     <div class="fjs-data-box-container">
       <data-box class="fjs-data-box"
                 header="X and Y variables"
@@ -124,7 +123,7 @@
         </table>
       </div>
     </div>
-
+    <task-view></task-view>
   </div>
 </template>
 
@@ -133,11 +132,11 @@
   import DataBox from '../DataBox.vue'
   import Icon from '../Icon.vue'
   import store from '../../store/store'
-  import types from '../../store/mutation-types'
   import requestHandling from '../methods/request-handling'
   import * as d3 from 'd3'
   import svgtooltip from '../directives/v-svgtooltip'
   import { TweenLite } from 'gsap'
+  import TaskView from '../TaskView.vue'
   export default {
     name: 'correlation-analysis',
     data () {
@@ -357,7 +356,7 @@
                 return
               }
             }
-            store.commit(types.SET_FILTER, {filter: 'ids', value: this.selectedPoints.map(d => d.id)})
+            store.dispatch('setFilter', {filter: 'ids', value: this.selectedPoints.map(d => d.id)})
           })
       },
       histograms () {
@@ -414,6 +413,7 @@
     watch: {
       'args': {
         handler: function (newArgs, oldArgs) {
+          // if our data selection change we will want to re-initialize the current view
           const init = newArgs.x !== oldArgs.x ||
             newArgs.y !== oldArgs.y ||
             JSON.stringify(newArgs.annotations) !== JSON.stringify(oldArgs.annotations)
@@ -489,7 +489,8 @@
     },
     components: {
       DataBox,
-      Icon
+      Icon,
+      TaskView
     },
     mixins: [
       requestHandling,

@@ -9,7 +9,8 @@ export default {
   },
   updateData: context => {
     context.getters.requestManager.getAllDataStates().then(response => {
-      context.commit(types.SET_DATA, response.data.data_states)
+      const data = response.data.data_states
+      context.commit(types.SET_DATA, data)
     }).catch(error => {
       console.error(error) // TODO: Notify user about this
     }).then(() => { // finally
@@ -20,5 +21,11 @@ export default {
   },
   setFilter: (context, {filter, value}) => {
     context.commit(types.SET_FILTER, {filter, value})
+  },
+  setTask: (context, {taskID, taskName, taskState}) => {
+    context.commit(types.SET_TASK, {taskID, taskName, taskState})
+  },
+  unsetTask: (context, {taskID}) => {
+    context.commit(types.UNSET_TASK, {taskID})
   }
 }

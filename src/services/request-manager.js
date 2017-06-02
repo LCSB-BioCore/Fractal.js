@@ -51,6 +51,7 @@ export default class {
   }
 
   cancelAnalysis ({taskID}) {
+    store.dispatch('unsetTask', {taskID})
     return this._axios.delete(`/analytics/${taskID}`)
   }
 }
