@@ -26,39 +26,41 @@
     }
   })
   fjs.clearCache()
-  fjs.loadData([
-    {
-      data_type: 'Enum',
-      data_set: 'denopa.clinical_baseline',
-      projection: 'Geschlecht',
-      get label () {
-        return `${this.projection} (${this.data_set})`
-      }
-    },
-    {
-      data_type: 'Integer',
-      data_set: 'denopa.clinical_baseline',
-      projection: 'a_Alter',
-      get label () {
-        return `${this.projection} (${this.data_set})`
-      }
-    },
-    {
-      data_type: 'Double',
-      data_set: 'denopa.clinical_baseline',
-      projection: 'a_AESD_I_mean',
-      get label () {
-        return `${this.projection} (${this.data_set})`
-      }
-    },
-    {
-      data_type: 'Enum',
-      data_set: 'foo',
-      projection: 'I don\'t exist',
-      get label () {
-        return `${this.projection} (${this.data_set})`
-      }
-    }
-  ])
+    .then(() => {
+      fjs.loadData([
+        {
+          data_type: 'Enum',
+          data_set: 'denopa.clinical_baseline',
+          projection: 'Geschlecht',
+          get label () {
+            return `${this.projection} (${this.data_set})`
+          }
+        },
+        {
+          data_type: 'Integer',
+          data_set: 'denopa.clinical_baseline',
+          projection: 'a_Alter',
+          get label () {
+            return `${this.projection} (${this.data_set})`
+          }
+        },
+        {
+          data_type: 'Double',
+          data_set: 'denopa.clinical_baseline',
+          projection: 'a_AESD_I_mean',
+          get label () {
+            return `${this.projection} (${this.data_set})`
+          }
+        },
+        {
+          data_type: 'Enum',
+          data_set: 'foo',
+          projection: 'I don\'t exist',
+          get label () {
+            return `${this.projection} (${this.data_set})`
+          }
+        }
+      ])
+    })
   fjs.setChart({chart: 'correlation-analysis', selector: '#placeholder1'})
 </script>

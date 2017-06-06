@@ -91,52 +91,49 @@
 
 <style lang="sass" scoped>
   .fjs-data-box
+    width: 50%
+    display: flex
+    flex-direction: column
     text-align: center
-    width: 40%
-    height: 90%
     margin: 10px
     > label
       font-size: 16px
     .fjs-data-window
-      height: 80%
-      width: 100%
+      flex: 1
       border: 1px solid #ccc
       border-radius: 8px
       font-size: 14px
       overflow-y: scroll
       padding: 5px
-    .fjs-data-entry-header
-      background-color: #eee
-      padding: 5px
-      margin: 2px
-      width: 95%
-      > *
-        display: inline-block
-        vertical-align: middle
-      label
-        width: 85%
-        word-break: keep-all
-        overflow: hidden
-        text-overflow: ellipsis
-      &[data-state="FAILURE"]
-        background-color: #ffcbcb
-      &[data-state="PENDING"]
-        color: #bbb
-      .cross
-        color: red
-        padding: 5px
-      .options
-        cursor: pointer
-        white-space: nowrap
-    .fjs-data-entry-body
-      display: none
-      padding: 3px
-      &[data-state="FAILURE"]
-        background-color: #ffcbcb
-      .fjs-action-btns
-        text-align: center
-        button
-          height: 25px
-          font-size: 14px
-          font-weight: bold
+      .fjs-data-entry-container
+        display: flex
+        flex-direction: column
+        .fjs-data-entry-header
+          display: flex
+          background-color: #eee
+          padding: 5px
+          margin: 2px
+          label
+            flex: 1
+          &[data-state="FAILURE"]
+            background-color: #ffcbcb
+          &[data-state="PENDING"]
+            color: #bbb
+          .cross
+            color: red
+            padding: 5px
+          .options
+            cursor: pointer
+            white-space: nowrap
+        .fjs-data-entry-body
+          display: none
+          padding: 5px
+          &[data-state="FAILURE"]
+            background-color: #ffcbcb
+          .fjs-action-btns
+            text-align: center
+            button
+              height: 25px
+              font-size: 14px
+              font-weight: bold
 </style>

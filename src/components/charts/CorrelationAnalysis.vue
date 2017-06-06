@@ -552,8 +552,11 @@
       text-align: center
       .fjs-correlation-method
         width: 0
-        margin: auto
         white-space: nowrap
+        border: solid 1px #bbb
+        text-align: left
+        border-radius: 8px
+        margin: 10px
 
 
     .fjs-vis-container
