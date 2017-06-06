@@ -517,8 +517,8 @@
       handleResize () {
         const container = this.$el.querySelector(`.fjs-vm-uid-${this._uid} .fjs-vis-container svg`)
         // noinspection JSSuspiciousNameCombination
-        this.height = container.clientWidth
-        this.width = container.clientWidth
+        this.height = container.getBoundingClientRect().width
+        this.width = container.getBoundingClientRect().width
       },
       update_xyData (ids) {
         this.xyData = ids
