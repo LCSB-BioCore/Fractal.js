@@ -18,4 +18,11 @@ describe('store', () => {
     store.dispatch('setRequestManager', requestManager)
     expect(store.getters.requestManager).not.toBeNull()
   })
+
+  it('should have working setTask', () => {
+    expect(Object.keys(store.getters.tasks).length).toBe(0)
+    const task = {taskID: 'A', taskName: 'foo', taskState: 'PENDING'}
+    store.dispatch('setTask', task)
+    expect(store.getters.tasks['A']).toBeDefined()
+  })
 })

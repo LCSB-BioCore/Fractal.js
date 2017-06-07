@@ -1,3 +1,12 @@
+/**
+ * This directive can be used to add tooltips to your svg elements.
+ * HowTo use:
+ *  1. import it similar to this: `import svgtooltip from '../directives/v-svgtooltip'`
+ *  2. add it to the `mixins` key of your Vue component: `mixins: [svgtooltip]`
+ *  3. import the css to style the tooltip: `<style> @import './src/assets/svgtooltip.sass'` ...
+ *  4. use it on any svg element you like: `<rect v-svgtooltip='myTooltip'>` where myTooltip is an JS object.
+ */
+
 import * as d3 from 'd3'
 import d3Tip from 'd3-tip'; d3.tip = d3Tip
 

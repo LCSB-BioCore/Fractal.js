@@ -132,7 +132,7 @@
   import DataBox from '../DataBox.vue'
   import Icon from '../Icon.vue'
   import store from '../../store/store'
-  import requestHandling from '../methods/request-handling'
+  import requestHandling from '../methods/run-analysis'
   import * as d3 from 'd3'
   import svgtooltip from '../directives/v-svgtooltip'
   import { TweenLite } from 'gsap'

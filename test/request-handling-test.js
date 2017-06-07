@@ -1,4 +1,4 @@
-import requestHandling from '../src/components/methods/request-handling'
+import requestHandling from '../src/components/methods/run-analysis'
 import RequestManager from '../src/services/request-manager'
 import store from '../src/store/store'
 

@@ -2,6 +2,18 @@ import store from '../../store/store'
 
 export default {
   methods: {
+    /**
+     * A helper method to submit an analysis.
+     * This method returns a promise that resolves into the statistic results of the task once it is finished.
+     * Please pay special attention to the `args` syntax.
+     * @param task_name The name to execute. For instance `compute-correlation`
+     * @param args An object containing all parameters for the task. Strings wrapped in '$' characters are treated as
+     * data ids. The backend will attempt to replace them with a Python Pandas DataFrame.
+     * Example args = {method: 'sum', x: '$1234-5678-12345678$'} will replace x with a DataFrame, if available. This
+     * value is usually retrieved from the data-box component, which will emit an `update` signal containing currently
+     * selected data ids. Note that Arrays of '$' wrapped strings are also valid.
+     * @returns {Promise.<void>} An ES6 promise. Resolves into the result of the analysis.
+     */
     async runAnalysis ({task_name, args}) {
       function timeout (ms) {
         return new Promise(resolve => setTimeout(resolve, ms))

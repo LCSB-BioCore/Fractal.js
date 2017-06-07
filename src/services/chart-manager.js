@@ -17,7 +17,7 @@ export default class {
     vm.$mount(selector)
   }
 
-  removeChart ({elementId}) {
+  removeChart ({selector}) {
     // TODO: Implement
   }
 }
