@@ -48,21 +48,20 @@
                 :transform="`rotate(90 ${padded.width + 10} ${padded.height / 2})`">
             {{ shownAnalysisResults.y_label }}
           </text>
-          <icon class="fjs-scatterplot-point"
-                :shape="point.subset"
-                :cx="scales.x(point.x)"
-                :cy="scales.y(point.y)"
-                :size="9"
-                v-svgtooltip="point.tooltip"
-                :fill="annotationColors[annotations.indexOf(point.annotation) % annotationColors.length]"
-                :key="`${point.id}-${scales.x(point.x)}-${scales.y(point.y)}`"
-                v-for="point in shownPoints.all">
-          </icon>
+          <circle class="fjs-scatterplot-point"
+                  :cx="scales.x(point.x)"
+                  :cy="scales.y(point.y)"
+                  r="4"
+                  v-svgtooltip="point.tooltip"
+                  :fill="annotationColors[annotations.indexOf(point.annotation) % annotationColors.length]"
+                  :stroke="subsetColors[point.subset]"
+                  v-for="point in shownPoints.all">
+          </circle>
           <line class="fjs-lin-reg-line"
-                :x1="tweened.regLine.x1"
-                :x2="tweened.regLine.x2"
-                :y1="tweened.regLine.y1"
-                :y2="tweened.regLine.y2"
+                :x1="regLine.x1"
+                :x2="regLine.x2"
+                :y1="regLine.y1"
+                :y2="regLine.y2"
                 v-svgtooltip="regLine.tooltip">
           </line>
           <rect class="fjs-histogram-rect"
@@ -70,14 +69,14 @@
                 :y="attr.y"
                 :width="attr.width"
                 :height="attr.height"
-                v-for="attr in tweened.histogramAttr.xAttr">
+                v-for="attr in histogramAttr.xAttr">
           </rect>
           <rect class="fjs-histogram-rect"
                 :x="attr.x"
                 :y="attr.y"
                 :width="attr.width"
                 :height="attr.height"
-                v-for="attr in tweened.histogramAttr.yAttr">
+                v-for="attr in histogramAttr.yAttr">
           </rect>
         </g>
       </svg>
@@ -130,13 +129,12 @@
 
 <script>
   import DataBox from '../DataBox.vue'
-  import Icon from '../Icon.vue'
   import store from '../../store/store'
   import requestHandling from '../methods/run-analysis'
   import * as d3 from 'd3'
   import svgtooltip from '../directives/v-svgtooltip'
-  import { TweenLite } from 'gsap'
   import TaskView from '../TaskView.vue'
+  import deepFreeze from 'deep-freeze-strict'
   export default {
     name: 'correlation-analysis',
     data () {
@@ -147,6 +145,7 @@
         xyData: [],
         annotationData: [],
         annotationColors: d3.schemeCategory10,
+        subsetColors: d3.schemeCategory10.slice().reverse(),
         params: {
           method: 'pearson'
         },
@@ -184,14 +183,7 @@
             }
           }
         },
-        selectedPoints: [],
-        tweened: {
-          regLine: {},
-          histogramAttr: {
-            xAttr: [],
-            yAttr: []
-          }
-        }
+        selectedPoints: []
       }
     },
     computed: {
@@ -437,38 +429,6 @@
           d3.select(`.fjs-vm-uid-${this._uid} .fjs-brush`).call(newBrush)
         }
       },
-      'regLine': {
-        handler: function (newRegLine, oldRegLine) {
-          const coords = oldRegLine
-          const targetCoords = newRegLine
-          targetCoords.onUpdate = () => { this.tweened.regLine = coords }
-          TweenLite.to(coords, 0.5, targetCoords)
-        }
-      },
-      'histogramAttr': {
-        handler: function (newHistogramAttr, oldHistogramAttr) {
-          let i = Math.max.apply(null, [newHistogramAttr.xAttr.length, oldHistogramAttr.xAttr.length])
-          let j = Math.max.apply(null, [newHistogramAttr.yAttr.length, oldHistogramAttr.yAttr.length])
-
-          while (i--) {
-            const ii = i
-            let xAttr = oldHistogramAttr.xAttr[i] ? oldHistogramAttr.xAttr[i]
-              : { x: this.padded.width / 2, y: this.padded.height, width: 0, height: 0 }
-            const xAttrTarget = newHistogramAttr.xAttr[i] ? newHistogramAttr.xAttr[i] : { width: 0 }
-            xAttrTarget.onUpdate = () => { this.tweened.histogramAttr.xAttr[ii] = xAttr }
-            TweenLite.to(xAttr, 0.5, xAttrTarget)
-          }
-
-          while (j--) {
-            const jj = j
-            const yAttr = oldHistogramAttr.yAttr[j] ? oldHistogramAttr.yAttr[j]
-              : { x: 0, y: this.padded.height / 2, width: 0, height: 0 }
-            const yAttrTarget = newHistogramAttr.yAttr[j] ? newHistogramAttr.yAttr[j] : { height: 0 }
-            yAttrTarget.onUpdate = () => { this.tweened.histogramAttr.yAttr[jj] = yAttr }
-            TweenLite.to(yAttr, 0.5, yAttrTarget)
-          }
-        }
-      },
       'idFilter': {
         handler: function (newIDFilter) {
           const isFiltered = (newIDFilter.length === this.selectedPoints.length) &&
@@ -489,7 +449,6 @@
     },
     components: {
       DataBox,
-      Icon,
       TaskView
     },
     mixins: [
@@ -504,6 +463,7 @@
             const results = JSON.parse(response)
             const data = JSON.parse(results.data)
             results.data = Object.keys(data).map(key => data[key])
+            deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
             if (init) {
               this.shownAnalysisResults = results
               this.tmpAnalysisResults = results
@@ -512,7 +472,6 @@
             }
           })
           .catch(error => console.error(error))
-          .then(this.handleResize)
       },
       handleResize () {
         const container = this.$el.querySelector(`.fjs-vm-uid-${this._uid} .fjs-vis-container svg`)
@@ -572,11 +531,10 @@
         .fjs-histogram-rect
           stroke: #fff
           shape-rendering: crispEdges
-          stroke-width: 0px
+          stroke-width: 1px
           fill: #ffd100
         .fjs-scatterplot-point
-          stroke-width: 0
-          shape-rendering: crispEdges
+          stroke-width: 2
         .fjs-scatterplot-point:hover
           fill: #f00
         .fjs-brush

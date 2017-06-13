@@ -92,7 +92,7 @@ export default class {
    * @returns {AxiosPromise} An ES6 promise.
    */
   getAnalysisStatus ({taskID}) {
-    return this._axios.get(`/analytics/${taskID}`)
+    return this._axios.get(`/analytics/${taskID}?wait=1`)
   }
 
   /**

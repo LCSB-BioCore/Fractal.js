@@ -4,7 +4,6 @@ module.exports = config => {
   config.set({
     frameworks: ['jasmine'],
     files: [
-      'node_modules/babel-polyfill/dist/polyfill.js',
       {pattern: 'test/**/*-test.js'}
     ],
     browsers: ['Chrome'],

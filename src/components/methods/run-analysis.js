@@ -26,8 +26,8 @@ export default {
         taskState: 'PENDING'
       })
       let counter = 0
-      while (counter < 1000) {
-        await timeout(++counter * 200)
+      while (counter++ < 1000) {
+        await timeout(400)
         const rv2 = await store.getters.requestManager.getAnalysisStatus({taskID})
         const taskInfo = rv2.data
         if (taskInfo.state === 'SUCCESS') {

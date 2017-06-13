@@ -29,33 +29,17 @@
     .then(() => {
       fjs.loadData([
         {
-          data_type: 'Enum',
-          data_set: 'denopa.clinical_baseline',
-          projection: 'Geschlecht',
-          get label () {
-            return `${this.projection} (${this.data_set})`
-          }
-        },
-        {
           data_type: 'Integer',
-          data_set: 'denopa.clinical_baseline',
-          projection: 'a_Alter',
+          data_set: 'ppmi.clinical_visit',
+          projection: 'VITALHTCM',
           get label () {
             return `${this.projection} (${this.data_set})`
           }
         },
         {
           data_type: 'Double',
-          data_set: 'denopa.clinical_baseline',
-          projection: 'a_AESD_I_mean',
-          get label () {
-            return `${this.projection} (${this.data_set})`
-          }
-        },
-        {
-          data_type: 'Enum',
-          data_set: 'foo',
-          projection: 'I don\'t exist',
+          data_set: 'ppmi.clinical_visit',
+          projection: 'VITALWGTKG',
           get label () {
             return `${this.projection} (${this.data_set})`
           }

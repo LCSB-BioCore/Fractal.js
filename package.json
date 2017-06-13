@@ -25,8 +25,8 @@
     "axios": "^0.16.1",
     "d3": "^4.7.4",
     "d3-tip": "^0.7.1",
-    "gsap": "^1.19.1",
-    "jquery": "^3.2.1"
+    "jquery": "^3.2.1",
+    "deep-freeze-strict": "^1.1.1"
   },
   "devDependencies": {
     "babel-core": "7.0.0-alpha.3",
