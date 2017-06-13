@@ -58,26 +58,14 @@
                   v-for="point in shownPoints.all">
           </circle>
           <line class="fjs-lin-reg-line"
-                :x1="regLine.x1"
-                :x2="regLine.x2"
-                :y1="regLine.y1"
-                :y2="regLine.y2"
+                :x1="tweened.regLine.x1"
+                :x2="tweened.regLine.x2"
+                :y1="tweened.regLine.y1"
+                :y2="tweened.regLine.y2"
                 v-svgtooltip="regLine.tooltip">
           </line>
-          <rect class="fjs-histogram-rect"
-                :x="attr.x"
-                :y="attr.y"
-                :width="attr.width"
-                :height="attr.height"
-                v-for="attr in histogramAttr.xAttr">
-          </rect>
-          <rect class="fjs-histogram-rect"
-                :x="attr.x"
-                :y="attr.y"
-                :width="attr.width"
-                :height="attr.height"
-                v-for="attr in histogramAttr.yAttr">
-          </rect>
+          <polyline class="fjs-histogram-polyline fjs-bottom" points=""></polyline>
+          <polyline class="fjs-histogram-polyline fjs-left" points=""></polyline>
         </g>
       </svg>
       <div class="fjs-table-container">
@@ -132,6 +120,7 @@
   import store from '../../store/store'
   import requestHandling from '../methods/run-analysis'
   import * as d3 from 'd3'
+  import { TweenLite } from 'gsap'
   import svgtooltip from '../directives/v-svgtooltip'
   import TaskView from '../TaskView.vue'
   import deepFreeze from 'deep-freeze-strict'
@@ -183,7 +172,10 @@
             }
           }
         },
-        selectedPoints: []
+        selectedPoints: [],
+        tweened: {
+          regLine: {x1: 0, x2: 0, y1: 0, y2: 0}
+        }
       }
     },
     computed: {
@@ -381,28 +373,35 @@
           .range([xExtent[0] ? 10 : 0, this.margin.bottom])
         return { x, y }
       },
-      histogramAttr () {
-        const xAttr = this.histograms.xBins.map(d => {
-          return {
-            x: this.scales.x(d.x0),
-            y: this.padded.height + 1,
-            width: this.scales.x(d.x1) - this.scales.x(d.x0),
-            height: this.histogramScales.y(d.length)
-          }
-        })
-        const yAttr = this.histograms.yBins.map(d => {
-          return {
-            x: -this.histogramScales.x(d.length),
-            y: this.scales.y(d.x1),
-            width: this.histogramScales.x(d.length),
-            height: this.scales.y(d.x0) - this.scales.y(d.x1)
-          }
-        })
-
-        return { xAttr, yAttr }
+      histPolyPoints () {
+        const bottom = this.histograms.xBins.map(d => {
+          return `${this.scales.x(d.x0)},${this.padded.height}, ` +
+            `${this.scales.x(d.x0)},${this.padded.height + this.histogramScales.y(d.length)} ` +
+            `${this.scales.x(d.x1)},${this.padded.height + this.histogramScales.y(d.length)} ` +
+            `${this.scales.x(d.x1)},${this.padded.height}`
+        }).join(' ')
+        const left = this.histograms.yBins.map(d => {
+          return `${0},${this.scales.y(d.x0)} ` +
+            `${-this.histogramScales.x(d.length)},${this.scales.y(d.x0)} ` +
+            `${-this.histogramScales.x(d.length)},${this.scales.y(d.x1)} ` +
+            `${0},${this.scales.y(d.x1)}`
+        }).join(' ')
+        return { bottom, left }
       }
     },
     watch: {
+      'regLine': {
+        handler: function (newRegLine) {
+          TweenLite.to(this.tweened.regLine, 0.5, newRegLine)
+        }
+      },
+      'histPolyPoints': {
+        handler: function (newPoints) {
+          // we use d3 instead of TweenLite here because d3 can transition point paths
+          d3.select('.fjs-histogram-polyline.fjs-bottom').transition().duration(500).attr('points', newPoints.bottom)
+          d3.select('.fjs-histogram-polyline.fjs-left').transition().duration(500).attr('points', newPoints.left)
+        }
+      },
       'args': {
         handler: function (newArgs, oldArgs) {
           // if our data selection change we will want to re-initialize the current view
@@ -528,9 +527,9 @@
           stroke-width: 4px
         .fjs-lin-reg-line:hover
           opacity: 0.4
-        .fjs-histogram-rect
-          stroke: #fff
+        .fjs-histogram-polyline
           shape-rendering: crispEdges
+          stroke: white
           stroke-width: 1px
           fill: #ffd100
         .fjs-scatterplot-point
