@@ -20,7 +20,9 @@ export default {
    * @param subsets An array of arrays of ids defining the subsets.
    */
   setSubsets: (context, subsets) => {
-    if (subsets instanceof Array && ((subsets.length > 0 && subsets[0] instanceof Array) || !subsets.length)) {
+    if (subsets instanceof Array &&
+        ((subsets.length > 0 && subsets[0] instanceof Array) || !subsets.length) &&
+        subsets.every(d => Array.isArray(d))) {
       context.commit(types.SET_SUBSETS, subsets)
     } else {
       throw new Error('The dispatched value must be an Array containing Arrays (unless empty).')

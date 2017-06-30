@@ -29,20 +29,24 @@
     .then(() => {
       fjs.loadData([
         {
-          data_type: 'Integer',
-          data_set: 'ppmi.clinical_visit',
-          projection: 'VITALHTCM',
-          get label () {
-            return `${this.projection} (${this.data_set})`
-          }
+          dictionary: {
+            name: 'VITALHTCM',
+            projection: 'VITALHTCM',
+            label: 'Height',
+            fieldType: 'Integer',
+            isArray: false
+          },
+          data_set: 'ppmi.clinical_visit'
         },
         {
-          data_type: 'Double',
-          data_set: 'ppmi.clinical_visit',
-          projection: 'VITALWGTKG',
-          get label () {
-            return `${this.projection} (${this.data_set})`
-          }
+          dictionary: {
+            name: 'VITALWGTKG',
+            projection: 'VITALWGTKG',
+            label: 'Weight',
+            fieldType: 'Double',
+            isArray: false
+          },
+          data_set: 'ppmi.clinical_visit'
         }
       ])
     })

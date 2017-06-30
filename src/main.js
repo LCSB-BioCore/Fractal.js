@@ -47,5 +47,17 @@ class FractalJS {
  * @returns {FractalJS}: An instance of FractalJS.
  */
 export function init ({handler, thisBaseURL, fractalisBaseURL, getAuth}) {
+  if (!handler) {
+    throw new Error(`handler property must not be ${handler}`)
+  }
+  if (!thisBaseURL) {
+    throw new Error(`handler property must not be ${thisBaseURL}`)
+  }
+  if (!fractalisBaseURL) {
+    throw new Error(`handler property must not be ${fractalisBaseURL}`)
+  }
+  if (!getAuth) {
+    throw new Error(`handler property must not be ${getAuth}`)
+  }
   return new FractalJS(handler, thisBaseURL, fractalisBaseURL, getAuth)
 }

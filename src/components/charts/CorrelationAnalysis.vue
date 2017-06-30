@@ -516,7 +516,6 @@
         border-radius: 8px
         margin: 10px
 
-
     .fjs-vis-container
       flex: 1
       display: flex
