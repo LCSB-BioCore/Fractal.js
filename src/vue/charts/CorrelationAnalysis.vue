@@ -116,13 +116,13 @@
 
 
 <script>
-  import DataBox from '../DataBox.vue'
+  import DataBox from '../components/DataBox.vue'
   import store from '../../store/store'
   import requestHandling from '../methods/run-analysis'
   import * as d3 from 'd3'
   import { TweenLite } from 'gsap'
   import svgtooltip from '../directives/v-svgtooltip'
-  import TaskView from '../TaskView.vue'
+  import TaskView from '../components/TaskView.vue'
   import deepFreeze from 'deep-freeze-strict'
   export default {
     name: 'correlation-analysis',

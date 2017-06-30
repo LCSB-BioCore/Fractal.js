@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import CorrelationAnalysis from '../components/charts/CorrelationAnalysis.vue'
+import CorrelationAnalysis from '../vue/charts/CorrelationAnalysis.vue'
 
 export default class {
   constructor () {

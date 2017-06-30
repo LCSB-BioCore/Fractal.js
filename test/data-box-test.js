@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import DataBox from '../src/components/DataBox.vue'
+import DataBox from '../src/vue/components/DataBox.vue'
 import store from '../src/store/store'
 
 describe('DataBox', () => {

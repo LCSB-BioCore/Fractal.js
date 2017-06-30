@@ -17,7 +17,7 @@
 </template>
 
 <script>
-  import store from '../store/store'
+  import store from '../../store/store'
   import Loader from './Loader.vue'
   import $ from 'jquery'
   export default {
