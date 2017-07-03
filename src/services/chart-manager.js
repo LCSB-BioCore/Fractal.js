@@ -1,10 +1,12 @@
 import Vue from 'vue'
 import CorrelationAnalysis from '../vue/charts/CorrelationAnalysis.vue'
+import Boxplot from '../vue/charts/Boxplot.vue'
 
 export default class {
   constructor () {
     this.AVAILABLE_CHARTS = {
-      [CorrelationAnalysis.name]: CorrelationAnalysis
+      [CorrelationAnalysis.name]: CorrelationAnalysis,
+      [Boxplot.name]: Boxplot
     }
   }
 

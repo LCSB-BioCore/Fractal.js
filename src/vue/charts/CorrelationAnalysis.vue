@@ -39,14 +39,14 @@
                 y="-10"
                 text-anchor="middle"
                 font-size="16">
-            {{ shownAnalysisResults.x_label }}
+            {{ shownResults.x_label }}
           </text>
           <text :x="padded.width + 10"
                 :y="padded.height / 2"
                 text-anchor="middle"
                 font-size="16"
                 :transform="`rotate(90 ${padded.width + 10} ${padded.height / 2})`">
-            {{ shownAnalysisResults.y_label }}
+            {{ shownResults.y_label }}
           </text>
           <circle class="fjs-scatterplot-point"
                   :cx="scales.x(point.x)"
@@ -73,15 +73,15 @@
           <caption>Selected points</caption>
           <tr>
             <td>Coefficient</td>
-            <td>{{ tmpAnalysisResults.coef }}</td>
+            <td>{{ tmpResults.coef }}</td>
           </tr>
           <tr>
             <td>p-value</td>
-            <td>{{ tmpAnalysisResults.p_value }}</td>
+            <td>{{ tmpResults.p_value }}</td>
           </tr>
           <tr>
             <td>Method</td>
-            <td>{{ tmpAnalysisResults.method }}</td>
+            <td>{{ tmpResults.method }}</td>
           </tr>
           <tr>
             <td>#Points</td>
@@ -89,7 +89,7 @@
           </tr>
         </table>
         <table class="fjs-stats-table"
-               v-for="(stats, i) in tmpAnalysisResults.subsets">
+               v-for="(stats, i) in tmpResults.subsets">
           <caption>Subset: {{ i + 1 }}</caption>
           <tr>
             <td>Coefficient</td>
@@ -101,11 +101,11 @@
           </tr>
           <tr>
             <td>Method</td>
-            <td>{{ tmpAnalysisResults.method }}</td>
+            <td>{{ tmpResults.method }}</td>
           </tr>
           <tr>
             <td>#Points</td>
-            <td>{{ tmpPoints.subsets.filter(d => d === i).length }}</td>
+            <td>{{ tmpPoints.subsets.filter(function(d) { return d === i}).length }}</td>
           </tr>
         </table>
       </div>
@@ -138,7 +138,7 @@
         params: {
           method: 'pearson'
         },
-        shownAnalysisResults: {
+        shownResults: {  // initially computed
           init: true,  // will disappear after being initially set
           coef: 0,
           p_value: 0,
@@ -155,7 +155,7 @@
             }
           }
         },
-        tmpAnalysisResults: {
+        tmpResults: {  // on-the-fly computed
           init: true,  // will disappear after being initially set
           coef: 0,
           p_value: 0,
@@ -182,8 +182,8 @@
       idFilter () {
         return store.getters.filter('ids')
       },
-      disabled () {
-        return this.xyData.length !== 2
+      validArgs () {
+        return this.xyData.length === 2
       },
       args () {
         return {
@@ -217,16 +217,16 @@
         const subsets = []
         const annotations = []
         let all = []
-        if (!this.shownAnalysisResults.init) {
-          all = this.shownAnalysisResults.data.map(d => {
-            const x = d[this.shownAnalysisResults.x_label]
-            const y = d[this.shownAnalysisResults.y_label]
+        if (!this.shownResults.init) {
+          all = this.shownResults.data.map(d => {
+            const x = d[this.shownResults.x_label]
+            const y = d[this.shownResults.y_label]
             const id = d.id
             const subset = d.subset
             const annotation = d.annotation
             const tooltip = {
-              [this.shownAnalysisResults.x_label]: x,
-              [this.shownAnalysisResults.y_label]: y,
+              [this.shownResults.x_label]: x,
+              [this.shownResults.y_label]: y,
               subset
             }
             if (typeof annotation !== 'undefined') {
@@ -249,10 +249,10 @@
         const subsets = []
         const annotations = []
         let all = []
-        if (!this.tmpAnalysisResults.init) {
-          all = this.tmpAnalysisResults.data.map(d => {
-            const x = d[this.tmpAnalysisResults.x_label]
-            const y = d[this.tmpAnalysisResults.y_label]
+        if (!this.tmpResults.init) {
+          all = this.tmpResults.data.map(d => {
+            const x = d[this.tmpResults.x_label]
+            const y = d[this.tmpResults.y_label]
             const id = d.id
             const subset = d.subset
             const annotation = d.annotation
@@ -295,15 +295,15 @@
         return { x1, x2, y1, y2 }
       },
       regLine () {
-        if (this.tmpAnalysisResults.init) {
+        if (this.tmpResults.init) {
           return { x1: 0, x2: 0, y1: 0, y2: 0 }
         }
         const minX = d3.min(this.tmpPoints.xs)
         const maxX = d3.max(this.tmpPoints.xs)
         let x1 = this.scales.x(minX)
-        let y1 = this.scales.y(this.tmpAnalysisResults.intercept + this.tmpAnalysisResults.slope * minX)
+        let y1 = this.scales.y(this.tmpResults.intercept + this.tmpResults.slope * minX)
         let x2 = this.scales.x(maxX)
-        let y2 = this.scales.y(this.tmpAnalysisResults.intercept + this.tmpAnalysisResults.slope * maxX)
+        let y2 = this.scales.y(this.tmpResults.intercept + this.tmpResults.slope * maxX)
 
         x1 = x1 < 0 ? 0 : x1
         x1 = x1 > this.width ? this.width : x1
@@ -317,7 +317,7 @@
         y2 = y2 < 0 ? 0 : y2
         y2 = y2 > this.height ? this.height : y2
 
-        const tooltip = {Slope: this.tmpAnalysisResults.slope, Intercept: this.tmpAnalysisResults.intercept}
+        const tooltip = {Slope: this.tmpResults.slope, Intercept: this.tmpResults.intercept}
 
         return { x1, x2, y1, y2, tooltip }
       },
@@ -347,7 +347,7 @@
         const BINS = 14
         let xBins = []
         let yBins = []
-        if (!this.tmpAnalysisResults.init) {
+        if (!this.tmpResults.init) {
           const [xMin, xMax] = d3.extent(this.tmpPoints.xs)
           const [yMin, yMax] = d3.extent(this.tmpPoints.ys)
           const xThresholds = d3.range(xMin, xMax, (xMax - xMin) / BINS)
@@ -410,7 +410,7 @@
             JSON.stringify(newArgs.annotations) !== JSON.stringify(oldArgs.annotations)
           const args = this.args
           args.id_filter = init ? [] : args.id_filter
-          if (!this.disabled) {
+          if (this.validArgs) {
             this.runAnalysisWrapper({init, args})
           }
         }
@@ -464,10 +464,10 @@
             results.data = Object.keys(data).map(key => data[key])
             deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
             if (init) {
-              this.shownAnalysisResults = results
-              this.tmpAnalysisResults = results
+              this.shownResults = results
+              this.tmpResults = results
             } else {
-              this.tmpAnalysisResults = results
+              this.tmpResults = results
             }
           })
           .catch(error => console.error(error))

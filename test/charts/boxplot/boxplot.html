@@ -1,0 +1,54 @@
+<!doctype html>
+
+<head>
+  <script src="http://localhost:8080/credentials.js"></script>
+  <script src="http://localhost:8080/fractal.js"></script>
+</head>
+
+<body>
+<div style="height: 100%; width: 70%">
+  <div id="placeholder1"></div>
+</div>
+<div style="height: 1200px; width: 1200px">
+  <div id="placeholder2"></div>
+</div>
+</body>
+
+<script>
+  /* eslint-disable no-undef */
+
+  const fjs = fractal.init({
+    handler: 'ada',
+    thisBaseURL: 'https://ada.parkinson.lu',
+    fractalisBaseURL: 'http://127.0.0.1:5000',
+    getAuth () {
+      return credentials1
+    }
+  })
+  fjs.clearCache()
+    .then(() => {
+      fjs.loadData([
+        {
+          dictionary: {
+            name: 'VITALHTCM',
+            projection: 'VITALHTCM',
+            label: 'Height',
+            fieldType: 'Integer',
+            isArray: false
+          },
+          data_set: 'ppmi.clinical_visit'
+        },
+        {
+          dictionary: {
+            name: 'VITALWGTKG',
+            projection: 'VITALWGTKG',
+            label: 'Weight',
+            fieldType: 'Double',
+            isArray: false
+          },
+          data_set: 'ppmi.clinical_visit'
+        }
+      ])
+    })
+  fjs.setChart({chart: 'boxplot', selector: '#placeholder1'})
+</script>
