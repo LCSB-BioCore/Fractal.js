@@ -52,6 +52,7 @@
         return {
           variables: this.numData.map(d => `$${d}$`),
           categories: this.catData.map(d => `$${d}$`),
+          id_filter: [],
           subsets: store.getters.subsets
         }
       },
@@ -70,8 +71,26 @@
         const height = this.height - this.margin.top - this.margin.bottom
         return { width, height }
       },
+      numOfBoxplots () {
+        return Object.keys(this.results.statistics).length
+      },
       boxplotWidth () {
-        return this.padded.width / this.results.numOfBoxplots - this.results.numOfBoxplots
+        const maxBoxplotWidth = this.padded.width / 4
+        let boxplotWidth = this.padded.width / this.numOfBoxplots - this.padded.width * 0.05
+        boxplotWidth = boxplotWidth > maxBoxplotWidth ? maxBoxplotWidth : boxplotWidth
+        return boxplotWidth
+      },
+      scales () {
+        const values = this.results.data.map(entry => this.results.variables.map(v => entry[v]))
+        const flattened = [].concat.apply([], values)
+        const extent = d3.extent(flattened)
+        const x = d3.scaleOrdinal()
+          .domain(Object.keys(this.statistics))
+          .range([0, this.padded.height])
+        const y = d3.scaleLinear()
+          .domain(extent)
+          .range([0, this.padded.width])
+        return { x, y }
       }
     },
     watch: {
