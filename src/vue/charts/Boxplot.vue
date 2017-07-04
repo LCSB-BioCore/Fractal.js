@@ -37,11 +37,6 @@
                   :y2="scales.y(stat)"
                   v-for="stat in [results.statistics[label].l_qrt, results.statistics[label].u_qrt]">
             </line>
-            <text :x=""
-                  :y=""
-                  v-for="stat in [results.statistics[label].l_qrt, results.statistics[label].u_qrt]">
-            </text>
-
             <line class="fjs-antenna"
                   :x1="0"
                   :y1="scales.y(results.statistics[label].u_wsk)"
@@ -134,12 +129,13 @@
         const values = this.results.data.map(entry => this.results.variables.map(v => entry[v]))
         const flattened = [].concat.apply([], values)
         const extent = d3.extent(flattened)
+        const padding = (extent[1] - extent[0]) / 10
         const x = d3.scalePoint()
           .domain(Object.keys(this.results.statistics))
           .range([0, this.padded.height])
           .padding(1)
         const y = d3.scaleLinear()
-          .domain(extent)
+          .domain([extent[0] - padding, extent[1] + padding])
           .range([this.padded.width, 0])
         return { x, y }
       },
@@ -162,8 +158,12 @@
       },
       'axis': {
         handler: function (newAxis) {
-          d3.select(`.fjs-vm-uid-${this._uid} .fjs-x-axis`).call(newAxis.x)
-          d3.select(`.fjs-vm-uid-${this._uid} .fjs-y-axis`).call(newAxis.y)
+          d3.select(`.fjs-vm-uid-${this._uid} .fjs-x-axis`)
+            .call(newAxis.x)
+            .selectAll('text')
+            .attr('transform', 'rotate(20)')
+          d3.select(`.fjs-vm-uid-${this._uid} .fjs-y-axis`)
+            .call(newAxis.y)
         }
       }
     },
@@ -257,6 +257,12 @@
     stroke-width: 2px
     .tick
       shape-rendering: crispEdges
+      text
+        font-size: 18px
     line
       stroke: #999
+  .fjs-x-axis
+    .tick
+      text
+        text-anchor: start
 </style>
