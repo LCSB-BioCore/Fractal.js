@@ -20,7 +20,54 @@
       <svg :width="width"
            :height="height">
         <g :transform="`translate(${margin.left}, ${margin.top})`">
+          <g class="fjs-bplt-axis fjs-x-axis" :transform="`translate(0, ${padded.height})`"></g>
+          <g class="fjs-bplt-axis fjs-y-axis"></g>
+          <g v-for="label in Object.keys(results.statistics)" :transform="`translate(${scales.x(label)}, 0)`">
+            <line class="fjs-whisker"
+                  :x1="- boxplotWidth / 6"
+                  :y1="scales.y(stat)"
+                  :x2="boxplotWidth / 6"
+                  :y2="scales.y(stat)"
+                  v-for="stat in [results.statistics[label].l_wsk, results.statistics[label].u_wsk]">
+            </line>
+            <line class="fjs-quartile"
+                  :x1="- boxplotWidth / 2"
+                  :y1="scales.y(stat)"
+                  :x2="boxplotWidth / 2"
+                  :y2="scales.y(stat)"
+                  v-for="stat in [results.statistics[label].l_qrt, results.statistics[label].u_qrt]">
+            </line>
+            <text :x=""
+                  :y=""
+                  v-for="stat in [results.statistics[label].l_qrt, results.statistics[label].u_qrt]">
+            </text>
 
+            <line class="fjs-antenna"
+                  :x1="0"
+                  :y1="scales.y(results.statistics[label].u_wsk)"
+                  :x2="0"
+                  :y2="scales.y(results.statistics[label].l_wsk)">
+            </line>
+            <rect class="fjs-above-median-box"
+                  :x="- boxplotWidth / 2"
+                  :y="scales.y(results.statistics[label].u_qrt) + 1"
+                  :width="boxplotWidth"
+                  :height="scales.y(results.statistics[label].median) - scales.y(results.statistics[label].u_qrt)">
+            </rect>
+            <rect class="fjs-below-median-box"
+                  :x="- boxplotWidth / 2"
+                  :y="scales.y(results.statistics[label].median)"
+                  :width="boxplotWidth"
+                  :height="scales.y(results.statistics[label].l_qrt) - scales.y(results.statistics[label].median) - 1">
+            </rect>
+            <!--<circle class="fjs-point"-->
+                    <!--:cx="scales.x(label)"-->
+                    <!--:cy="scales.y(row[label])"-->
+                    <!--r="4"-->
+                    <!--v-if="row[label] !== null"-->
+                    <!--v-for="row in results.data">-->
+            <!--</circle>-->
+          </g>
         </g>
       </svg>
     </div>
@@ -44,7 +91,10 @@
         height: 0,
         numData: [],
         catData: [],
-        results: {}
+        results: {
+          data: [],
+          statistics: {}
+        }
       }
     },
     computed: {
@@ -60,10 +110,10 @@
         return this.numData.length > 0
       },
       margin () {
-        const left = 10
+        const left = 50
         const top = 10
         const right = 10
-        const bottom = 10
+        const bottom = 50
         return { left, top, right, bottom }
       },
       padded () {
@@ -84,12 +134,18 @@
         const values = this.results.data.map(entry => this.results.variables.map(v => entry[v]))
         const flattened = [].concat.apply([], values)
         const extent = d3.extent(flattened)
-        const x = d3.scaleOrdinal()
-          .domain(Object.keys(this.statistics))
+        const x = d3.scalePoint()
+          .domain(Object.keys(this.results.statistics))
           .range([0, this.padded.height])
+          .padding(1)
         const y = d3.scaleLinear()
           .domain(extent)
-          .range([0, this.padded.width])
+          .range([this.padded.width, 0])
+        return { x, y }
+      },
+      axis () {
+        const x = d3.axisBottom(this.scales.x)
+        const y = d3.axisLeft(this.scales.y)
         return { x, y }
       }
     },
@@ -102,6 +158,12 @@
           if (this.validArgs) {
             this.runAnalysisWrapper({init, args: this.args})
           }
+        }
+      },
+      'axis': {
+        handler: function (newAxis) {
+          d3.select(`.fjs-vm-uid-${this._uid} .fjs-x-axis`).call(newAxis.x)
+          d3.select(`.fjs-vm-uid-${this._uid} .fjs-y-axis`).call(newAxis.y)
         }
       }
     },
@@ -171,4 +233,30 @@
       display: flex
       svg
         flex: 1
+      .fjs-whisker, .fjs-quartile, .fjs-antenna
+        shape-rendering: crispEdges
+        stroke: black
+        stroke-width: 2px
+      .fjs-below-median-box
+        stroke: none
+        fill: rgb(205, 232, 254)
+        shape-rendering: crispEdges
+      .fjs-above-median-box
+        stroke: none
+        fill: rgb(180, 221, 253)
+        shape-rendering: crispEdges
+</style>
+
+
+<!--CSS for dynamically created components-->
+<style lang="sass">
+  @import './src/assets/svgtooltip.sass'
+
+  .fjs-bplt-axis
+    shape-rendering: crispEdges
+    stroke-width: 2px
+    .tick
+      shape-rendering: crispEdges
+    line
+      stroke: #999
 </style>
