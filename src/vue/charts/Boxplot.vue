@@ -78,6 +78,7 @@
   import svgtooltip from '../directives/v-svgtooltip'
   import TaskView from '../components/TaskView.vue'
   import deepFreeze from 'deep-freeze-strict'
+  import utils from '../../services/utils'
   export default {
     name: 'boxplot',
     data () {
@@ -105,10 +106,10 @@
         return this.numData.length > 0
       },
       margin () {
-        const left = 50
+        const left = 60
         const top = 10
         const right = 10
-        const bottom = 50
+        const bottom = 100
         return { left, top, right, bottom }
       },
       padded () {
@@ -140,7 +141,7 @@
         return { x, y }
       },
       axis () {
-        const x = d3.axisBottom(this.scales.x)
+        const x = d3.axisBottom(this.scales.x).tickFormat(d => utils.truncate({fullStr: d, strLen: 20}))
         const y = d3.axisLeft(this.scales.y)
         return { x, y }
       }
