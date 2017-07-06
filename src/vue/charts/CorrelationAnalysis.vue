@@ -398,8 +398,16 @@
       'histPolyPoints': {
         handler: function (newPoints) {
           // we use d3 instead of TweenLite here because d3 can transition point paths
-          d3.select('.fjs-histogram-polyline.fjs-bottom').transition().duration(500).attr('points', newPoints.bottom)
-          d3.select('.fjs-histogram-polyline.fjs-left').transition().duration(500).attr('points', newPoints.left)
+          d3.selectAll(`.fjs-vm-uid-${this._uid} .fjs-histogram-polyline`)
+            .filter('.fjs-bottom')
+            .transition()
+            .duration(500)
+            .attr('points', newPoints.bottom)
+          d3.selectAll(`.fjs-vm-uid-${this._uid} .fjs-histogram-polyline`)
+            .filter('.fjs-left')
+            .transition()
+            .duration(500)
+            .attr('points', newPoints.left)
         }
       },
       'args': {
