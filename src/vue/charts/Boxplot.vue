@@ -190,22 +190,14 @@
               .call(newAxis.y)
           })
         }
-      },
-      'results': {
-        handler: function () {
-          // Vue reuses elements, so when additional boxplots are added the tooltips might reference the
-          // the wrong boxes. This resets all tooltips when new back end data come in.
-          Object.keys(this.tooltips).forEach(label => this.tooltips[label].forEach(d => d.tip.destroyAll()))
-          this.tooltips = {}
-        }
       }
     },
     methods: {
       showTooltip (label) {
-        if (typeof this.tooltips[label] !== 'undefined') {
-          this.tooltips[label].forEach(d => d.tip.show(d.tip.getPopperElement(d.el)))
-          return
-        }
+        // https://github.com/atomiks/tippyjs/issues/74
+        Object.keys(this.tooltips).forEach(label => this.tooltips[label].forEach(d => d.tip.destroyAll()))
+        this.tooltips = {}
+
         const defaultOptions = {
           performance: true,
           theme: 'light',

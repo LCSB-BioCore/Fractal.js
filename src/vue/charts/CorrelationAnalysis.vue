@@ -7,9 +7,9 @@
                 v-on:update="update_xyData">
       </data-box>
       <data-box class="fjs-data-box"
-                header="Annotations"
+                header="Categories"
                 dataType="categorical"
-                v-on:update="update_annotationData">
+                v-on:update="update_categoryData">
       </data-box>
     </div>
 
@@ -51,9 +51,10 @@
                   :cx="scales.x(point.x)"
                   :cy="scales.y(point.y)"
                   r="4"
-                  :fill="annotationColors[annotations.indexOf(point.annotation) % annotationColors.length]"
+                  :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
                   :stroke="subsetColors[point.subset]"
                   :title="point.tooltip"
+                  :data-test="point.tooltip"
                   v-for="point in shownPoints.all">
           </circle>
           <line class="fjs-lin-reg-line"
@@ -130,8 +131,8 @@
         width: 0,
         height: 0,
         xyData: [],
-        annotationData: [],
-        annotationColors: d3.schemeCategory10,
+        categoryData: [],
+        categoryColors: d3.schemeCategory10,
         subsetColors: d3.schemeCategory10.slice().reverse(),
         params: {
           method: 'pearson'
@@ -177,7 +178,7 @@
           id_filter: this.selectedPoints.map(d => d.id),
           method: this.params.method,
           subsets: store.getters.subsets,
-          annotations: this.annotationData
+          categories: this.categoryData
         }
       },
       margin () {
@@ -192,61 +193,58 @@
         const height = this.height - this.margin.top - this.margin.bottom
         return { width, height }
       },
-      annotations () {
-        return this.shownPoints.annotations.filter((d, i, arr) => arr.indexOf(d) === i)  // make unique
+      categories () {
+        return this.shownPoints.categories.filter((d, i, arr) => arr.indexOf(d) === i)  // make unique
       },
       shownPoints () {
         const xs = []
         const ys = []
         const ids = []
         const subsets = []
-        const annotations = []
+        const categories = []
         const all = this.shownResults.data.map(d => {
           const x = d[this.shownResults.x_label]
           const y = d[this.shownResults.y_label]
           const id = d.id
           const subset = d.subset
-          const annotation = d.annotation
+          const category = d.category
           let tooltip = `
 <div>
   <p>${[this.shownResults.x_label]}: ${x}</p>
   <p>${[this.shownResults.y_label]}: ${y}</p>
   <p>Subset: ${subset}</p>
-  ${typeof annotation !== 'undefined' ? '<p>Annotation:' + annotation + '</p>' : ''}
+  ${typeof category !== 'undefined' ? '<p>Category: ' + category + '</p>' : ''}
 </div>
 `
-          if (typeof annotation !== 'undefined') {
-            tooltip += `<Annotation: ${annotation}`
-          }
           xs.push(x)
           ys.push(y)
           ids.push(id)
           subsets.push(subset)
-          annotations.push(annotation)
-          return {x, y, id, subset, annotation, tooltip}
+          categories.push(category)
+          return {x, y, id, subset, category, tooltip}
         })
-        return { xs, ys, ids, subsets, annotations, all }
+        return { xs, ys, ids, subsets, categories, all }
       },
       tmpPoints () {
         const xs = []
         const ys = []
         const ids = []
         const subsets = []
-        const annotations = []
+        const categories = []
         const all = this.tmpResults.data.map(d => {
           const x = d[this.tmpResults.x_label]
           const y = d[this.tmpResults.y_label]
           const id = d.id
           const subset = d.subset
-          const annotation = d.annotation
+          const category = d.category
           xs.push(x)
           ys.push(y)
           ids.push(id)
           subsets.push(subset)
-          annotations.push(annotation)
-          return {x, y, id, subset, annotation}
+          categories.push(category)
+          return {x, y, id, subset, category}
         })
-        return { xs, ys, ids, subsets, annotations, all }
+        return { xs, ys, ids, subsets, categories, all }
       },
       scales () {
         const x = d3.scaleLinear()
@@ -380,8 +378,12 @@
     watch: {
       'shownPoints': {
         handler: function () {
+          // https://github.com/atomiks/tippyjs/issues/74
+          if (typeof this.tooltips.points !== 'undefined') {
+            this.tooltips.points.destroyAll()
+          }
           this.$nextTick(() => {
-            tippy('.fjs-scatterplot-point:not([data-tooltipped])', {
+            this.tooltips.points = tippy(`.fjs-vm-uid-${this._uid} .fjs-scatterplot-point:not([data-tooltipped])`, {
               performance: true,
               theme: 'light',
               arrow: true
@@ -392,11 +394,12 @@
       'regLine': {
         handler: function (newRegLine) {
           TweenLite.to(this.tweened.regLine, 0.5, newRegLine)
+          // https://github.com/atomiks/tippyjs/issues/74
           if (typeof this.tooltips.regLine !== 'undefined') {
             this.tooltips.regLine.destroyAll()
           }
           this.$nextTick(() => {
-            this.tooltips.regLine = tippy('.fjs-lin-reg-line:not([data-tooltipped])', {
+            this.tooltips.regLine = tippy(`.fjs-vm-uid-${this._uid} .fjs-lin-reg-line:not([data-tooltipped])`, {
               theme: 'light',
               arrow: true,
               followCursor: true
@@ -426,7 +429,7 @@
           // if our data selection change we will want to re-initialize the current view
           const init = newArgs.x !== oldArgs.x ||
             newArgs.y !== oldArgs.y ||
-            JSON.stringify(newArgs.annotations) !== JSON.stringify(oldArgs.annotations)
+            JSON.stringify(newArgs.categories) !== JSON.stringify(oldArgs.categories)
           const args = this.args
           args.id_filter = init ? [] : args.id_filter
           if (this.validArgs) {
@@ -503,8 +506,8 @@
       update_xyData (ids) {
         this.xyData = ids
       },
-      update_annotationData (ids) {
-        this.annotationData = ids
+      update_categoryData (ids) {
+        this.categoryData = ids
       }
     }
   }
@@ -554,7 +557,7 @@
           stroke-width: 1px
           fill: #ffd100
         .fjs-scatterplot-point
-          stroke-width: 2
+          stroke-width: 1
         .fjs-scatterplot-point:hover
           fill: #f00
         .fjs-brush
