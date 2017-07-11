@@ -157,6 +157,7 @@
           data: []
         },
         selectedPoints: [],
+        tooltips: {},
         tweened: {
           regLine: {x1: 0, x2: 0, y1: 0, y2: 0}
         }
@@ -391,16 +392,14 @@
       'regLine': {
         handler: function (newRegLine) {
           TweenLite.to(this.tweened.regLine, 0.5, newRegLine)
+          if (typeof this.tooltips.regLine !== 'undefined') {
+            this.tooltips.regLine.destroyAll()
+          }
           this.$nextTick(() => {
-            const tip = tippy('.fjs-lin-reg-line:not([data-tooltipped])', {
+            this.tooltips.regLine = tippy('.fjs-lin-reg-line:not([data-tooltipped])', {
               theme: 'light',
               arrow: true,
-              followCursor: true,
-              onShow: function () {
-                const el = document.querySelector('.fjs-lin-reg-line[data-tooltipped]')
-                const popper = tip.getPopperElement(el)
-                tip.update(popper)
-              }
+              followCursor: true
             })
           })
         }
