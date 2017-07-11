@@ -17,7 +17,7 @@ export default class {
 
     this._axios = axios.create({
       baseURL: fractalisBaseURL,
-      timeout: 10000,
+      timeout: 30000,
       withCredentials: true
     })
   }

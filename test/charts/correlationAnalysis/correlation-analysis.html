@@ -6,6 +6,8 @@
 </head>
 
 <body>
+<input type="button" onclick="loadData()" value="load data"/>
+<input type="button" onclick="deleteData()" value="delete data"/>
 <div style="height: 100%; width: 70%">
   <div id="placeholder1"></div>
 </div>
@@ -25,30 +27,34 @@
       return credentials1
     }
   })
-  fjs.clearCache()
-    .then(() => {
-      fjs.loadData([
-        {
-          dictionary: {
-            name: 'VITALHTCM',
-            projection: 'VITALHTCM',
-            label: 'Height',
-            fieldType: 'Integer',
-            isArray: false
-          },
-          data_set: 'ppmi.clinical_visit'
+  function loadData () {
+    fjs.loadData([
+      {
+        dictionary: {
+          name: 'VITALHTCM',
+          projection: 'VITALHTCM',
+          label: 'Height',
+          fieldType: 'Integer',
+          isArray: false
         },
-        {
-          dictionary: {
-            name: 'VITALWGTKG',
-            projection: 'VITALWGTKG',
-            label: 'Weight',
-            fieldType: 'Double',
-            isArray: false
-          },
-          data_set: 'ppmi.clinical_visit'
-        }
-      ])
-    })
+        data_set: 'ppmi.clinical_visit'
+      },
+      {
+        dictionary: {
+          name: 'VITALWGTKG',
+          projection: 'VITALWGTKG',
+          label: 'Weight',
+          fieldType: 'Double',
+          isArray: false
+        },
+        data_set: 'ppmi.clinical_visit'
+      }
+    ])
+  }
+
+  function deleteData () {
+    fjs.clearCache()
+  }
+
   fjs.setChart({chart: 'correlation-analysis', selector: '#placeholder1'})
 </script>

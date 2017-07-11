@@ -55,14 +55,17 @@
     computed: {
       items () {
         return store.getters.data.filter(item => item.data_type === this.dataType)
+      },
+      transformedIDs () {
+        return this.selectedIDs.map(d => `$${d}$`)
       }
     },
     watch: {
-      'selectedIDs': {
-        handler: function (newSelectedIDs, oldSelectedIDs) {
+      'transformedIDs': {
+        handler: function (newTransformedIDs, oldTransformedIDs) {
           // avoid emitting signals and thus triggering watchers if selected ids didn't change
-          if (JSON.stringify(newSelectedIDs) !== JSON.stringify(oldSelectedIDs)) {
-            this.$emit('update', newSelectedIDs)
+          if (JSON.stringify(newTransformedIDs) !== JSON.stringify(oldTransformedIDs)) {
+            this.$emit('update', newTransformedIDs)
           }
         }
       },

@@ -27,8 +27,7 @@
     </div>
 
     <div class="fjs-vis-container">
-      <svg :width="width"
-           :height="height">
+      <svg :height="height" :width="width">
         <g :transform="`translate(${margin.left}, ${margin.top})`">
           <g class="fjs-corr-axis fjs-x-axis-1" :transform="`translate(0, ${padded.height})`"></g>
           <g class="fjs-corr-axis fjs-x-axis-2"></g>
@@ -52,17 +51,17 @@
                   :cx="scales.x(point.x)"
                   :cy="scales.y(point.y)"
                   r="4"
-                  v-svgtooltip="point.tooltip"
                   :fill="annotationColors[annotations.indexOf(point.annotation) % annotationColors.length]"
                   :stroke="subsetColors[point.subset]"
+                  :title="point.tooltip"
                   v-for="point in shownPoints.all">
           </circle>
           <line class="fjs-lin-reg-line"
+                :title="regLine.tooltip"
                 :x1="tweened.regLine.x1"
                 :x2="tweened.regLine.x2"
                 :y1="tweened.regLine.y1"
-                :y2="tweened.regLine.y2"
-                v-svgtooltip="regLine.tooltip">
+                :y2="tweened.regLine.y2">
           </line>
           <polyline class="fjs-histogram-polyline fjs-bottom" points=""></polyline>
           <polyline class="fjs-histogram-polyline fjs-left" points=""></polyline>
@@ -114,16 +113,15 @@
   </div>
 </template>
 
-
 <script>
   import DataBox from '../components/DataBox.vue'
   import store from '../../store/store'
   import requestHandling from '../methods/run-analysis'
   import * as d3 from 'd3'
   import { TweenLite } from 'gsap'
-  import svgtooltip from '../directives/v-svgtooltip'
   import TaskView from '../components/TaskView.vue'
   import deepFreeze from 'deep-freeze-strict'
+  import tippy from 'tippy.js'
   export default {
     name: 'correlation-analysis',
     data () {
@@ -139,7 +137,6 @@
           method: 'pearson'
         },
         shownResults: {  // initially computed
-          init: true,  // will disappear after being initially set
           coef: 0,
           p_value: 0,
           slope: 0,
@@ -147,16 +144,9 @@
           method: '',
           x_label: '',
           y_label: '',
-          get data () {
-            return {
-              id: [],
-              [this.x_label]: [],
-              [this.y_label]: []
-            }
-          }
+          data: []
         },
         tmpResults: {  // on-the-fly computed
-          init: true,  // will disappear after being initially set
           coef: 0,
           p_value: 0,
           slope: 0,
@@ -164,13 +154,7 @@
           method: '',
           x_label: '',
           y_label: '',
-          get data () {
-            return {
-              id: [],
-              [this.x_label]: [],
-              [this.y_label]: []
-            }
-          }
+          data: []
         },
         selectedPoints: [],
         tweened: {
@@ -187,12 +171,12 @@
       },
       args () {
         return {
-          x: `$${this.xyData[0]}$`,
-          y: `$${this.xyData[1]}$`,
+          x: this.xyData[0],
+          y: this.xyData[1],
           id_filter: this.selectedPoints.map(d => d.id),
           method: this.params.method,
           subsets: store.getters.subsets,
-          annotations: this.annotationData.map(d => `$${d}$`)
+          annotations: this.annotationData
         }
       },
       margin () {
@@ -216,30 +200,30 @@
         const ids = []
         const subsets = []
         const annotations = []
-        let all = []
-        if (!this.shownResults.init) {
-          all = this.shownResults.data.map(d => {
-            const x = d[this.shownResults.x_label]
-            const y = d[this.shownResults.y_label]
-            const id = d.id
-            const subset = d.subset
-            const annotation = d.annotation
-            const tooltip = {
-              [this.shownResults.x_label]: x,
-              [this.shownResults.y_label]: y,
-              subset
-            }
-            if (typeof annotation !== 'undefined') {
-              tooltip.annotation = annotation
-            }
-            xs.push(x)
-            ys.push(y)
-            ids.push(id)
-            subsets.push(subset)
-            annotations.push(annotation)
-            return {x, y, id, subset, annotation, tooltip}
-          })
-        }
+        const all = this.shownResults.data.map(d => {
+          const x = d[this.shownResults.x_label]
+          const y = d[this.shownResults.y_label]
+          const id = d.id
+          const subset = d.subset
+          const annotation = d.annotation
+          let tooltip = `
+<div>
+  <p>${[this.shownResults.x_label]}: ${x}</p>
+  <p>${[this.shownResults.y_label]}: ${y}</p>
+  <p>Subset: ${subset}</p>
+  ${typeof annotation !== 'undefined' ? '<p>Annotation:' + annotation + '</p>' : ''}
+</div>
+`
+          if (typeof annotation !== 'undefined') {
+            tooltip += `<Annotation: ${annotation}`
+          }
+          xs.push(x)
+          ys.push(y)
+          ids.push(id)
+          subsets.push(subset)
+          annotations.push(annotation)
+          return {x, y, id, subset, annotation, tooltip}
+        })
         return { xs, ys, ids, subsets, annotations, all }
       },
       tmpPoints () {
@@ -248,22 +232,19 @@
         const ids = []
         const subsets = []
         const annotations = []
-        let all = []
-        if (!this.tmpResults.init) {
-          all = this.tmpResults.data.map(d => {
-            const x = d[this.tmpResults.x_label]
-            const y = d[this.tmpResults.y_label]
-            const id = d.id
-            const subset = d.subset
-            const annotation = d.annotation
-            xs.push(x)
-            ys.push(y)
-            ids.push(id)
-            subsets.push(subset)
-            annotations.push(annotation)
-            return {x, y, id, subset, annotation}
-          })
-        }
+        const all = this.tmpResults.data.map(d => {
+          const x = d[this.tmpResults.x_label]
+          const y = d[this.tmpResults.y_label]
+          const id = d.id
+          const subset = d.subset
+          const annotation = d.annotation
+          xs.push(x)
+          ys.push(y)
+          ids.push(id)
+          subsets.push(subset)
+          annotations.push(annotation)
+          return {x, y, id, subset, annotation}
+        })
         return { xs, ys, ids, subsets, annotations, all }
       },
       scales () {
@@ -295,9 +276,6 @@
         return { x1, x2, y1, y2 }
       },
       regLine () {
-        if (this.tmpResults.init) {
-          return { x1: 0, x2: 0, y1: 0, y2: 0 }
-        }
         const minX = d3.min(this.tmpPoints.xs)
         const maxX = d3.max(this.tmpPoints.xs)
         let x1 = this.scales.x(minX)
@@ -317,8 +295,12 @@
         y2 = y2 < 0 ? 0 : y2
         y2 = y2 > this.height ? this.height : y2
 
-        const tooltip = {Slope: this.tmpResults.slope, Intercept: this.tmpResults.intercept}
-
+        const tooltip = `
+<div>
+  <p>Slope: ${this.tmpResults.slope}</p>
+  <p>Intercept: ${this.tmpResults.intercept}</p>
+</div>
+`
         return { x1, x2, y1, y2, tooltip }
       },
       brush () {
@@ -347,14 +329,16 @@
         const BINS = 14
         let xBins = []
         let yBins = []
-        if (!this.tmpResults.init) {
-          const [xMin, xMax] = d3.extent(this.tmpPoints.xs)
-          const [yMin, yMax] = d3.extent(this.tmpPoints.ys)
-          const xThresholds = d3.range(xMin, xMax, (xMax - xMin) / BINS)
-          const yThresholds = d3.range(yMin, yMax, (yMax - yMin) / BINS)
+        const [xMin, xMax] = d3.extent(this.tmpPoints.xs)
+        const [yMin, yMax] = d3.extent(this.tmpPoints.ys)
+        const xThresholds = d3.range(xMin, xMax, (xMax - xMin) / BINS)
+        const yThresholds = d3.range(yMin, yMax, (yMax - yMin) / BINS)
+        if (this.tmpPoints.xs.length) {
           xBins = d3.histogram()
             .domain([xMin, xMax])
             .thresholds(xThresholds)(this.tmpPoints.xs)
+        }
+        if (this.tmpPoints.ys.length) {
           yBins = d3.histogram()
             .domain([yMin, yMax])
             .thresholds(yThresholds)(this.tmpPoints.ys)
@@ -389,25 +373,53 @@
         return { bottom, left }
       }
     },
+    // IMPORTANT: If the code within the watchers does interact with the DOM the code should be wrapped into a $nextTick
+    // statement. This helps with the integration into the Vue component lifecycle. E.g.: an animation can't be
+    // applied to an element that does not exist yet.
     watch: {
+      'shownPoints': {
+        handler: function () {
+          this.$nextTick(() => {
+            tippy('.fjs-scatterplot-point:not([data-tooltipped])', {
+              performance: true,
+              theme: 'light',
+              arrow: true
+            })
+          })
+        }
+      },
       'regLine': {
         handler: function (newRegLine) {
           TweenLite.to(this.tweened.regLine, 0.5, newRegLine)
+          this.$nextTick(() => {
+            const tip = tippy('.fjs-lin-reg-line:not([data-tooltipped])', {
+              theme: 'light',
+              arrow: true,
+              followCursor: true,
+              onShow: function () {
+                const el = document.querySelector('.fjs-lin-reg-line[data-tooltipped]')
+                const popper = tip.getPopperElement(el)
+                tip.update(popper)
+              }
+            })
+          })
         }
       },
       'histPolyPoints': {
         handler: function (newPoints) {
-          // we use d3 instead of TweenLite here because d3 can transition point paths
-          d3.selectAll(`.fjs-vm-uid-${this._uid} .fjs-histogram-polyline`)
-            .filter('.fjs-bottom')
-            .transition()
-            .duration(500)
-            .attr('points', newPoints.bottom)
-          d3.selectAll(`.fjs-vm-uid-${this._uid} .fjs-histogram-polyline`)
-            .filter('.fjs-left')
-            .transition()
-            .duration(500)
-            .attr('points', newPoints.left)
+          this.$nextTick(() => {
+            // we use d3 instead of TweenLite here because d3 can transition point paths
+            d3.selectAll(`.fjs-vm-uid-${this._uid} .fjs-histogram-polyline`)
+              .filter('.fjs-bottom')
+              .transition()
+              .duration(500)
+              .attr('points', newPoints.bottom)
+            d3.selectAll(`.fjs-vm-uid-${this._uid} .fjs-histogram-polyline`)
+              .filter('.fjs-left')
+              .transition()
+              .duration(500)
+              .attr('points', newPoints.left)
+          })
         }
       },
       'args': {
@@ -425,15 +437,19 @@
       },
       'axis': {
         handler: function (newAxis) {
-          d3.select(`.fjs-vm-uid-${this._uid} .fjs-x-axis-1`).call(newAxis.x1)
-          d3.select(`.fjs-vm-uid-${this._uid} .fjs-x-axis-2`).call(newAxis.x2)
-          d3.select(`.fjs-vm-uid-${this._uid} .fjs-y-axis-1`).call(newAxis.y1)
-          d3.select(`.fjs-vm-uid-${this._uid} .fjs-y-axis-2`).call(newAxis.y2)
+          this.$nextTick(() => {
+            d3.select(`.fjs-vm-uid-${this._uid} .fjs-x-axis-1`).call(newAxis.x1)
+            d3.select(`.fjs-vm-uid-${this._uid} .fjs-x-axis-2`).call(newAxis.x2)
+            d3.select(`.fjs-vm-uid-${this._uid} .fjs-y-axis-1`).call(newAxis.y1)
+            d3.select(`.fjs-vm-uid-${this._uid} .fjs-y-axis-2`).call(newAxis.y2)
+          })
         }
       },
       'brush': {
         handler: function (newBrush) {
-          d3.select(`.fjs-vm-uid-${this._uid} .fjs-brush`).call(newBrush)
+          this.$nextTick(() => {
+            d3.select(`.fjs-vm-uid-${this._uid} .fjs-brush`).call(newBrush)
+          })
         }
       },
       'idFilter': {
@@ -459,8 +475,7 @@
       TaskView
     },
     mixins: [
-      requestHandling,
-      svgtooltip
+      requestHandling
     ],
     methods: {
       runAnalysisWrapper ({init, args}) {
@@ -568,8 +583,6 @@
 
 <!--CSS for dynamically created components-->
 <style lang="sass">
-  @import './src/assets/svgtooltip.sass'
-
   .fjs-corr-axis
     shape-rendering: crispEdges
     .tick
