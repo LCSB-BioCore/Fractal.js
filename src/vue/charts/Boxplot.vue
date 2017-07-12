@@ -71,7 +71,7 @@
             </line>
             <rect class="fjs-above-median-box"
                   :x="- boxplotWidth / 2"
-                  :y="scales.y(results.statistics[label].u_qrt) + 1"
+                  :y="scales.y(results.statistics[label].u_qrt)"
                   :width="boxplotWidth"
                   :height="scales.y(results.statistics[label].median) - scales.y(results.statistics[label].u_qrt)">
             </rect>
@@ -79,12 +79,13 @@
                   :x="- boxplotWidth / 2"
                   :y="scales.y(results.statistics[label].median)"
                   :width="boxplotWidth"
-                  :height="scales.y(results.statistics[label].l_qrt) - scales.y(results.statistics[label].median) - 1">
+                  :height="scales.y(results.statistics[label].l_qrt) - scales.y(results.statistics[label].median)">
             </rect>
           </g>
         </g>
       </svg>
     </div>
+    <task-view></task-view>
   </div>
 </template>
 
@@ -141,8 +142,10 @@
       },
       boxplotWidth () {
         const maxBoxplotWidth = this.padded.width / 4
+        const minBoxplotWidth = 10
         let boxplotWidth = this.padded.width / this.numOfBoxplots - this.padded.width * 0.05
         boxplotWidth = boxplotWidth > maxBoxplotWidth ? maxBoxplotWidth : boxplotWidth
+        boxplotWidth = boxplotWidth < minBoxplotWidth ? minBoxplotWidth : boxplotWidth
         return boxplotWidth
       },
       scales () {
@@ -153,7 +156,7 @@
         const x = d3.scalePoint()
           .domain(Object.keys(this.results.statistics))
           .range([0, this.padded.height])
-          .padding(1)
+          .padding(0.5)
         const y = d3.scaleLinear()
           .domain([extent[0] - padding, extent[1] + padding])
           .range([this.padded.width, 0])
