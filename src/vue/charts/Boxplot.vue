@@ -14,8 +14,12 @@
     </div>
 
     <div class="fjs-parameter-container">
-      <label for="fjs-show-data-check">Show Data Points</label>
+      <label for="fjs-show-data-check">Show Points</label>
       <input id="fjs-show-data-check" type="checkbox" v-model="params.showData"/>
+      <label for="fjs-jitter-data-check">Jitter Data</label>
+      <input id="fjs-jitter-data-check" type="checkbox" v-model="params.jitter"/>
+      <label for="fjs-show-kde-check">Show Density Est.</label>
+      <input id="fjs-show-kde-check" type="checkbox" v-model="params.showKDE"/>
     </div>
 
     <div class="fjs-vis-container">
@@ -29,7 +33,7 @@
              :data-label="label"
              @mouseenter="showTooltip(label)"
              @mouseleave="hideTooltip(label)"
-             v-for="label in Object.keys(results.statistics)" >
+             v-for="label in labels" >
             <line class="fjs-upper-whisker"
                   :title="results.statistics[label].u_wsk"
                   :x1="- boxplotWidth / 6"
@@ -84,11 +88,16 @@
                   :height="scales.y(results.statistics[label].l_qrt) - scales.y(results.statistics[label].median)">
             </rect>
             <circle class="fjs-points"
+                    :cx="params.jitter ? Math.random() * boxplotWidth / 2 : boxplotWidth / 2"
                     :cy="scales.y(point)"
                     r="4"
                     v-for="point in points[label]"
                     v-if="params.showData">
             </circle>
+            <polyline class="fjs-kde"
+                      :points="kdePolyPoints[label]"
+                      v-if="params.showKDE">
+            </polyline>
           </g>
         </g>
       </svg>
@@ -116,7 +125,9 @@
         catData: [],
         tooltips: {},
         params: {
-          showData: false
+          showData: false,
+          jitter: false,
+          showKDE: false
         },
         results: {
           data: [],
@@ -148,9 +159,12 @@
         const height = this.height - this.margin.top - this.margin.bottom
         return { width, height }
       },
+      labels () {
+        return Object.keys(this.results.statistics)
+      },
       points () {
         const points = {}
-        Object.keys(this.results.statistics).forEach(label => {
+        this.labels.forEach(label => {
           let [variable, category, subset] = label.split('//')
           subset = parseInt(subset.substring(1)) - 1  // revert subset string formatting
           points[label] = this.results.data
@@ -160,7 +174,7 @@
         return points
       },
       numOfBoxplots () {
-        return Object.keys(this.results.statistics).length
+        return this.labels.length
       },
       boxplotWidth () {
         const maxBoxplotWidth = this.padded.width / 4
@@ -176,13 +190,36 @@
         const extent = d3.extent(flattened)
         const padding = (extent[1] - extent[0]) / 20
         const x = d3.scalePoint()
-          .domain(Object.keys(this.results.statistics))
+          .domain(this.labels)
           .range([0, this.padded.width])
           .padding(0.5)
         const y = d3.scaleLinear()
           .domain([extent[0] - padding, extent[1] + padding])
           .range([this.padded.height, 0])
         return { x, y }
+      },
+      kdePolyPoints () {
+        const polyPoints = {}
+        this.labels.forEach(label => {
+          polyPoints[label] = this.results.statistics[label].kde.map((d, i) => {
+            return -this.kdeScales[label].y(d) + ',' + this.kdeScales[label].x(i)
+          }).join(' ')
+        })
+        return polyPoints
+      },
+      kdeScales () {
+        const polyPoints = {}
+        this.labels.forEach(label => {
+          const x = d3.scaleLinear()
+            .domain([0, this.results.statistics[label].kde.length - 1])
+            .range([this.scales.y(this.results.statistics[label].l_wsk),
+              this.scales.y(this.results.statistics[label].u_wsk)])
+          const y = d3.scaleLinear()
+            .domain(d3.extent(this.results.statistics[label].kde))
+            .range([0, this.boxplotWidth / 2])
+          polyPoints[label] = { x, y }
+        })
+        return polyPoints
       },
       axis () {
         const x = d3.axisBottom(this.scales.x).tickFormat(d => utils.truncate({fullStr: d, strLen: 35}))
@@ -331,6 +368,10 @@
             fill: rgb(180, 221, 253)
             shape-rendering: crispEdges
         .fjs-points
+        .fjs-kde
+          fill: none
+          stroke: black
+          stroke-width: 2px
 </style>
 
 
