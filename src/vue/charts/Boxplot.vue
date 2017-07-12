@@ -14,6 +14,8 @@
     </div>
 
     <div class="fjs-parameter-container">
+      <label for="fjs-show-data-check">Show Data Points</label>
+      <input id="fjs-show-data-check" type="checkbox" v-model="params.showData"/>
     </div>
 
     <div class="fjs-vis-container">
@@ -81,6 +83,12 @@
                   :width="boxplotWidth"
                   :height="scales.y(results.statistics[label].l_qrt) - scales.y(results.statistics[label].median)">
             </rect>
+            <circle class="fjs-points"
+                    :cy="scales.y(point)"
+                    r="4"
+                    v-for="point in points[label]"
+                    v-if="params.showData">
+            </circle>
           </g>
         </g>
       </svg>
@@ -107,6 +115,9 @@
         numData: [],
         catData: [],
         tooltips: {},
+        params: {
+          showData: false
+        },
         results: {
           data: [],
           statistics: {}
@@ -136,6 +147,17 @@
         const width = this.width - this.margin.left - this.margin.right
         const height = this.height - this.margin.top - this.margin.bottom
         return { width, height }
+      },
+      points () {
+        const points = {}
+        Object.keys(this.results.statistics).forEach(label => {
+          let [variable, category, subset] = label.split('//')
+          subset = parseInt(subset.substring(1)) - 1  // revert subset string formatting
+          points[label] = this.results.data
+            .filter(d => d.subset === subset && d.category === category)
+            .map(d => d[variable])
+        })
+        return points
       },
       numOfBoxplots () {
         return Object.keys(this.results.statistics).length
@@ -308,6 +330,7 @@
             stroke: none
             fill: rgb(180, 221, 253)
             shape-rendering: crispEdges
+        .fjs-points
 </style>
 
 
