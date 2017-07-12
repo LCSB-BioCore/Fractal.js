@@ -128,8 +128,8 @@
       margin () {
         const left = 60
         const top = 10
-        const right = 10
-        const bottom = 100
+        const right = 50
+        const bottom = this.height * 0.1
         return { left, top, right, bottom }
       },
       padded () {
@@ -152,18 +152,18 @@
         const values = this.results.data.map(entry => this.results.variables.map(v => entry[v]))
         const flattened = [].concat.apply([], values)
         const extent = d3.extent(flattened)
-        const padding = (extent[1] - extent[0]) / 10
+        const padding = (extent[1] - extent[0]) / 20
         const x = d3.scalePoint()
           .domain(Object.keys(this.results.statistics))
-          .range([0, this.padded.height])
+          .range([0, this.padded.width])
           .padding(0.5)
         const y = d3.scaleLinear()
           .domain([extent[0] - padding, extent[1] + padding])
-          .range([this.padded.width, 0])
+          .range([this.padded.height, 0])
         return { x, y }
       },
       axis () {
-        const x = d3.axisBottom(this.scales.x).tickFormat(d => utils.truncate({fullStr: d, strLen: 20}))
+        const x = d3.axisBottom(this.scales.x).tickFormat(d => utils.truncate({fullStr: d, strLen: 35}))
         const y = d3.axisLeft(this.scales.y)
         return { x, y }
       }
@@ -326,4 +326,5 @@
     .tick
       text
         text-anchor: start
+        font-size: 14px
 </style>
