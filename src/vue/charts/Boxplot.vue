@@ -30,41 +30,41 @@
           <g class="fjs-boxplot-axis fjs-y-axis"></g>
           <g class="fjs-box"
              :transform="`translate(${scales.x(label)}, 0)`"
-             :title="label"
+             v-tooltip="{title: label, options: {position: 'bottom'}}"
              :data-label="label"
              @mouseenter="showTooltip(label)"
              @mouseleave="hideTooltip(label)"
              v-for="label in labels" >
             <line class="fjs-upper-whisker"
-                  :title="results.statistics[label].u_wsk"
+                  v-tooltip="{title: results.statistics[label].u_wsk, options: {position: 'right'}}"
                   :x1="- boxplotWidth / 6"
                   :y1="tweened.boxes[label].u_wsk"
                   :x2="boxplotWidth / 6"
                   :y2="tweened.boxes[label].u_wsk">
             </line>
             <line class="fjs-lower-whisker"
-                  :title="results.statistics.l_wsk"
+                  v-tooltip="{title: results.statistics[label].l_wsk, options: {position: 'right'}}"
                   :x1="- boxplotWidth / 6"
                   :y1="tweened.boxes[label].l_wsk"
                   :x2="boxplotWidth / 6"
                   :y2="tweened.boxes[label].l_wsk">
             </line>
             <line class="fjs-upper-quartile"
-                  :title="results.statistics[label].u_qrt"
+                  v-tooltip="{title: results.statistics[label].u_qrt, options: {position: 'left'}}"
                   :x1="- boxplotWidth / 2"
                   :y1="tweened.boxes[label].u_qrt"
                   :x2="boxplotWidth / 2"
                   :y2="tweened.boxes[label].u_qrt">
             </line>
             <line class="fjs-lower-quartile"
-                  :title="results.statistics.l_qrt"
+                  v-tooltip="{title: results.statistics[label].l_qrt, options: {position: 'left'}}"
                   :x1="- boxplotWidth / 2"
                   :y1="tweened.boxes[label].l_qrt"
                   :x2="boxplotWidth / 2"
                   :y2="tweened.boxes[label].l_qrt">
             </line>
             <line class="fjs-median"
-                  :title="results.statistics.median"
+                  v-tooltip="{title: results.statistics[label].median, options: {position: 'right'}}"
                   :x1="- boxplotWidth / 2"
                   :y1="tweened.boxes[label].median"
                   :x2="boxplotWidth / 2"
@@ -89,7 +89,7 @@
                   :height="tweened.boxes[label].l_qrt - tweened.boxes[label].median">
             </rect>
             <circle class="fjs-points"
-                    :title="point.tooltip"
+                    v-tooltip="{title: point.tooltip, options: {arrow: true, theme: 'light'}}"
                     :cx="point.jitter"
                     :cy="scales.y(point.value)"
                     r="4"
@@ -117,7 +117,7 @@
   import TaskView from '../components/TaskView.vue'
   import deepFreeze from 'deep-freeze-strict'
   import utils from '../../services/utils'
-  import tippy from 'tippy.js'
+  import tooltip from '../directives/tooltip'
   export default {
     name: 'boxplot',
     data () {
@@ -304,55 +304,26 @@
               .call(newAxis.y)
           })
         }
-      },
-      'points': {
-        handler: function () {
-          // https://github.com/atomiks/tippyjs/issues/74
-          if (typeof this.tooltips.points !== 'undefined') {
-            this.tooltips.points.destroyAll()
-          }
-          this.$nextTick(() => {
-            this.tooltips.points = tippy(`.fjs-vm-uid-${this._uid} .fjs-points:not([data-tooltipped])`, {
-              performance: true,
-              theme: 'light',
-              arrow: true
-            })
-          })
-        }
       }
     },
     methods: {
-      showTooltip (label) {
-        // https://github.com/atomiks/tippyjs/issues/74
-        Object.keys(this.tooltips.boxes).forEach(label => this.tooltips.boxes[label].forEach(d => d.tip.destroyAll()))
-        this.tooltips.boxes = {}
-
-        const defaultOptions = {
-          performance: true,
-          theme: 'light',
-          arrow: true,
-          trigger: 'manual'
-        }
-        const upperWhisker = document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"] .fjs-upper-whisker`)
-        const lowerWhisker = document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"] .fjs-lower-whisker`)
-        const upperQuartile = document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"] .fjs-upper-quartile`)
-        const lowerQuartile = document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"] .fjs-lower-quartile`)
-        const median = document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"] .fjs-median`)
-        const box = document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"]`)
-        this.tooltips.boxes[label] = [
-          { tip: tippy(upperWhisker, Object.assign({position: 'right'}, defaultOptions)), el: upperWhisker },
-          { tip: tippy(lowerWhisker, Object.assign({position: 'right'}, defaultOptions)), el: lowerWhisker },
-          { tip: tippy(upperQuartile, Object.assign({position: 'left'}, defaultOptions)), el: upperQuartile },
-          { tip: tippy(lowerQuartile, Object.assign({position: 'left'}, defaultOptions)), el: lowerQuartile },
-          { tip: tippy(median, Object.assign({position: 'right'}, defaultOptions)), el: median },
-          { tip: tippy(box, Object.assign({position: 'bottom'}, defaultOptions)), el: box }
-        ]
-        this.tooltips.boxes[label].forEach(d => {
-          d.tip.show(d.tip.getPopperElement(d.el))
+      getTippyInstances (label) {
+        return [
+          document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"] .fjs-upper-whisker`),
+          document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"] .fjs-lower-whisker`),
+          document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"] .fjs-upper-quartile`),
+          document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"] .fjs-lower-quartile`),
+          document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"] .fjs-median`)
+        ].map(el => {
+          const uuid = el.getAttribute('data-uuid')
+          return { el, tip: this._tippyInstances[uuid] }
         })
       },
+      showTooltip (label) {
+        this.getTippyInstances(label).forEach(d => d.tip.show(d.tip.getPopperElement(d.el)))
+      },
       hideTooltip (label) {
-        this.tooltips.boxes[label].forEach(d => d.tip.hide(d.tip.getPopperElement(d.el)))
+        this.getTippyInstances(label).forEach(d => d.tip.hide(d.tip.getPopperElement(d.el)))
       },
       update_numData (ids) {
         this.numData = ids
@@ -387,6 +358,9 @@
     mixins: [
       requestHandling
     ],
+    directives: {
+      tooltip
+    },
     mounted () {
       window.addEventListener('resize', this.handleResize)
       this.handleResize()

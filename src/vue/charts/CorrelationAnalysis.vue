@@ -53,11 +53,11 @@
                   r="4"
                   :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
                   :stroke="subsetColors[point.subset]"
-                  v-tooltip="{title: point.tooltip, options: {theme: 'light', arrow: true}}"
+                  v-tooltip="{title: point.tooltip}"
                   v-for="point in shownPoints.all">
           </circle>
           <line class="fjs-lin-reg-line"
-                v-tooltip="{title: regLine.tooltip, options: {theme: 'light', arrow: true, followCursor: true}}"
+                v-tooltip="{title: regLine.tooltip, options: {followCursor: true}}"
                 :x1="tweened.regLine.x1"
                 :x2="tweened.regLine.x2"
                 :y1="tweened.regLine.y1"
@@ -446,7 +446,7 @@
     },
     components: {
       DataBox,
-      TaskView,
+      TaskView
     },
     mixins: [
       requestHandling
