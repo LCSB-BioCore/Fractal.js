@@ -8,11 +8,13 @@
 <body>
 <input type="button" onclick="loadData()" value="load data"/>
 <input type="button" onclick="deleteData()" value="delete data"/>
-<div style="height: 100%; width: 70%">
-  <div id="placeholder1"></div>
-</div>
-<div style="height: 100%; width: 70%">
-  <div id="placeholder2"></div>
+<div class="fjs-placeholder-container" style="width: 2000px;">
+  <div style="width: 1000px;">
+    <div id="placeholder1"></div>
+  </div>
+  <div style="width: 1000px;">
+    <div id="placeholder2"></div>
+  </div>
 </div>
 </body>
 
@@ -91,3 +93,10 @@
   fjs.setChart({chart: 'boxplot', selector: '#placeholder1'})
   fjs.setChart({chart: 'correlation-analysis', selector: '#placeholder2'})
 </script>
+
+<style>
+  .fjs-placeholder-container {
+    display: flex;
+    flex-direction: row;
+  }
+</style>

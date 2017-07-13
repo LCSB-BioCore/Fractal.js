@@ -89,7 +89,6 @@
                   :height="scales.y(results.statistics[label].l_qrt) - scales.y(results.statistics[label].median)">
             </rect>
             <circle class="fjs-points"
-                    :class="{'fjs-id-filtered': ~idFilter.indexOf(point.id)}"
                     :title="point.tooltip"
                     :cx="point.jitter"
                     :cy="scales.y(point.value)"
@@ -148,7 +147,7 @@
         return {
           variables: this.numData,
           categories: this.catData,
-          id_filter: [],
+          id_filter: this.idFilter,
           subsets: store.getters.subsets
         }
       },
@@ -409,8 +408,6 @@
             shape-rendering: crispEdges
         .fjs-points
           stroke: none
-        .fjs-id-filtered
-          fill: #f00
         .fjs-kde
           fill: none
           stroke: black
