@@ -30,6 +30,7 @@
           <g class="fjs-boxplot-axis fjs-y-axis"></g>
           <g class="fjs-box"
              :transform="`translate(${scales.x(label)}, 0)`"
+             :title="label"
              :data-label="label"
              @mouseenter="showTooltip(label)"
              @mouseleave="hideTooltip(label)"
@@ -88,8 +89,10 @@
                   :height="scales.y(results.statistics[label].l_qrt) - scales.y(results.statistics[label].median)">
             </rect>
             <circle class="fjs-points"
-                    :cx="params.jitter ? Math.random() * boxplotWidth / 2 : boxplotWidth / 2"
-                    :cy="scales.y(point)"
+                    :class="{'fjs-id-filtered': ~idFilter.indexOf(point.id)}"
+                    :title="point.tooltip"
+                    :cx="point.jitter"
+                    :cy="scales.y(point.value)"
                     r="4"
                     v-for="point in points[label]"
                     v-if="params.showData">
@@ -123,7 +126,9 @@
         height: 0,
         numData: [],
         catData: [],
-        tooltips: {},
+        tooltips: {
+          boxes: {}
+        },
         params: {
           showData: false,
           jitter: false,
@@ -136,6 +141,9 @@
       }
     },
     computed: {
+      idFilter () {
+        return store.getters.filter('ids')
+      },
       args () {
         return {
           variables: this.numData,
@@ -169,7 +177,24 @@
           subset = parseInt(subset.substring(1)) - 1  // revert subset string formatting
           points[label] = this.results.data
             .filter(d => d.subset === subset && d.category === category)
-            .map(d => d[variable])
+            .map(d => {
+              return {
+                id: d.id,
+                value: d[variable],
+                jitter: this.params.jitter ? Math.random() * this.boxplotWidth / 2 : this.boxplotWidth / 2,
+                subset: d.subset,
+                category: d.category,
+                get tooltip () {
+                  return `
+<div>
+  <p>${variable}: ${this.value}</p>
+  <p>Category: ${this.category}</p>
+  <p>Subset: ${this.subset + 1}</p>
+</div>
+`
+                }
+              }
+            })
         })
         return points
       },
@@ -252,13 +277,26 @@
               .call(newAxis.y)
           })
         }
+      },
+      'points': function () {
+        // https://github.com/atomiks/tippyjs/issues/74
+        if (typeof this.tooltips.points !== 'undefined') {
+          this.tooltips.points.destroyAll()
+        }
+        this.$nextTick(() => {
+          this.tooltips.points = tippy(`.fjs-vm-uid-${this._uid} .fjs-points:not([data-tooltipped])`, {
+            performance: true,
+            theme: 'light',
+            arrow: true
+          })
+        })
       }
     },
     methods: {
       showTooltip (label) {
         // https://github.com/atomiks/tippyjs/issues/74
-        Object.keys(this.tooltips).forEach(label => this.tooltips[label].forEach(d => d.tip.destroyAll()))
-        this.tooltips = {}
+        Object.keys(this.tooltips.boxes).forEach(label => this.tooltips.boxes[label].forEach(d => d.tip.destroyAll()))
+        this.tooltips.boxes = {}
 
         const defaultOptions = {
           performance: true,
@@ -271,19 +309,21 @@
         const upperQuartile = document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"] .fjs-upper-quartile`)
         const lowerQuartile = document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"] .fjs-lower-quartile`)
         const median = document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"] .fjs-median`)
-        this.tooltips[label] = [
+        const box = document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"]`)
+        this.tooltips.boxes[label] = [
           { tip: tippy(upperWhisker, Object.assign({position: 'right'}, defaultOptions)), el: upperWhisker },
           { tip: tippy(lowerWhisker, Object.assign({position: 'right'}, defaultOptions)), el: lowerWhisker },
           { tip: tippy(upperQuartile, Object.assign({position: 'left'}, defaultOptions)), el: upperQuartile },
           { tip: tippy(lowerQuartile, Object.assign({position: 'left'}, defaultOptions)), el: lowerQuartile },
-          { tip: tippy(median, Object.assign({position: 'right'}, defaultOptions)), el: median }
+          { tip: tippy(median, Object.assign({position: 'right'}, defaultOptions)), el: median },
+          { tip: tippy(box, Object.assign({position: 'bottom'}, defaultOptions)), el: box }
         ]
-        this.tooltips[label].forEach(d => {
+        this.tooltips.boxes[label].forEach(d => {
           d.tip.show(d.tip.getPopperElement(d.el))
         })
       },
       hideTooltip (label) {
-        this.tooltips[label].forEach(d => d.tip.hide(d.tip.getPopperElement(d.el)))
+        this.tooltips.boxes[label].forEach(d => d.tip.hide(d.tip.getPopperElement(d.el)))
       },
       update_numData (ids) {
         this.numData = ids
@@ -368,6 +408,9 @@
             fill: rgb(180, 221, 253)
             shape-rendering: crispEdges
         .fjs-points
+          stroke: none
+        .fjs-id-filtered
+          fill: #f00
         .fjs-kde
           fill: none
           stroke: black
