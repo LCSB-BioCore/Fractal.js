@@ -38,55 +38,55 @@
             <line class="fjs-upper-whisker"
                   :title="results.statistics[label].u_wsk"
                   :x1="- boxplotWidth / 6"
-                  :y1="scales.y(results.statistics[label].u_wsk)"
+                  :y1="tweened.boxes[label].u_wsk"
                   :x2="boxplotWidth / 6"
-                  :y2="scales.y(results.statistics[label].u_wsk)">
+                  :y2="tweened.boxes[label].u_wsk">
             </line>
             <line class="fjs-lower-whisker"
-                  :title="results.statistics[label].l_wsk"
+                  :title="results.statistics.l_wsk"
                   :x1="- boxplotWidth / 6"
-                  :y1="scales.y(results.statistics[label].l_wsk)"
+                  :y1="tweened.boxes[label].l_wsk"
                   :x2="boxplotWidth / 6"
-                  :y2="scales.y(results.statistics[label].l_wsk)">
+                  :y2="tweened.boxes[label].l_wsk">
             </line>
             <line class="fjs-upper-quartile"
                   :title="results.statistics[label].u_qrt"
                   :x1="- boxplotWidth / 2"
-                  :y1="scales.y(results.statistics[label].u_qrt)"
+                  :y1="tweened.boxes[label].u_qrt"
                   :x2="boxplotWidth / 2"
-                  :y2="scales.y(results.statistics[label].u_qrt)">
+                  :y2="tweened.boxes[label].u_qrt">
             </line>
             <line class="fjs-lower-quartile"
-                  :title="results.statistics[label].l_qrt"
+                  :title="results.statistics.l_qrt"
                   :x1="- boxplotWidth / 2"
-                  :y1="scales.y(results.statistics[label].l_qrt)"
+                  :y1="tweened.boxes[label].l_qrt"
                   :x2="boxplotWidth / 2"
-                  :y2="scales.y(results.statistics[label].l_qrt)">
+                  :y2="tweened.boxes[label].l_qrt">
             </line>
             <line class="fjs-median"
-                  :title="results.statistics[label].median"
+                  :title="results.statistics.median"
                   :x1="- boxplotWidth / 2"
-                  :y1="scales.y(results.statistics[label].median)"
+                  :y1="tweened.boxes[label].median"
                   :x2="boxplotWidth / 2"
-                  :y2="scales.y(results.statistics[label].median)">
+                  :y2="tweened.boxes[label].median">
             </line>
             <line class="fjs-antenna"
                   :x1="0"
-                  :y1="scales.y(results.statistics[label].u_wsk)"
+                  :y1="tweened.boxes[label].u_wsk"
                   :x2="0"
-                  :y2="scales.y(results.statistics[label].l_wsk)">
+                  :y2="tweened.boxes[label].l_wsk">
             </line>
             <rect class="fjs-above-median-box"
                   :x="- boxplotWidth / 2"
-                  :y="scales.y(results.statistics[label].u_qrt)"
+                  :y="tweened.boxes[label].u_qrt"
                   :width="boxplotWidth"
-                  :height="scales.y(results.statistics[label].median) - scales.y(results.statistics[label].u_qrt)">
+                  :height="tweened.boxes[label].median - tweened.boxes[label].u_qrt">
             </rect>
             <rect class="fjs-below-median-box"
                   :x="- boxplotWidth / 2"
-                  :y="scales.y(results.statistics[label].median)"
+                  :y="tweened.boxes[label].median"
                   :width="boxplotWidth"
-                  :height="scales.y(results.statistics[label].l_qrt) - scales.y(results.statistics[label].median)">
+                  :height="tweened.boxes[label].l_qrt - tweened.boxes[label].median">
             </rect>
             <circle class="fjs-points"
                     :title="point.tooltip"
@@ -113,6 +113,7 @@
   import store from '../../store/store'
   import requestHandling from '../methods/run-analysis'
   import * as d3 from 'd3'
+  import { TweenLite } from 'gsap'
   import TaskView from '../components/TaskView.vue'
   import deepFreeze from 'deep-freeze-strict'
   import utils from '../../services/utils'
@@ -136,6 +137,9 @@
         results: {
           data: [],
           statistics: {}
+        },
+        tweened: {
+          boxes: {}
         }
       }
     },
@@ -197,6 +201,19 @@
         })
         return points
       },
+      boxes () {
+        const boxes = {}
+        this.labels.forEach(label => {
+          boxes[label] = {
+            u_wsk: this.scales.y(this.results.statistics[label].u_wsk),
+            l_wsk: this.scales.y(this.results.statistics[label].l_wsk),
+            u_qrt: this.scales.y(this.results.statistics[label].u_qrt),
+            l_qrt: this.scales.y(this.results.statistics[label].l_qrt),
+            median: this.scales.y(this.results.statistics[label].median)
+          }
+        })
+        return boxes
+      },
       numOfBoxplots () {
         return this.labels.length
       },
@@ -255,6 +272,17 @@
     // statement. This helps with the integration into the Vue component lifecycle. E.g.: an animation can't be
     // applied to an element that does not exist yet.
     watch: {
+      'boxes': {
+        handler: function (newBoxes) {
+          Object.keys(newBoxes).forEach(label => {
+            if (typeof this.tweened.boxes[label] === 'undefined') {
+              this.$set(this.tweened.boxes, label, newBoxes[label])
+            } else {
+              TweenLite.to(this.tweened.boxes[label], 0.5, newBoxes[label])
+            }
+          })
+        }
+      },
       'args': {
         handler: function (newArgs, oldArgs) {
           // if our data selection change we will want to re-initialize the current view
@@ -277,18 +305,20 @@
           })
         }
       },
-      'points': function () {
-        // https://github.com/atomiks/tippyjs/issues/74
-        if (typeof this.tooltips.points !== 'undefined') {
-          this.tooltips.points.destroyAll()
-        }
-        this.$nextTick(() => {
-          this.tooltips.points = tippy(`.fjs-vm-uid-${this._uid} .fjs-points:not([data-tooltipped])`, {
-            performance: true,
-            theme: 'light',
-            arrow: true
+      'points': {
+        handler: function () {
+          // https://github.com/atomiks/tippyjs/issues/74
+          if (typeof this.tooltips.points !== 'undefined') {
+            this.tooltips.points.destroyAll()
+          }
+          this.$nextTick(() => {
+            this.tooltips.points = tippy(`.fjs-vm-uid-${this._uid} .fjs-points:not([data-tooltipped])`, {
+              performance: true,
+              theme: 'light',
+              arrow: true
+            })
           })
-        })
+        }
       }
     },
     methods: {
