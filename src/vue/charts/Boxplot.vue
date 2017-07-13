@@ -274,11 +274,13 @@
     watch: {
       'boxes': {
         handler: function (newBoxes) {
-          Object.keys(newBoxes).forEach(label => {
+          const labels = Object.keys(newBoxes)
+          labels.forEach((label, i) => {
             if (typeof this.tweened.boxes[label] === 'undefined') {
               this.$set(this.tweened.boxes, label, newBoxes[label])
             } else {
-              TweenLite.to(this.tweened.boxes[label], 0.5, newBoxes[label])
+              TweenLite.to(this.tweened.boxes[label], 0.5 / labels.length,
+                Object.assign(newBoxes[label], {delay: i * 0.5 / labels.length}))
             }
           })
         }
