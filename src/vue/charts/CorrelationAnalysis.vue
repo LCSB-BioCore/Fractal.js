@@ -53,12 +53,11 @@
                   r="4"
                   :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
                   :stroke="subsetColors[point.subset]"
-                  :title="point.tooltip"
-                  :data-test="point.tooltip"
+                  v-tooltip="{title: point.tooltip, options: {theme: 'light', arrow: true}}"
                   v-for="point in shownPoints.all">
           </circle>
           <line class="fjs-lin-reg-line"
-                :title="regLine.tooltip"
+                v-tooltip="{title: regLine.tooltip, options: {theme: 'light', arrow: true, followCursor: true}}"
                 :x1="tweened.regLine.x1"
                 :x2="tweened.regLine.x2"
                 :y1="tweened.regLine.y1"
@@ -120,9 +119,9 @@
   import requestHandling from '../methods/run-analysis'
   import * as d3 from 'd3'
   import { TweenLite } from 'gsap'
+  import tooltip from '../directives/tooltip.js'
   import TaskView from '../components/TaskView.vue'
   import deepFreeze from 'deep-freeze-strict'
-  import tippy from 'tippy.js'
   export default {
     name: 'correlation-analysis',
     data () {
@@ -158,7 +157,6 @@
           data: []
         },
         selectedPoints: [],
-        tooltips: {},
         tweened: {
           regLine: {x1: 0, x2: 0, y1: 0, y2: 0}
         }
@@ -376,35 +374,9 @@
     // statement. This helps with the integration into the Vue component lifecycle. E.g.: an animation can't be
     // applied to an element that does not exist yet.
     watch: {
-      'shownPoints': {
-        handler: function () {
-          // https://github.com/atomiks/tippyjs/issues/74
-          if (typeof this.tooltips.points !== 'undefined') {
-            this.tooltips.points.destroyAll()
-          }
-          this.$nextTick(() => {
-            this.tooltips.points = tippy(`.fjs-vm-uid-${this._uid} .fjs-scatterplot-point:not([data-tooltipped])`, {
-              performance: true,
-              theme: 'light',
-              arrow: true
-            })
-          })
-        }
-      },
       'regLine': {
         handler: function (newRegLine) {
           TweenLite.to(this.tweened.regLine, 0.5, newRegLine)
-          // https://github.com/atomiks/tippyjs/issues/74
-          if (typeof this.tooltips.regLine !== 'undefined') {
-            this.tooltips.regLine.destroyAll()
-          }
-          this.$nextTick(() => {
-            this.tooltips.regLine = tippy(`.fjs-vm-uid-${this._uid} .fjs-lin-reg-line:not([data-tooltipped])`, {
-              theme: 'light',
-              arrow: true,
-              followCursor: true
-            })
-          })
         }
       },
       'histPolyPoints': {
@@ -474,11 +446,14 @@
     },
     components: {
       DataBox,
-      TaskView
+      TaskView,
     },
     mixins: [
       requestHandling
     ],
+    directives: {
+      tooltip
+    },
     methods: {
       runAnalysisWrapper ({init, args}) {
         // function made available via requestHandling mixin
