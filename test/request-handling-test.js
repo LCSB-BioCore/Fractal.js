@@ -1,4 +1,4 @@
-import requestHandling from '../src/vue/methods/run-analysis'
+import requestHandling from '../src/vue/mixins/run-analysis'
 import RequestManager from '../src/services/request-manager'
 import store from '../src/store/store'
 

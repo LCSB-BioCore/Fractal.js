@@ -111,12 +111,12 @@
 <script>
   import DataBox from '../components/DataBox.vue'
   import store from '../../store/store'
-  import requestHandling from '../methods/run-analysis'
+  import requestHandling from '../mixins/run-analysis'
   import * as d3 from 'd3'
   import { TweenLite } from 'gsap'
   import TaskView from '../components/TaskView.vue'
   import deepFreeze from 'deep-freeze-strict'
-  import utils from '../../services/utils'
+  import utils from '../mixins/utils'
   import tooltip from '../directives/tooltip'
   export default {
     name: 'boxplot',
@@ -161,8 +161,8 @@
       margin () {
         const left = 60
         const top = 10
-        const right = 50
-        const bottom = this.height * 0.1
+        const right = this.width * 0.3
+        const bottom = this.height * 0.3
         return { left, top, right, bottom }
       },
       padded () {
@@ -263,7 +263,10 @@
         return polyPoints
       },
       axis () {
-        const x = d3.axisBottom(this.scales.x).tickFormat(d => utils.truncate({fullStr: d, strLen: 35}))
+        const x = d3.axisBottom(this.scales.x).tickFormat(d => {
+          // noinspection JSSuspiciousNameCombination
+          return utils.truncateTextUntil({text: d, font: `14px Roboto`, maxWidth: this.margin.bottom})
+        })
         const y = d3.axisLeft(this.scales.y)
         return { x, y }
       }

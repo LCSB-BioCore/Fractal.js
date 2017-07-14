@@ -116,7 +116,7 @@
 <script>
   import DataBox from '../components/DataBox.vue'
   import store from '../../store/store'
-  import requestHandling from '../methods/run-analysis'
+  import requestHandling from '../mixins/run-analysis'
   import * as d3 from 'd3'
   import { TweenLite } from 'gsap'
   import tooltip from '../directives/tooltip.js'
@@ -129,6 +129,7 @@
         error: '',
         width: 0,
         height: 0,
+        yAxisTickWidth: 0,
         xyData: [],
         categoryData: [],
         categoryColors: d3.schemeCategory10,
@@ -268,7 +269,7 @@
           .tickSizeInner(this.padded.height - 23)
           .tickFormat('')
         const y2 = d3.axisLeft(this.scales.y)
-          .tickSizeInner(this.padded.width - 23)
+          .tickSizeInner(this.padded.width - this.yAxisTickWidth - 10)
           .tickFormat('')
         return { x1, x2, y1, y2 }
       },
@@ -356,10 +357,10 @@
       },
       histPolyPoints () {
         const bottom = this.histograms.xBins.map(d => {
-          return `${this.scales.x(d.x0)},${this.padded.height}, ` +
-            `${this.scales.x(d.x0)},${this.padded.height + this.histogramScales.y(d.length)} ` +
-            `${this.scales.x(d.x1)},${this.padded.height + this.histogramScales.y(d.length)} ` +
-            `${this.scales.x(d.x1)},${this.padded.height}`
+          return `${this.scales.x(d.x0)},${this.padded.height + 1}, ` +
+            `${this.scales.x(d.x0)},${this.padded.height + this.histogramScales.y(d.length) + 1} ` +
+            `${this.scales.x(d.x1)},${this.padded.height + this.histogramScales.y(d.length) + 1} ` +
+            `${this.scales.x(d.x1)},${this.padded.height + 1}`
         }).join(' ')
         const left = this.histograms.yBins.map(d => {
           return `${0},${this.scales.y(d.x0)} ` +
@@ -416,6 +417,13 @@
             d3.select(`.fjs-vm-uid-${this._uid} .fjs-x-axis-2`).call(newAxis.x2)
             d3.select(`.fjs-vm-uid-${this._uid} .fjs-y-axis-1`).call(newAxis.y1)
             d3.select(`.fjs-vm-uid-${this._uid} .fjs-y-axis-2`).call(newAxis.y2)
+            const text = document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-y-axis-1 text`)
+            if (text) {
+              const width = Math.ceil(text.getBoundingClientRect().width)
+              if (width !== this.yAxisTickWidth) {
+                this.yAxisTickWidth = width
+              }
+            }
           })
         }
       },
@@ -564,6 +572,8 @@
     shape-rendering: crispEdges
     .tick
       shape-rendering: crispEdges
-    line
-      stroke: #999
+      line
+        stroke: #999
+      text
+        font-size: 10px
 </style>
