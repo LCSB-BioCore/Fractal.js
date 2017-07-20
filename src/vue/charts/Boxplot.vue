@@ -179,7 +179,7 @@
           let [variable, category, subset] = label.split('//')
           subset = parseInt(subset.substring(1)) - 1  // revert subset string formatting
           points[label] = this.results.data
-            .filter(d => d.subset === subset && d.category === category)
+            .filter(d => d.subset === subset && d.category === category && typeof d[variable] === 'number')
             .map(d => {
               return {
                 id: d.id,
