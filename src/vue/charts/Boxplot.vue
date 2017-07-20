@@ -416,7 +416,10 @@
             fill: rgb(180, 221, 253)
             shape-rendering: crispEdges
         .fjs-points
-          stroke: none
+          stroke: white
+          stroke-width: 1px
+        .fjs-points:hover
+          opacity: 0.4
         .fjs-kde
           fill: none
           stroke: black
