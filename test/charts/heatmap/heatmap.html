@@ -1,0 +1,69 @@
+<!doctype html>
+
+<head>
+  <script src="http://localhost:8080/credentials.js"></script>
+  <script src="http://localhost:8080/fractal.js"></script>
+</head>
+
+<body>
+<input type="button" onclick="loadData()" value="load data"/>
+<input type="button" onclick="deleteData()" value="delete data"/>
+<div class="fjs-placeholder-container" style="width: 2000px;">
+  <div style="width: 1000px;">
+    <div id="placeholder1"></div>
+  </div>
+  <div style="width: 1000px;">
+    <div id="placeholder2"></div>
+  </div>
+</div>
+</body>
+
+<script>
+  /* eslint-disable */
+
+  const fjs = fractal.init({
+    handler: 'ada',
+    thisBaseURL: 'https://ada.parkinson.lu',
+    fractalisBaseURL: 'http://127.0.0.1:5000',
+    getAuth () {
+      return credentials1
+    }
+  })
+  function loadData () {
+    fjs.loadData([
+      {
+        dictionary: {
+          name: 'entropyR',
+          projection: 'entropyR',
+          label: 'Entropy Right',
+          fieldType: 'Double',
+          isArray: true
+        },
+        data_set: 'egait.features'
+      },
+      {
+        dictionary: {
+          name: 'entropyL',
+          projection: 'entropyL',
+          label: 'Entropy Left',
+          fieldType: 'Double',
+          isArray: true
+        },
+        data_set: 'egait.features'
+      }
+    ])
+  }
+
+  function deleteData () {
+    fjs.clearCache()
+  }
+
+  fjs.setChart({chart: 'heatmap', selector: '#placeholder1'})
+</script>
+
+<style>
+  .fjs-placeholder-container {
+    display: flex;
+    flex-direction: row;
+  }
+</style>

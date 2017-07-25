@@ -111,12 +111,12 @@
 <script>
   import DataBox from '../components/DataBox.vue'
   import store from '../../store/store'
-  import requestHandling from '../mixins/run-analysis'
+  import runAnalysis from '../mixins/run-analysis'
   import * as d3 from 'd3'
   import { TweenLite } from 'gsap'
   import TaskView from '../components/TaskView.vue'
   import deepFreeze from 'deep-freeze-strict'
-  import utils from '../mixins/utils'
+  import { truncateTextUntil } from '../mixins/utils'
   import tooltip from '../directives/tooltip'
   export default {
     name: 'boxplot',
@@ -265,7 +265,7 @@
       axis () {
         const x = d3.axisBottom(this.scales.x).tickFormat(d => {
           // noinspection JSSuspiciousNameCombination
-          return utils.truncateTextUntil({text: d, font: `14px Roboto`, maxWidth: this.margin.bottom})
+          return truncateTextUntil({text: d, font: `14px Roboto`, maxWidth: this.margin.bottom})
         })
         const y = d3.axisLeft(this.scales.y)
         return { x, y }
@@ -344,14 +344,13 @@
       },
       runAnalysisWrapper ({args}) {
         // function made available via requestHandling mixin
-        this.runAnalysis({task_name: 'compute-boxplot', args})
+        runAnalysis({task_name: 'compute-boxplot', args})
           .then(response => {
             const results = JSON.parse(response)
             const data = JSON.parse(results.data)
             results.data = Object.keys(data).map(key => data[key])
             deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
             this.results = results
-            this.handleResize()
           })
           .catch(error => console.error(error))
       }
@@ -360,9 +359,6 @@
       DataBox,
       TaskView
     },
-    mixins: [
-      requestHandling
-    ],
     directives: {
       tooltip
     },

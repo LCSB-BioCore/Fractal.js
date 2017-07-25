@@ -116,7 +116,7 @@
 <script>
   import DataBox from '../components/DataBox.vue'
   import store from '../../store/store'
-  import requestHandling from '../mixins/run-analysis'
+  import runAnalysis from '../mixins/run-analysis'
   import * as d3 from 'd3'
   import { TweenLite } from 'gsap'
   import tooltip from '../directives/tooltip.js'
@@ -456,16 +456,13 @@
       DataBox,
       TaskView
     },
-    mixins: [
-      requestHandling
-    ],
     directives: {
       tooltip
     },
     methods: {
       runAnalysisWrapper ({init, args}) {
         // function made available via requestHandling mixin
-        this.runAnalysis({task_name: 'compute-correlation', args})
+        runAnalysis({task_name: 'compute-correlation', args})
           .then(response => {
             const results = JSON.parse(response)
             const data = JSON.parse(results.data)
