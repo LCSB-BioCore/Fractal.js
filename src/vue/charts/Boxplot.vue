@@ -290,11 +290,8 @@
       },
       'args': {
         handler: function (newArgs, oldArgs) {
-          // if our data selection change we will want to re-initialize the current view
-          const init = JSON.stringify(newArgs.variables) !== JSON.stringify(oldArgs.variables) ||
-            JSON.stringify(newArgs.categories) !== JSON.stringify(oldArgs.categories)
           if (this.validArgs) {
-            this.runAnalysisWrapper({init, args: this.args})
+            this.runAnalysisWrapper(this.args)
           }
         }
       },
@@ -342,7 +339,7 @@
         this.height = container.getBoundingClientRect().width
         this.width = container.getBoundingClientRect().width
       },
-      runAnalysisWrapper ({args}) {
+      runAnalysisWrapper (args) {
         // function made available via requestHandling mixin
         runAnalysis({task_name: 'compute-boxplot', args})
           .then(response => {

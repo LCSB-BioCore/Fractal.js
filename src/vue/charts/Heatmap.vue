@@ -31,6 +31,7 @@
                 :y="cell.y"
                 :height="cell.height"
                 :width="cell.width"
+                :fill="cell.fill"
                 v-tooltip="{title: cell.tooltip}"
                 v-for="cell in cells">
           </rect>
@@ -55,6 +56,7 @@
       return {
         width: 500,
         height: 500,
+        colorScale: d3.interpolateCool,
         numericArrayDataIds: [],
         results: {
           data: []
@@ -66,8 +68,12 @@
         return {
           numerical_arrays: this.numericArrayDataIds,
           numericals: [],
-          categoricals: []
+          categoricals: [],
+          subsets: store.getters.subsets
         }
+      },
+      validArgs () {
+        return this.numericArrayDataIds.length > 0
       },
       margin () {
         const left = 50
@@ -109,11 +115,13 @@
             y: this.scales.y(d.variable),
             width: this.gridBox.width,
             height: this.gridBox.height,
+            fill: this.colorScale(1 / (1 + Math.pow(Math.E, -d.zscore))),
             tooltip: `
 <div>
   <p>Identifier: ${d.id}</p>
   <p>Variable: ${d.variable}</p>
   <p>Value: ${d.value}</p>
+  <p>z-Score ${d.zscore}</p>
 </div>
 `
           }
@@ -161,8 +169,8 @@
     watch: {
       'args': {
         handler: function (newArgs, oldArgs) {
-          if (JSON.stringify(newArgs) !== JSON.stringify(oldArgs)) {
-            this.runAnalysisWrapper(newArgs)
+          if (this.validArgs) {
+            this.runAnalysisWrapper(this.args)
           }
         }
       }
@@ -210,8 +218,7 @@
       svg
         flex: 1
         .fjs-cell
-          stroke: #fff
-          stroke-width: 1px
+          stroke: none
           shape-rendering: crispEdges
         .fjs-cell:hover
           opacity: 0.4
