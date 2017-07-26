@@ -15,11 +15,12 @@
       <svg :height="height" :width="width">
         <g :transform="`translate(${margin.left}, ${margin.top})`">
           <rect class="fjs-cell"
-                :x="scales.x(d.id)"
-                :y="scales.y(d.variable)"
-                :height="width / uniqueIds.length"
-                :width="width / uniqueIds.length"
-                v-for="d in results.data">
+                :x="cell.x"
+                :y="cell.y"
+                :height="cell.height"
+                :width="cell.width"
+                v-tooltip="{title: cell.tooltip}"
+                v-for="cell in cells">
           </rect>
         </g>
       </svg>
@@ -42,7 +43,9 @@
         width: 500,
         height: 500,
         numericArrayDataIds: [],
-        results: {}
+        results: {
+          data: []
+        }
       }
     },
     computed: {
@@ -71,14 +74,37 @@
       uniqueVariables () {
         return [...new Set(this.results.data.map(d => d.variable))]
       },
+      gridBox () {
+        const width = this.padded.width / this.uniqueIds.length
+        let height = this.padded.height / this.uniqueVariables.length
+        height = height < width / 4 ? height : width / 4
+        return { height, width }
+      },
       scales () {
         const x = d3.scaleOrdinal()
           .domain(this.uniqueIds)
-          .range(this.uniqueIds.map((d, i) => i * this.padded.width / this.uniqueIds.length))
+          .range(this.uniqueIds.map((d, i) => i * this.gridBox.width))
         const y = d3.scaleOrdinal()
           .domain(this.uniqueVariables)
-          .range(this.uniqueVariables.map((d, i) => i * this.padded.height / this.uniqueVariables.length))
+          .range(this.uniqueVariables.map((d, i) => i * this.gridBox.height))
         return { x, y }
+      },
+      cells () {
+        return this.results.data.map(d => {
+          return {
+            x: this.scales.x(d.id),
+            y: this.scales.y(d.variable),
+            width: this.gridBox.width,
+            height: this.gridBox.height,
+            tooltip: `
+<div>
+  <p>Identifier: ${d.id}</p>
+  <p>Variable: ${d.variable}</p>
+  <p>Value: ${d.value}</p>
+</div>
+`
+          }
+        })
       }
     },
     methods: {
@@ -94,8 +120,7 @@
       },
       handleResize () {
         const container = this.$el.querySelector(`.fjs-vm-uid-${this._uid} .fjs-vis-container svg`)
-        // noinspection JSSuspiciousNameCombination
-        this.height = container.getBoundingClientRect().width
+        this.height = container.getBoundingClientRect().height
         this.width = container.getBoundingClientRect().width
       },
       update_numericArrayData (ids) {
@@ -134,27 +159,29 @@
   *
     font-family: Roboto, sans-serif
 
-    .fjs-correlation-analysis
-      height: 100%
-      width: 100%
+  .fjs-heatmap
+    height: 100%
+    width: 100%
+    display: flex
+    flex-direction: column
+
+    .fjs-data-box-container
+      height: 160px
       display: flex
-      flex-direction: column
+      justify-content: space-around
 
-      .fjs-data-box-container
-        height: 160px
-        display: flex
-        justify-content: space-around
+    .fjs-parameter-container
+      text-align: center
 
-      .fjs-parameter-container
-        text-align: center
-
-      .fjs-vis-container
+    .fjs-vis-container
+      flex: 1
+      display: flex
+      svg
         flex: 1
-        display: flex
-        svg
-          flex: 1
-          .fjs-cell
-            stroke: #fff
-            stroke-width: 2px
-            shape-rendering: crispEdges
+        .fjs-cell
+          stroke: #fff
+          stroke-width: 1px
+          shape-rendering: crispEdges
+        .fjs-cell:hover
+          opacity: 0.4
 </style>
