@@ -27,6 +27,9 @@ export function getTextWidth ({text, font}) {
 }
 
 export function truncateTextUntil ({text, font, maxWidth}) {
+  if (typeof maxWidth !== 'number' || maxWidth <= 0) {
+    return ''
+  }
   while (getTextWidth({text, font}) > maxWidth) {
     text = truncate({text, strLen: text.length - 5})
   }

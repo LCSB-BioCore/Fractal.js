@@ -12,8 +12,20 @@
     </div>
 
     <div class="fjs-vis-container">
-      <svg :height="height" :width="width">
+      <svg height="100%" width="100%">
         <g :transform="`translate(${margin.left}, ${margin.top})`">
+          <text class="fjs-id-label"
+                :transform="label.transform"
+                :font-size="label.fontSize"
+                v-for="label in labels.ids">
+            {{ label.text }}
+          </text>
+          <text class="fjs-variable-label"
+                :transform="label.transform"
+                :font-size="label.fontSize"
+                v-for="label in labels.variables">
+            {{ label.text }}
+          </text>
           <rect class="fjs-cell"
                 :x="cell.x"
                 :y="cell.y"
@@ -36,6 +48,7 @@
   import tooltip from '../directives/tooltip.js'
   import TaskView from '../components/TaskView.vue'
   import deepFreeze from 'deep-freeze-strict'
+  import { truncateTextUntil } from '../mixins/utils'
   export default {
     name: 'heatmap',
     data () {
@@ -58,8 +71,8 @@
       },
       margin () {
         const left = 50
-        const top = 50
-        const right = 50
+        const top = this.height / 10
+        const right = this.width / 10
         const bottom = 50
         return { left, top, right, bottom }
       },
@@ -105,6 +118,24 @@
 `
           }
         })
+      },
+      labels () {
+        const ids = this.uniqueIds.map(id => {
+          const transform = `translate(${this.scales.x(id) + this.gridBox.width / 2}, -10)rotate(-45)`
+          const fontSize = `${this.gridBox.width / 2}px`
+          // noinspection JSSuspiciousNameCombination
+          const text = truncateTextUntil(
+            {text: id, font: `${this.gridBox.width / 2}px Roboto`, maxWidth: this.margin.top})
+          return { transform, fontSize, text }
+        })
+        const variables = this.uniqueVariables.map(variable => {
+          const transform = `translate(${this.padded.width + 10}, ${this.scales.y(variable) + this.gridBox.height / 2})`
+          const fontSize = `${this.gridBox.height}px`
+          const text = truncateTextUntil(
+            {text: variable, font: `${this.gridBox.height}px Roboto`, maxWidth: this.margin.right})
+          return { transform, fontSize, text }
+        })
+        return { ids, variables }
       }
     },
     methods: {
