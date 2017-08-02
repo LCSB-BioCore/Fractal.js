@@ -25,7 +25,7 @@ class FractalJS {
   }
 
   // noinspection JSMethodCanBeStatic
-  setSubsets (...subsets) {
+  setSubsets (subsets) {
     store.dispatch('setSubsets', subsets)
   }
 

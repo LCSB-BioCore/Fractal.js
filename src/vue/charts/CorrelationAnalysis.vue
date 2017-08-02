@@ -53,11 +53,13 @@
                   r="4"
                   :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
                   :stroke="subsetColors[point.subset]"
-                  v-tooltip="{title: point.tooltip}"
+                  :title="point.tooltip"
+                  v-tooltip
                   v-for="point in shownPoints.all">
           </circle>
           <line class="fjs-lin-reg-line"
-                v-tooltip="{title: regLine.tooltip, options: {followCursor: true}}"
+                :title="regLine.tooltip"
+                v-tooltip="{followCursor: true}"
                 :x1="tweened.regLine.x1"
                 :x2="tweened.regLine.x2"
                 :y1="tweened.regLine.y1"

@@ -30,41 +30,47 @@
           <g class="fjs-boxplot-axis fjs-y-axis"></g>
           <g class="fjs-box"
              :transform="`translate(${scales.x(label)}, 0)`"
-             v-tooltip="{title: label, options: {position: 'bottom'}}"
+             v-tooltip="{position: 'bottom'}"
+             :title="label"
              :data-label="label"
              @mouseenter="showTooltip(label)"
              @mouseleave="hideTooltip(label)"
              v-for="label in labels" >
             <line class="fjs-upper-whisker"
-                  v-tooltip="{title: results.statistics[label].u_wsk, options: {position: 'right'}}"
+                  :title="results.statistics[label].u_wsk"
+                  v-tooltip="{position: 'right'}"
                   :x1="- boxplotWidth / 6"
                   :y1="tweened.boxes[label].u_wsk"
                   :x2="boxplotWidth / 6"
                   :y2="tweened.boxes[label].u_wsk">
             </line>
             <line class="fjs-lower-whisker"
-                  v-tooltip="{title: results.statistics[label].l_wsk, options: {position: 'right'}}"
+                  :title="results.statistics[label].l_wsk"
+                  v-tooltip="{position: 'right'}"
                   :x1="- boxplotWidth / 6"
                   :y1="tweened.boxes[label].l_wsk"
                   :x2="boxplotWidth / 6"
                   :y2="tweened.boxes[label].l_wsk">
             </line>
             <line class="fjs-upper-quartile"
-                  v-tooltip="{title: results.statistics[label].u_qrt, options: {position: 'left'}}"
+                  :title="results.statistics[label].u_qrt"
+                  v-tooltip="{position: 'left'}"
                   :x1="- boxplotWidth / 2"
                   :y1="tweened.boxes[label].u_qrt"
                   :x2="boxplotWidth / 2"
                   :y2="tweened.boxes[label].u_qrt">
             </line>
             <line class="fjs-lower-quartile"
-                  v-tooltip="{title: results.statistics[label].l_qrt, options: {position: 'left'}}"
+                  :title="results.statistics[label].l_qrt"
+                  v-tooltip="{position: 'left'}"
                   :x1="- boxplotWidth / 2"
                   :y1="tweened.boxes[label].l_qrt"
                   :x2="boxplotWidth / 2"
                   :y2="tweened.boxes[label].l_qrt">
             </line>
             <line class="fjs-median"
-                  v-tooltip="{title: results.statistics[label].median, options: {position: 'right'}}"
+                  :title="results.statistics[label].median"
+                  v-tooltip="{position: 'right'}"
                   :x1="- boxplotWidth / 2"
                   :y1="tweened.boxes[label].median"
                   :x2="boxplotWidth / 2"
@@ -89,7 +95,8 @@
                   :height="tweened.boxes[label].l_qrt - tweened.boxes[label].median">
             </rect>
             <circle class="fjs-points"
-                    v-tooltip="{title: point.tooltip, options: {arrow: true, theme: 'light'}}"
+                    :title="point.tooltip"
+                    v-tooltip="{arrow: true, theme: 'light'}"
                     :cx="point.jitter"
                     :cy="scales.y(point.value)"
                     r="4"

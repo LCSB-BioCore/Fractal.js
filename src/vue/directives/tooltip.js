@@ -7,20 +7,13 @@ export default {
       vnode.context._tippyInstances = {}
     }
     const uuid = uuid4()
-    el.setAttribute('title', binding.value.title)
     el.setAttribute('data-uuid', uuid)
     const tip = tippy(el, Object.assign({
       performance: true,
       arrow: true,
-      theme: 'light'
-    }, binding.value.options))
+      theme: 'light',
+      dynamicTitle: true
+    }, binding.value))
     vnode.context._tippyInstances[uuid] = tip
-  },
-  update (el, binding, vnode) {
-    const uuid = el.getAttribute('data-uuid')
-    const tip = vnode.context._tippyInstances[uuid]
-    const popper = tip.getPopperElement(el)
-    el.setAttribute('title', binding.value.title)
-    tip.update(popper)
   }
 }

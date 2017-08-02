@@ -26,18 +26,30 @@
                 v-for="label in labels.variables">
             {{ label.text }}
           </text>
+          <rect class="fjs-sig-bar"
+                :x="bar.x"
+                :y="bar.y"
+                :height="bar.height"
+                :width="bar.width"
+                :fill="bar.fill"
+                :title="bar.tooltip"
+                v-tooltip
+                v-for="bar in sigBars">
+          </rect>
           <rect class="fjs-cell"
                 :x="cell.x"
                 :y="cell.y"
                 :height="cell.height"
                 :width="cell.width"
                 :fill="cell.fill"
-                v-tooltip="{title: cell.tooltip}"
+                :title="cell.tooltip"
+                v-tooltip
                 v-for="cell in cells">
           </rect>
         </g>
       </svg>
     </div>
+    <task-view></task-view>
   </div>
 </template>
 
@@ -58,8 +70,10 @@
         height: 500,
         colorScale: d3.interpolateCool,
         numericArrayDataIds: [],
+        currentSigMeassure: 'logFC',
         results: {
-          data: []
+          data: [],
+          stats: []
         }
       }
     },
@@ -76,7 +90,7 @@
         return this.numericArrayDataIds.length > 0
       },
       margin () {
-        const left = 50
+        const left = this.width / 5
         const top = this.height / 10
         const right = this.width / 10
         const bottom = 50
@@ -108,6 +122,16 @@
           .range(this.uniqueVariables.map((d, i) => i * this.gridBox.height))
         return { x, y }
       },
+      currentStats () {
+        return this.results.stats.map(d => d[this.currentSigMeassure])
+      },
+      sigScales () {
+        const x =  d3.scaleLinear()
+          .domain(d3.extent(this.currentStats))
+          .range([0, this.margin.left])
+        const y = this.scales.y // has the same y scale than the heatmap grid
+        return { x, y }
+      },
       cells () {
         return this.results.data.map(d => {
           return {
@@ -127,6 +151,19 @@
           }
         })
       },
+      sigBars () {
+        return this.results.stats.map(d => {
+          return {
+            x: - this.sigScales.x(d[this.currentSigMeassure]),
+            y: this.sigScales.y(d.variable),
+            width: this.sigScales.x(d[this.currentSigMeassure]),
+            height: this.gridBox.height,
+            fill: d[this.currentSigMeassure] < 0 ? '#0072ff' : '#ff006a',
+            tooltip: `
+            `
+          }
+        })
+      },
       labels () {
         const ids = this.uniqueIds.map(id => {
           const transform = `translate(${this.scales.x(id) + this.gridBox.width / 2}, -10)rotate(-45)`
@@ -137,7 +174,7 @@
           return { transform, fontSize, text }
         })
         const variables = this.uniqueVariables.map(variable => {
-          const transform = `translate(${this.padded.width + 10}, ${this.scales.y(variable) + this.gridBox.height / 2})`
+          const transform = `translate(${this.padded.width + 10}, ${this.scales.y(variable) + this.gridBox.height})`
           const fontSize = `${this.gridBox.height}px`
           const text = truncateTextUntil(
             {text: variable, font: `${this.gridBox.height}px Roboto`, maxWidth: this.margin.right})
@@ -152,8 +189,11 @@
           .then(response => {
             const results = JSON.parse(response)
             const data = JSON.parse(results.data)
+            const stats = JSON.parse(results.stats)
             results.data = Object.keys(data).map(key => data[key])
+            results.stats = Object.keys(stats).map(key => stats[key])
             deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
+            deepFreeze(stats) // massively improve performance by telling Vue that the objects properties won't change
             this.results = results
           })
       },
@@ -222,4 +262,7 @@
           shape-rendering: crispEdges
         .fjs-cell:hover
           opacity: 0.4
+        .fjs-sig-bar
+          stroke-width: none
+          shape-rendering: crispEdges
 </style>
