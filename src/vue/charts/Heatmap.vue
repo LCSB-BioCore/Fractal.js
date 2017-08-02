@@ -70,7 +70,7 @@
         height: 500,
         colorScale: d3.interpolateCool,
         numericArrayDataIds: [],
-        currentSigMeassure: 'logFC',
+        selectedSigMes: 'logFC',
         results: {
           data: [],
           stats: []
@@ -123,7 +123,7 @@
         return { x, y }
       },
       currentStats () {
-        return this.results.stats.map(d => d[this.currentSigMeassure])
+        return this.results.stats.map(d => d[this.selectedSigMes])
       },
       sigScales () {
         const x =  d3.scaleLinear()
@@ -154,13 +154,15 @@
       sigBars () {
         return this.results.stats.map(d => {
           return {
-            x: - this.sigScales.x(d[this.currentSigMeassure]),
+            x: - this.sigScales.x(d[this.selectedSigMes]),
             y: this.sigScales.y(d.variable),
-            width: this.sigScales.x(d[this.currentSigMeassure]),
+            width: this.sigScales.x(d[this.selectedSigMes]),
             height: this.gridBox.height,
-            fill: d[this.currentSigMeassure] < 0 ? '#0072ff' : '#ff006a',
-            tooltip: `
-            `
+            fill: d[this.selectedSigMes] < 0 ? '#0072ff' : '#ff006a',
+            tooltip: '<div>' + Object.keys(d).map(key => {
+              const selected = key === this.selectedSigMes ? '<span style="font-weight: bold;">[selected]<span> ' : ''
+              return `<p>${selected}${key}: ${d[key]}</p>`
+            }).join('') + '</div>'
           }
         })
       },
