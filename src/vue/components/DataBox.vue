@@ -83,7 +83,7 @@
         }
       },
       toggleDataEntryBody (taskID) {
-        const $body = $(this.$el.querySelector('.fjs-data-entry-body[data-id="${taskID}"]'))
+        const $body = $(this.$el.querySelector(`.fjs-data-entry-body[data-id="${taskID}"]`))
         $body.slideToggle(500)
       },
       reloadData (taskID) {
