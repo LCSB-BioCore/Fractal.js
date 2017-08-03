@@ -123,7 +123,7 @@
           padding: 1.5%
           margin: 0.5%
         .fjs-selected
-          background-color: #007cfb
+          background-color: rgb(16, 95, 190)
         .fjs-data-entry-body
           display: none
           padding: 1%

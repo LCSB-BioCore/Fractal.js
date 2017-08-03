@@ -73,8 +73,9 @@
     top: 0
     padding: 1%
     height: 100%
+    min-width: 15vw
     .fjs-lock-btn
-      margin-bottom: auto
+      margin-bottom: 50%
       cursor: pointer
     .fjs-balancer
       margin-top: auto
