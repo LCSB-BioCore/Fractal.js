@@ -1,15 +1,12 @@
 <template>
   <div :class="`fjs-heatmap fjs-vm-uid-${this._uid}`">
-    <div class="fjs-data-box-container">
+    <control-panel>
       <data-box class="fjs-data-box"
                 header="Numerical Array Data"
                 dataType="numerical_array"
                 v-on:update="update_numericArrayData">
       </data-box>
-    </div>
-
-    <div class="fjs-parameter-container">
-    </div>
+    </control-panel>
 
     <div class="fjs-vis-container">
       <svg height="100%" width="100%">
@@ -62,6 +59,7 @@
   import TaskView from '../components/TaskView.vue'
   import deepFreeze from 'deep-freeze-strict'
   import { truncateTextUntil } from '../mixins/utils'
+  import ControlPanel from '../components/ControlPanel.vue'
   export default {
     name: 'heatmap',
     data () {
@@ -126,7 +124,7 @@
         return this.results.stats.map(d => d[this.selectedSigMes])
       },
       sigScales () {
-        const x =  d3.scaleLinear()
+        const x = d3.scaleLinear()
           .domain(d3.extent(this.currentStats))
           .range([0, this.margin.left])
         const y = this.scales.y // has the same y scale than the heatmap grid
@@ -154,7 +152,7 @@
       sigBars () {
         return this.results.stats.map(d => {
           return {
-            x: - this.sigScales.x(d[this.selectedSigMes]),
+            x: -this.sigScales.x(d[this.selectedSigMes]),
             y: this.sigScales.y(d.variable),
             width: this.sigScales.x(d[this.selectedSigMes]),
             height: this.gridBox.height,
@@ -210,7 +208,7 @@
     },
     watch: {
       'args': {
-        handler: function (newArgs, oldArgs) {
+        handler: function () {
           if (this.validArgs) {
             this.runAnalysisWrapper(this.args)
           }
@@ -225,6 +223,7 @@
       window.removeEventListener('resize', this.handleResize)
     },
     components: {
+      ControlPanel,
       DataBox,
       TaskView
     },
@@ -245,11 +244,6 @@
     width: 100%
     display: flex
     flex-direction: column
-
-    .fjs-data-box-container
-      height: 160px
-      display: flex
-      justify-content: space-around
 
     .fjs-parameter-container
       text-align: center

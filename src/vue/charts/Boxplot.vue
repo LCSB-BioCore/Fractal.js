@@ -1,6 +1,7 @@
 <template>
   <div :class="`fjs-boxplot fjs-vm-uid-${this._uid}`">
-    <div class="fjs-data-box-container">
+
+    <control-panel class="fjs-control-panel">
       <data-box class="fjs-data-box"
                 header="Numerical Variables"
                 dataType="numerical"
@@ -11,16 +12,18 @@
                 dataType="categorical"
                 v-on:update="update_catData">
       </data-box>
-    </div>
-
-    <div class="fjs-parameter-container">
-      <label for="fjs-show-data-check">Show Points</label>
-      <input id="fjs-show-data-check" type="checkbox" v-model="params.showData"/>
-      <label for="fjs-jitter-data-check">Jitter Data</label>
-      <input id="fjs-jitter-data-check" type="checkbox" v-model="params.jitter"/>
-      <label for="fjs-show-kde-check">Show Density Est.</label>
-      <input id="fjs-show-kde-check" type="checkbox" v-model="params.showKDE"/>
-    </div>
+      <hr class="fjs-seperator"/>
+      <div class="fjs-parameter-container">
+        <input id="fjs-show-data-check" type="checkbox" v-model="params.showData"/>
+        <label for="fjs-show-data-check">Show Points</label>
+        <br/>
+        <input id="fjs-jitter-data-check" type="checkbox" v-model="params.jitter"/>
+        <label for="fjs-jitter-data-check">Jitter Data</label>
+        <br/>
+        <input id="fjs-show-kde-check" type="checkbox" v-model="params.showKDE"/>
+        <label for="fjs-show-kde-check">Show Density Est.</label>
+      </div>
+    </control-panel>
 
     <div class="fjs-vis-container">
       <svg :width="width"
@@ -99,7 +102,7 @@
                     v-tooltip="{arrow: true, theme: 'light'}"
                     :cx="point.jitter"
                     :cy="scales.y(point.value)"
-                    r="4"
+                    r="0.4%"
                     v-for="point in points[label]"
                     v-if="params.showData">
             </circle>
@@ -125,6 +128,7 @@
   import deepFreeze from 'deep-freeze-strict'
   import { truncateTextUntil } from '../mixins/utils'
   import tooltip from '../directives/tooltip'
+  import ControlPanel from '../components/ControlPanel.vue'
   export default {
     name: 'boxplot',
     data () {
@@ -272,7 +276,7 @@
       axis () {
         const x = d3.axisBottom(this.scales.x).tickFormat(d => {
           // noinspection JSSuspiciousNameCombination
-          return truncateTextUntil({text: d, font: `14px Roboto`, maxWidth: this.margin.bottom})
+          return truncateTextUntil({text: d, font: `0.875rem Roboto`, maxWidth: this.margin.bottom})
         })
         const y = d3.axisLeft(this.scales.y)
         return { x, y }
@@ -296,7 +300,7 @@
         }
       },
       'args': {
-        handler: function (newArgs, oldArgs) {
+        handler: function () {
           if (this.validArgs) {
             this.runAnalysisWrapper(this.args)
           }
@@ -360,6 +364,7 @@
       }
     },
     components: {
+      ControlPanel,
       DataBox,
       TaskView
     },
@@ -387,12 +392,10 @@
     width: 100%
     display: flex
     flex-direction: column
-
-    .fjs-data-box-container
-      height: 160px
-      display: flex
-      justify-content: space-around
-
+    .fjs-control-panel
+      hr
+        width: 100%
+        margin: 10% 0 10% 0
     .fjs-vis-container
       flex: 1
       display: flex
@@ -406,7 +409,7 @@
           .fjs-lower-whisker, .fjs-upper-whisker, .fjs-antenna
             shape-rendering: crispEdges
             stroke: black
-            stroke-width: 2px
+            stroke-width: 1px
           .fjs-below-median-box
             stroke: none
             fill: rgb(205, 232, 254)
@@ -423,7 +426,7 @@
         .fjs-kde
           fill: none
           stroke: black
-          stroke-width: 2px
+          stroke-width: 0.2%
 </style>
 
 
@@ -431,16 +434,15 @@
 <style lang="sass">
   .fjs-boxplot-axis
     shape-rendering: crispEdges
-    stroke-width: 2px
     .tick
       shape-rendering: crispEdges
       text
-        font-size: 18px
+        font-size: 1rem
     line
       stroke: #999
   .fjs-x-axis
     .tick
       text
         text-anchor: start
-        font-size: 14px
+        font-size: 1rem
 </style>

@@ -1,6 +1,7 @@
 <template>
   <div :class="`fjs-correlation-analysis fjs-vm-uid-${this._uid}`">
-    <div class="fjs-data-box-container">
+
+    <control-panel class="fjs-control-panel">
       <data-box class="fjs-data-box"
                 header="X and Y variables"
                 dataType="numerical"
@@ -11,20 +12,19 @@
                 dataType="categorical"
                 v-on:update="update_categoryData">
       </data-box>
-    </div>
-
-    <div class="fjs-parameter-container">
-      <span>{{ error }}</span>
+      <hr class="fjs-seperator"/>
       <fieldset class="fjs-correlation-method">
         <legend>Correlation Method</legend>
         <input type="radio" id="fjs-param-method-1" value="pearson" v-model="params.method">
         <label for="fjs-param-method-1">Pearson</label>
+        <br/>
         <input type="radio" id="fjs-param-method-2" value="spearman" v-model="params.method">
         <label for="fjs-param-method-2">Spearman</label>
+        <br/>
         <input type="radio" id="fjs-param-method-3" value="kendall" v-model="params.method">
         <label for="fjs-param-method-3">Kendall</label>
       </fieldset>
-    </div>
+    </control-panel>
 
     <div class="fjs-vis-container">
       <svg :height="height" :width="width">
@@ -36,21 +36,19 @@
           <g class="fjs-brush"></g>
           <text :x="padded.width / 2"
                 y="-10"
-                text-anchor="middle"
-                font-size="16">
+                text-anchor="middle">
             {{ shownResults.x_label }}
           </text>
           <text :x="padded.width + 10"
                 :y="padded.height / 2"
                 text-anchor="middle"
-                font-size="16"
                 :transform="`rotate(90 ${padded.width + 10} ${padded.height / 2})`">
             {{ shownResults.y_label }}
           </text>
           <circle class="fjs-scatterplot-point"
                   :cx="scales.x(point.x)"
                   :cy="scales.y(point.y)"
-                  r="4"
+                  r="0.4%"
                   :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
                   :stroke="subsetColors[point.subset]"
                   :title="point.tooltip"
@@ -74,11 +72,11 @@
           <caption>Selected points</caption>
           <tr>
             <td>Coefficient</td>
-            <td>{{ tmpResults.coef }}</td>
+            <td>{{ parseFloat(tmpResults.coef).toFixed(4) }}</td>
           </tr>
           <tr>
             <td>p-value</td>
-            <td>{{ tmpResults.p_value }}</td>
+            <td>{{ parseFloat(tmpResults.p_value).toFixed(4) }}</td>
           </tr>
           <tr>
             <td>Method</td>
@@ -94,11 +92,11 @@
           <caption>Subset: {{ i + 1 }}</caption>
           <tr>
             <td>Coefficient</td>
-            <td>{{ stats.coef }}</td>
+            <td>{{ parseFloat(stats.coef).toFixed(4) }}</td>
           </tr>
           <tr>
             <td>p-value</td>
-            <td>{{ stats.p_value }}</td>
+            <td>{{ parseFloat(stats.p_value).toFixed(4) }}</td>
           </tr>
           <tr>
             <td>Method</td>
@@ -111,7 +109,6 @@
         </table>
       </div>
     </div>
-    <task-view></task-view>
   </div>
 </template>
 
@@ -122,8 +119,8 @@
   import * as d3 from 'd3'
   import { TweenLite } from 'gsap'
   import tooltip from '../directives/tooltip.js'
-  import TaskView from '../components/TaskView.vue'
   import deepFreeze from 'deep-freeze-strict'
+  import ControlPanel from '../components/ControlPanel.vue'
   export default {
     name: 'correlation-analysis',
     data () {
@@ -144,7 +141,7 @@
           p_value: 0,
           slope: 0,
           intercept: 0,
-          method: '',
+          method: 'pearson',
           x_label: '',
           y_label: '',
           data: []
@@ -154,7 +151,7 @@
           p_value: 0,
           slope: 0,
           intercept: 0,
-          method: '',
+          method: 'pearson',
           x_label: '',
           y_label: '',
           data: []
@@ -455,8 +452,8 @@
       window.removeEventListener('resize', this.handleResize)
     },
     components: {
-      DataBox,
-      TaskView
+      ControlPanel,
+      DataBox
     },
     directives: {
       tooltip
@@ -507,30 +504,25 @@
     width: 100%
     display: flex
     flex-direction: column
-
-    .fjs-data-box-container
-      height: 160px
-      display: flex
-      justify-content: space-around
-
-    .fjs-parameter-container
-      text-align: center
-      .fjs-correlation-method
-        width: 0
-        white-space: nowrap
-        border: solid 1px #bbb
-        text-align: left
-        border-radius: 8px
-        margin: 10px
+    .fjs-control-panel
+      hr
+        width: 100%
+        margin: 10% 0 10% 0
+    .fjs-correlation-method
+      white-space: nowrap
+      border: solid 1px #fff
+      text-align: left
+      border-radius: 8px
+      margin: 1%
 
     .fjs-vis-container
       flex: 1
       display: flex
       svg
-        flex: 1
+        flex: 4
         .fjs-lin-reg-line
           stroke: #ff5e00
-          stroke-width: 4px
+          stroke-width: 0.4%
         .fjs-lin-reg-line:hover
           opacity: 0.4
         .fjs-histogram-polyline
@@ -545,24 +537,24 @@
         .fjs-brush
           stroke-width: 0
       .fjs-table-container
-        width: 200px
+        flex: 1
         display: flex
         flex-direction: column
         .fjs-stats-table
-          margin: 5px
+          width: 100%
+          margin: 1%
           border-spacing: 0
           border-collapse: collapse
-          font-size: 14px
+          font-size: 0.875rem
           tr:nth-child(even)
             background-color: #ddd
           td, th
-            max-width: 100px
             overflow: hidden
             text-overflow: ellipsis
             white-space: nowrap
             border: 1px #ccc solid
             border-collapse: collapse
-            padding: 5px
+            padding: 2%
 </style>
 
 <!--CSS for dynamically created components-->
@@ -574,5 +566,5 @@
       line
         stroke: #999
       text
-        font-size: 10px
+        font-size: 0.875rem
 </style>

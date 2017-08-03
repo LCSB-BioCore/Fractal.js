@@ -2,20 +2,15 @@
   <div :class="`fjs-data-box fjs-vm-uid-${_uid}`">
     <label :for="`fjs-data-window-${_uid}`" :tooltip="tooltip">{{ header }}</label>
     <div :id="`fjs-data-window-${_uid}`" class="fjs-data-window">
-      <div class="fjs-data-entry-container"
-           :data-state="item.etl_state"
-           v-for="item in items">
+      <div class="fjs-data-entry-container" :data-state="item.etl_state" v-for="item in items">
+
         <div class="fjs-data-entry-header"
+             :class="{'fjs-selected': !!~selectedIDs.indexOf(item.task_id)}"
              :data-state="item.etl_state">
-          <span class="fjs-cross" v-if="item.etl_state === 'FAILURE'">&#xd7;</span>
-          <input :id="`fjs-checkbox-${item.task_id}-${_uid}`"
-                 type="checkbox"
-                 :value="item.task_id"
-                 v-model="selectedIDs"
-                 v-if="item.etl_state === 'SUCCESS'"/>
-          <label :for="`fjs-checkbox-${item.task_id}-${_uid}`">{{ item.label }}</label>
+          <span :data-id="item.task_id" @click="toggleTaskId(item.task_id)">{{ item.label }}</span>
           <span class="fjs-options" @click="toggleDataEntryBody(item.task_id)">&#9776;</span>
         </div>
+
         <div class="fjs-data-entry-body" :data-state="item.etl_state" :data-id="item.task_id">
           <div class="fjs-action-btns">
             <button class="fjs-reload-btn" @click="reloadData(item.task_id)">&#8635;</button>
@@ -23,6 +18,7 @@
           </div>
           {{ item.etl_message }}
         </div>
+
       </div>
     </div>
   </div>
@@ -78,6 +74,14 @@
       }
     },
     methods: {
+      toggleTaskId (taskID) {
+        const idx = this.selectedIDs.indexOf(taskID)
+        if (~idx) {
+          this.selectedIDs.splice(idx, 1)
+        } else {
+          this.selectedIDs.push(taskID)
+        }
+      },
       toggleDataEntryBody (taskID) {
         const $body = $(`.fjs-vm-uid-${this._uid} .fjs-data-entry-body[data-id="${taskID}"]`)
         $body.slideToggle(500)
@@ -94,49 +98,41 @@
 
 <style lang="sass" scoped>
   .fjs-data-box
-    width: 50%
     display: flex
+    justify-content: space-around
     flex-direction: column
-    text-align: center
-    margin: 10px
+    width: 100%
+    text-align: start
+    margin: 2%
     > label
-      font-size: 16px
+      font-size: 1rem
     .fjs-data-window
       flex: 1
-      border: 1px solid #ccc
+      border: 1px solid #fff
       border-radius: 8px
-      font-size: 14px
+      font-size: 0.875rem
       overflow-y: scroll
-      padding: 5px
+      padding: 1%
       .fjs-data-entry-container
         display: flex
         flex-direction: column
         .fjs-data-entry-header
           display: flex
-          background-color: #eee
-          padding: 5px
-          margin: 2px
-          label
-            flex: 1
-          &[data-state="FAILURE"]
-            background-color: #ffcbcb
-          &[data-state="PENDING"]
-            color: #bbb
-          .cross
-            color: red
-            padding: 5px
-          .options
-            cursor: pointer
-            white-space: nowrap
+          justify-content: space-between
+          cursor: pointer
+          padding: 1.5%
+          margin: 0.5%
+        .fjs-selected
+          background-color: #007cfb
         .fjs-data-entry-body
           display: none
-          padding: 5px
+          padding: 1%
           &[data-state="FAILURE"]
             background-color: #ffcbcb
           .fjs-action-btns
             text-align: center
             button
-              height: 25px
-              font-size: 14px
+              height: 1.5rem
+              font-size: 0.75rem
               font-weight: bold
 </style>
