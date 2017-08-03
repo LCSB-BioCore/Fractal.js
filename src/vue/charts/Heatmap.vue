@@ -1,5 +1,5 @@
 <template>
-  <div :class="`fjs-heatmap fjs-vm-uid-${this._uid}`">
+  <div class="fjs-heatmap">
     <control-panel>
       <data-box class="fjs-data-box"
                 header="Numerical Array Data"
@@ -198,7 +198,7 @@
           })
       },
       handleResize () {
-        const container = this.$el.querySelector(`.fjs-vm-uid-${this._uid} .fjs-vis-container svg`)
+        const container = this.$el.querySelector('.fjs-vis-container svg')
         this.height = container.getBoundingClientRect().height
         this.width = container.getBoundingClientRect().width
       },

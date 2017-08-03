@@ -1,5 +1,5 @@
 <template>
-  <div :class="`fjs-boxplot fjs-vm-uid-${this._uid}`">
+  <div class="fjs-boxplot">
 
     <control-panel class="fjs-control-panel">
       <data-box class="fjs-data-box"
@@ -309,11 +309,11 @@
       'axis': {
         handler: function (newAxis) {
           this.$nextTick(() => {
-            d3.select(`.fjs-vm-uid-${this._uid} .fjs-x-axis`)
+            d3.select(this.$el.querySelector('.fjs-x-axis'))
               .call(newAxis.x)
               .selectAll('text')
               .attr('transform', 'rotate(20)')
-            d3.select(`.fjs-vm-uid-${this._uid} .fjs-y-axis`)
+            d3.select(this.$el.querySelector('.fjs-y-axis'))
               .call(newAxis.y)
           })
         }
@@ -322,11 +322,11 @@
     methods: {
       getTippyInstances (label) {
         return [
-          document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"] .fjs-upper-whisker`),
-          document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"] .fjs-lower-whisker`),
-          document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"] .fjs-upper-quartile`),
-          document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"] .fjs-lower-quartile`),
-          document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-box[data-label="${label}"] .fjs-median`)
+          this.$el.querySelector(`.fjs-box[data-label="${label}"] .fjs-upper-whisker`),
+          this.$el.querySelector(`.fjs-box[data-label="${label}"] .fjs-lower-whisker`),
+          this.$el.querySelector(`.fjs-box[data-label="${label}"] .fjs-upper-quartile`),
+          this.$el.querySelector(`.fjs-box[data-label="${label}"] .fjs-lower-quartile`),
+          this.$el.querySelector(`.fjs-box[data-label="${label}"] .fjs-median`)
         ].map(el => {
           const uuid = el.getAttribute('data-uuid')
           return { el, tip: this._tippyInstances[uuid] }
@@ -345,7 +345,7 @@
         this.catData = ids
       },
       handleResize () {
-        const container = this.$el.querySelector(`.fjs-vm-uid-${this._uid} .fjs-vis-container svg`)
+        const container = this.$el.querySelector('.fjs-vis-container svg')
         // noinspection JSSuspiciousNameCombination
         this.height = container.getBoundingClientRect().width
         this.width = container.getBoundingClientRect().width

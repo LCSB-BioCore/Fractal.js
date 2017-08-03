@@ -1,5 +1,5 @@
 <template>
-  <div :class="`fjs-correlation-analysis fjs-vm-uid-${this._uid}`">
+  <div class="fjs-correlation-analysis">
 
     <control-panel class="fjs-control-panel">
       <data-box class="fjs-data-box"
@@ -383,13 +383,11 @@
         handler: function (newPoints) {
           this.$nextTick(() => {
             // we use d3 instead of TweenLite here because d3 can transition point paths
-            d3.selectAll(`.fjs-vm-uid-${this._uid} .fjs-histogram-polyline`)
-              .filter('.fjs-bottom')
+            d3.select(this.$el.querySelector('.fjs-histogram-polyline.fjs-bottom'))
               .transition()
               .duration(500)
               .attr('points', newPoints.bottom)
-            d3.selectAll(`.fjs-vm-uid-${this._uid} .fjs-histogram-polyline`)
-              .filter('.fjs-left')
+            d3.select(this.$el.querySelector('.fjs-histogram-polyline.fjs-left'))
               .transition()
               .duration(500)
               .attr('points', newPoints.left)
@@ -412,11 +410,11 @@
       'axis': {
         handler: function (newAxis) {
           this.$nextTick(() => {
-            d3.select(`.fjs-vm-uid-${this._uid} .fjs-x-axis-1`).call(newAxis.x1)
-            d3.select(`.fjs-vm-uid-${this._uid} .fjs-x-axis-2`).call(newAxis.x2)
-            d3.select(`.fjs-vm-uid-${this._uid} .fjs-y-axis-1`).call(newAxis.y1)
-            d3.select(`.fjs-vm-uid-${this._uid} .fjs-y-axis-2`).call(newAxis.y2)
-            const text = document.querySelector(`.fjs-vm-uid-${this._uid} .fjs-y-axis-1 text`)
+            d3.select(this.$el.querySelector('.fjs-x-axis-1')).call(newAxis.x1)
+            d3.select(this.$el.querySelector('.fjs-x-axis-2')).call(newAxis.x2)
+            d3.select(this.$el.querySelector('.fjs-y-axis-1')).call(newAxis.y1)
+            d3.select(this.$el.querySelector('.fjs-y-axis-2')).call(newAxis.y2)
+            const text = this.$el.querySelector('.fjs-y-axis-1 text')
             if (text) {
               const width = Math.ceil(text.getBoundingClientRect().width)
               if (width !== this.yAxisTickWidth) {
@@ -429,7 +427,7 @@
       'brush': {
         handler: function (newBrush) {
           this.$nextTick(() => {
-            d3.select(`.fjs-vm-uid-${this._uid} .fjs-brush`).call(newBrush)
+            d3.select(this.$el.querySelector('.fjs-brush')).call(newBrush)
           })
         }
       },
@@ -477,7 +475,7 @@
           .catch(error => console.error(error))
       },
       handleResize () {
-        const container = this.$el.querySelector(`.fjs-vm-uid-${this._uid} .fjs-vis-container svg`)
+        const container = this.$el.querySelector(`.fjs-vis-container svg`)
         // noinspection JSSuspiciousNameCombination
         this.height = container.getBoundingClientRect().width
         this.width = container.getBoundingClientRect().width
@@ -522,7 +520,7 @@
         flex: 4
         .fjs-lin-reg-line
           stroke: #ff5e00
-          stroke-width: 0.4%
+          stroke-width: 0.3%
         .fjs-lin-reg-line:hover
           opacity: 0.4
         .fjs-histogram-polyline

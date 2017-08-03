@@ -1,5 +1,5 @@
 <template>
-  <div :class="`fjs-task-view fjs-vm-uid-${_uid}`" v-if="pendingTasks.length || failedTasks.length">
+  <div class="fjs-task-view" v-if="pendingTasks.length || failedTasks.length">
     <span class="fjs-toggle-btn" @click="toggleView" v-html="toggleButton"></span>
     <div class="fjs-task-state-container">
       <div class="fjs-task-state-element fjs-pending" :key="task" v-for="task in pendingTasks">
@@ -54,7 +54,7 @@
       },
       toggleView () {
         this.isMinimized = !this.isMinimized
-        const $body = $(`.fjs-vm-uid-${this._uid} .fjs-task-state-container`)
+        const $body = $(this.$el.querySelector('.fjs-task-state-container'))
         $body.slideToggle(500)
       }
     }
