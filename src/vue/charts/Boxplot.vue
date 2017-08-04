@@ -23,7 +23,6 @@
         <input id="fjs-show-kde-check" type="checkbox" v-model="params.showKDE"/>
         <label for="fjs-show-kde-check">Show Density Est.</label>
       </div>
-      <task-view></task-view>
     </control-panel>
 
     <div class="fjs-vis-container">
@@ -128,7 +127,6 @@
   import { truncateTextUntil } from '../mixins/utils'
   import tooltip from '../directives/tooltip'
   import ControlPanel from '../components/ControlPanel.vue'
-  import TaskView from '../components/TaskView.vue'
   export default {
     name: 'boxplot',
     data () {
@@ -364,7 +362,6 @@
       }
     },
     components: {
-      TaskView,
       ControlPanel,
       DataBox
     },

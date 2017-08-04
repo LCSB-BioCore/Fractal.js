@@ -24,7 +24,6 @@
         <input type="radio" id="fjs-param-method-3" value="kendall" v-model="params.method">
         <label for="fjs-param-method-3">Kendall</label>
       </fieldset>
-      <task-view></task-view>
     </control-panel>
 
     <div class="fjs-vis-container">
@@ -122,7 +121,6 @@
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
   import ControlPanel from '../components/ControlPanel.vue'
-  import TaskView from '../components/TaskView.vue'
   export default {
     name: 'correlation-analysis',
     data () {
@@ -452,7 +450,6 @@
       window.removeEventListener('resize', this.handleResize)
     },
     components: {
-      TaskView,
       ControlPanel,
       DataBox
     },

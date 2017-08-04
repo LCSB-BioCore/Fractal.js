@@ -15,7 +15,6 @@
   $wheel-color: #c30 !default
   $speed: 800ms !default
   .fjs-loader
-    margin: 5% auto
     height: $size
     width: $size
     border: $thickness solid $base-color

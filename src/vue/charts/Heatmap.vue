@@ -1,12 +1,12 @@
 <template>
   <div class="fjs-heatmap" @click="$emit('focus')">
-    <control-panel focus="focus">
+    <control-panel class="fjs-control-panel" focus="focus">
       <data-box class="fjs-data-box"
                 header="Numerical Array Data"
                 dataType="numerical_array"
                 v-on:update="update_numericArrayData">
       </data-box>
-      <task-view></task-view>
+      <hr class="fjs-seperator"/>
     </control-panel>
 
     <div class="fjs-vis-container">
@@ -59,7 +59,6 @@
   import deepFreeze from 'deep-freeze-strict'
   import { truncateTextUntil } from '../mixins/utils'
   import ControlPanel from '../components/ControlPanel.vue'
-  import TaskView from '../components/TaskView.vue'
   export default {
     name: 'heatmap',
     data () {
@@ -223,7 +222,6 @@
       window.removeEventListener('resize', this.handleResize)
     },
     components: {
-      TaskView,
       ControlPanel,
       DataBox
     },
@@ -245,8 +243,10 @@
     display: flex
     flex-direction: column
 
-    .fjs-parameter-container
-      text-align: center
+    .fjs-control-panel
+      hr
+        width: 100%
+        margin: 10% 0 10% 0
 
     .fjs-vis-container
       flex: 1
