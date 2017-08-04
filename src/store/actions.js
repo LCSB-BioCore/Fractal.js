@@ -77,7 +77,7 @@ export default {
   /**
    * Commits a control panel vm for keeping track of all such instances.
    * @param context The context of the action.
-   * @param taskID The id of the task to remove.
+   * @param vm  The vm of the control panel
    */
   addControlPanel: (context, vm) => {
     context.commit(types.ADD_CONTROL_PANEL, {vm})
