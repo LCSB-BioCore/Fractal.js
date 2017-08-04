@@ -73,5 +73,13 @@ export default {
    */
   unsetTask: (context, {taskID}) => {
     context.commit(types.UNSET_TASK, {taskID})
+  },
+  /**
+   * Commits a control panel vm for keeping track of all such instances.
+   * @param context The context of the action.
+   * @param taskID The id of the task to remove.
+   */
+  addControlPanel: (context, vm) => {
+    context.commit(types.ADD_CONTROL_PANEL, {vm})
   }
 }

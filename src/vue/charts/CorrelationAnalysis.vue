@@ -1,7 +1,7 @@
 <template>
-  <div class="fjs-correlation-analysis">
+  <div class="fjs-correlation-analysis" @click="$emit('focus')">
 
-    <control-panel class="fjs-control-panel">
+    <control-panel class="fjs-control-panel" focus="focus">
       <data-box class="fjs-data-box"
                 header="X and Y variables"
                 dataType="numerical"
@@ -24,6 +24,7 @@
         <input type="radio" id="fjs-param-method-3" value="kendall" v-model="params.method">
         <label for="fjs-param-method-3">Kendall</label>
       </fieldset>
+      <task-view></task-view>
     </control-panel>
 
     <div class="fjs-vis-container">
@@ -121,6 +122,7 @@
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
   import ControlPanel from '../components/ControlPanel.vue'
+  import TaskView from '../components/TaskView.vue'
   export default {
     name: 'correlation-analysis',
     data () {
@@ -450,6 +452,7 @@
       window.removeEventListener('resize', this.handleResize)
     },
     components: {
+      TaskView,
       ControlPanel,
       DataBox
     },

@@ -10,6 +10,7 @@ const state = {
   data: [],
   tasks: {},
   requestManager: null,
+  controlPanels: [],
   subsets: [],
   filters: {
     ids: []

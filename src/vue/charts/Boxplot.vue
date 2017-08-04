@@ -1,7 +1,7 @@
 <template>
-  <div class="fjs-boxplot">
+  <div class="fjs-boxplot" @click="$emit('focus')">
 
-    <control-panel class="fjs-control-panel">
+    <control-panel class="fjs-control-panel" focus="focus">
       <data-box class="fjs-data-box"
                 header="Numerical Variables"
                 dataType="numerical"
@@ -23,6 +23,7 @@
         <input id="fjs-show-kde-check" type="checkbox" v-model="params.showKDE"/>
         <label for="fjs-show-kde-check">Show Density Est.</label>
       </div>
+      <task-view></task-view>
     </control-panel>
 
     <div class="fjs-vis-container">
@@ -114,7 +115,6 @@
         </g>
       </svg>
     </div>
-    <task-view></task-view>
   </div>
 </template>
 
@@ -124,11 +124,11 @@
   import runAnalysis from '../mixins/run-analysis'
   import * as d3 from 'd3'
   import { TweenLite } from 'gsap'
-  import TaskView from '../components/TaskView.vue'
   import deepFreeze from 'deep-freeze-strict'
   import { truncateTextUntil } from '../mixins/utils'
   import tooltip from '../directives/tooltip'
   import ControlPanel from '../components/ControlPanel.vue'
+  import TaskView from '../components/TaskView.vue'
   export default {
     name: 'boxplot',
     data () {
@@ -364,9 +364,9 @@
       }
     },
     components: {
+      TaskView,
       ControlPanel,
-      DataBox,
-      TaskView
+      DataBox
     },
     directives: {
       tooltip

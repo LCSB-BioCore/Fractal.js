@@ -3,5 +3,6 @@ export default {
   tasks: state => state.tasks,
   subsets: state => state.subsets,
   requestManager: state => state.requestManager,
+  controlPanels: state => state.controlPanels,
   filter: state => name => state.filters[name]
 }

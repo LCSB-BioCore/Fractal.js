@@ -1,11 +1,12 @@
 <template>
-  <div class="fjs-heatmap">
-    <control-panel>
+  <div class="fjs-heatmap" @click="$emit('focus')">
+    <control-panel focus="focus">
       <data-box class="fjs-data-box"
                 header="Numerical Array Data"
                 dataType="numerical_array"
                 v-on:update="update_numericArrayData">
       </data-box>
+      <task-view></task-view>
     </control-panel>
 
     <div class="fjs-vis-container">
@@ -46,7 +47,6 @@
         </g>
       </svg>
     </div>
-    <task-view></task-view>
   </div>
 </template>
 
@@ -56,10 +56,10 @@
   import runAnalysis from '../mixins/run-analysis'
   import * as d3 from 'd3'
   import tooltip from '../directives/tooltip.js'
-  import TaskView from '../components/TaskView.vue'
   import deepFreeze from 'deep-freeze-strict'
   import { truncateTextUntil } from '../mixins/utils'
   import ControlPanel from '../components/ControlPanel.vue'
+  import TaskView from '../components/TaskView.vue'
   export default {
     name: 'heatmap',
     data () {
@@ -223,9 +223,9 @@
       window.removeEventListener('resize', this.handleResize)
     },
     components: {
+      TaskView,
       ControlPanel,
-      DataBox,
-      TaskView
+      DataBox
     },
     directives: {
       tooltip
