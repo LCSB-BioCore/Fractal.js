@@ -35,16 +35,19 @@ export default {
    * @param context The action context.
    */
   updateData: context => {
-    context.getters.requestManager.getAllDataStates().then(response => {
-      const data = response.data.data_states
-      context.commit(types.SET_DATA, data)
-    }).catch(error => {
-      console.error(error) // TODO: Notify user about this
-    }).then(() => { // finally
-      setTimeout(() => {
-        context.dispatch('updateData')
-      }, 2000)
-    })
+    const _updateData = () => {
+      context.getters.requestManager.getAllDataStates().then(response => {
+        const data = response.data.data_states
+        context.commit(types.SET_DATA, data)
+      }).catch(error => {
+        console.error(error) // TODO: Notify user about this
+      }).then(() => { // finally
+        setTimeout(() => {
+          _updateData()
+        }, 2000)
+      })
+    }
+    _updateData()
   },
   /**
    * Commits a filter mutation that will replace the specified filter with a new value.
@@ -77,7 +80,7 @@ export default {
   /**
    * Commits a control panel vm for keeping track of all such instances.
    * @param context The context of the action.
-   * @param vm  The vm of the control panel
+   * @param vm  The vm of the contr
    */
   addControlPanel: (context, vm) => {
     context.commit(types.ADD_CONTROL_PANEL, {vm})

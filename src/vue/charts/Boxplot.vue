@@ -392,7 +392,7 @@
     .fjs-control-panel
       hr
         width: 100%
-        margin: 10% 0 10% 0
+        margin: 20px 0 20px 0
     .fjs-vis-container
       flex: 1
       display: flex

@@ -108,13 +108,13 @@
     flex-direction: column
     justify-content: flex-start
     top: 0
-    padding: 1%
+    padding: 20px
     height: 100%
     min-width: 15vw
     hr
       width: 100%
-      margin: 10% 0 10% 0
+      margin: 20px 0 20px 0
     .fjs-lock-btn
-      margin-bottom: 10%
+      margin-bottom: 5vh
       cursor: pointer
 </style>

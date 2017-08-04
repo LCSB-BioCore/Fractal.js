@@ -13,8 +13,8 @@
 
         <div class="fjs-data-entry-body" :data-state="item.etl_state" :data-id="item.task_id">
           <div class="fjs-action-btns">
-            <button class="fjs-reload-btn" @click="reloadData(item.task_id)">&#8635;</button>
-            <button class="fjs-delete-btn" @click="deleteData(item.task_id)">&#215;</button><br/>
+            <span class="fjs-reload-btn" @click="reloadData(item.task_id)">&#8635;</span>
+            <span class="fjs-delete-btn" @click="deleteData(item.task_id)">&#215;</span>
           </div>
           {{ item.etl_message }}
         </div>
@@ -69,6 +69,8 @@
         handler: function (newItems) {
           const existingIDs = newItems.map(d => d.task_id)
           // this removes selected IDs when they expired in the back end
+          console.log(existingIDs)
+          console.log(this.selectedIDs.filter(id => existingIDs.indexOf(id) !== -1))
           this.selectedIDs = this.selectedIDs.filter(id => existingIDs.indexOf(id) !== -1)
         }
       }
@@ -103,7 +105,7 @@
     flex-direction: column
     width: 100%
     text-align: start
-    margin: 2%
+    margin: 10px 0 10px 0
     > label
       font-size: 1rem
     .fjs-data-window
@@ -112,7 +114,7 @@
       border-radius: 8px
       font-size: 0.875rem
       overflow-y: scroll
-      padding: 1%
+      padding: 8px
       .fjs-data-entry-container
         display: flex
         flex-direction: column
@@ -120,8 +122,8 @@
           display: flex
           justify-content: space-between
           cursor: pointer
-          padding: 1.5%
-          margin: 0.5%
+          padding: 4px
+          margin: 2px 0 2px 0
         .fjs-selected
           background-color: rgb(16, 95, 190)
         .fjs-data-entry-body
@@ -130,9 +132,13 @@
           &[data-state="FAILURE"]
             background-color: #ffcbcb
           .fjs-action-btns
-            text-align: center
-            button
-              height: 1.5rem
-              font-size: 0.75rem
-              font-weight: bold
+            display: flex
+            flex-direction: row
+            justify-content: space-around
+            span
+              padding: 10px
+              cursor: pointer
+              font-size: 1.4rem
+              &:hover
+                background-color: rgb(16, 95, 190)
 </style>
