@@ -124,13 +124,15 @@
           cursor: pointer
           padding: 4px
           margin: 2px 0 2px 0
+          &[data-state="FAILURE"]
+            background-color: #cc4040
         .fjs-selected
           background-color: rgb(16, 95, 190)
         .fjs-data-entry-body
           display: none
           padding: 1%
           &[data-state="FAILURE"]
-            background-color: #ffcbcb
+            background-color: #cc4040
           .fjs-action-btns
             display: flex
             flex-direction: row
@@ -139,6 +141,4 @@
               padding: 10px
               cursor: pointer
               font-size: 1.4rem
-              &:hover
-                background-color: rgb(16, 95, 190)
 </style>
