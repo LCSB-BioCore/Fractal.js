@@ -76,8 +76,7 @@
     },
     mounted () {
       window.addEventListener('resize', () => {
-        this.locked = false
-        this.hide()
+        this.expanded ? this.show(false) : this.hide(false)
       })
       this.tweened.position.left = window.innerWidth
       this.show().eventCallback('onComplete', this.hide)
