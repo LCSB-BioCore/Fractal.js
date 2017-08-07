@@ -100,6 +100,8 @@
 </script>
 
 <style lang="sass" scoped>
+  @import './src/assets/base.sass'
+
   .fjs-control-panel
     background: rgba(0, 0, 0, 0.8)
     color: white
@@ -111,9 +113,7 @@
     padding: 20px
     height: 100%
     min-width: 15vw
-    hr
-      width: 100%
-      margin: 20px 0 20px 0
+
     .fjs-lock-btn
       margin-bottom: 5vh
       cursor: pointer

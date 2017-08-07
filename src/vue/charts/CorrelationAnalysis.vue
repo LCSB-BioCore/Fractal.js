@@ -26,7 +26,7 @@
       </fieldset>
     </control-panel>
 
-    <div class="fjs-vis-container">
+    <chart class="fjs-chart">
       <svg :height="height" :width="width">
         <g :transform="`translate(${margin.left}, ${margin.top})`">
           <g class="fjs-corr-axis fjs-x-axis-1" :transform="`translate(0, ${padded.height})`"></g>
@@ -108,19 +108,20 @@
           </tr>
         </table>
       </div>
-    </div>
+    </chart>
   </div>
 </template>
 
 <script>
   import DataBox from '../components/DataBox.vue'
+  import ControlPanel from '../components/ControlPanel.vue'
+  import Chart from '../components/Chart.vue'
   import store from '../../store/store'
   import runAnalysis from '../mixins/run-analysis'
   import * as d3 from 'd3'
   import { TweenLite } from 'gsap'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
-  import ControlPanel from '../components/ControlPanel.vue'
   export default {
     name: 'correlation-analysis',
     data () {
@@ -451,7 +452,8 @@
     },
     components: {
       ControlPanel,
-      DataBox
+      DataBox,
+      Chart
     },
     directives: {
       tooltip
@@ -475,7 +477,7 @@
           .catch(error => console.error(error))
       },
       handleResize () {
-        const container = this.$el.querySelector(`.fjs-vis-container svg`)
+        const container = this.$el.querySelector(`.fjs-chart svg`)
         // noinspection JSSuspiciousNameCombination
         this.height = container.getBoundingClientRect().width
         this.width = container.getBoundingClientRect().width
@@ -494,18 +496,12 @@
 <style lang="sass" scoped>
   @import './src/assets/base.sass'
 
-  *
-    font-family: Roboto, sans-serif
-
   .fjs-correlation-analysis
     height: 100%
     width: 100%
     display: flex
     flex-direction: column
     .fjs-control-panel
-      hr
-        width: 100%
-        margin: 20px 0 20px 0
     .fjs-correlation-method
       white-space: nowrap
       border: solid 1px #fff
@@ -513,7 +509,7 @@
       border-radius: 8px
       margin: 1%
 
-    .fjs-vis-container
+    .fjs-chart
       flex: 1
       display: flex
       svg
@@ -540,7 +536,6 @@
         flex-direction: column
         .fjs-stats-table
           width: 100%
-          margin: 1%
           border-spacing: 0
           border-collapse: collapse
           font-size: 0.875rem

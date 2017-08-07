@@ -25,7 +25,7 @@
       </div>
     </control-panel>
 
-    <div class="fjs-vis-container">
+    <chart class="fjs-chart">
       <svg :width="width"
            :height="height">
         <g :transform="`translate(${margin.left}, ${margin.top})`">
@@ -113,12 +113,14 @@
           </g>
         </g>
       </svg>
-    </div>
+    </chart>
   </div>
 </template>
 
 <script>
   import DataBox from '../components/DataBox.vue'
+  import ControlPanel from '../components/ControlPanel.vue'
+  import Chart from '../components/Chart.vue'
   import store from '../../store/store'
   import runAnalysis from '../mixins/run-analysis'
   import * as d3 from 'd3'
@@ -126,7 +128,6 @@
   import deepFreeze from 'deep-freeze-strict'
   import { truncateTextUntil } from '../mixins/utils'
   import tooltip from '../directives/tooltip'
-  import ControlPanel from '../components/ControlPanel.vue'
   export default {
     name: 'boxplot',
     data () {
@@ -343,7 +344,7 @@
         this.catData = ids
       },
       handleResize () {
-        const container = this.$el.querySelector('.fjs-vis-container svg')
+        const container = this.$el.querySelector('.fjs-chart svg')
         // noinspection JSSuspiciousNameCombination
         this.height = container.getBoundingClientRect().width
         this.width = container.getBoundingClientRect().width
@@ -363,7 +364,8 @@
     },
     components: {
       ControlPanel,
-      DataBox
+      DataBox,
+      Chart
     },
     directives: {
       tooltip
@@ -381,19 +383,13 @@
 <style lang="sass" scoped>
   @import './src/assets/base.sass'
 
-  *
-    font-family: Roboto, sans-serif
-
   .fjs-boxplot
     height: 100%
     width: 100%
     display: flex
     flex-direction: column
     .fjs-control-panel
-      hr
-        width: 100%
-        margin: 20px 0 20px 0
-    .fjs-vis-container
+    .fjs-chart
       flex: 1
       display: flex
       .fjs-tooltip

@@ -7,9 +7,10 @@
                 v-on:update="update_numericArrayData">
       </data-box>
       <hr class="fjs-seperator"/>
+
     </control-panel>
 
-    <div class="fjs-vis-container">
+    <chart class="fjs-chart">
       <svg height="100%" width="100%">
         <g :transform="`translate(${margin.left}, ${margin.top})`">
           <text class="fjs-id-label"
@@ -46,19 +47,20 @@
           </rect>
         </g>
       </svg>
-    </div>
+    </chart>
   </div>
 </template>
 
 <script>
   import DataBox from '../components/DataBox.vue'
+  import ControlPanel from '../components/ControlPanel.vue'
+  import Chart from '../components/Chart.vue'
   import store from '../../store/store'
   import runAnalysis from '../mixins/run-analysis'
   import * as d3 from 'd3'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
   import { truncateTextUntil } from '../mixins/utils'
-  import ControlPanel from '../components/ControlPanel.vue'
   export default {
     name: 'heatmap',
     data () {
@@ -80,11 +82,15 @@
           numerical_arrays: this.numericArrayDataIds,
           numericals: [],
           categoricals: [],
+          id_filter: this.idFilter,
           subsets: store.getters.subsets
         }
       },
       validArgs () {
         return this.numericArrayDataIds.length > 0
+      },
+      idFilter () {
+        return store.getters.filter('ids')
       },
       margin () {
         const left = this.width / 5
@@ -197,7 +203,7 @@
           })
       },
       handleResize () {
-        const container = this.$el.querySelector('.fjs-vis-container svg')
+        const container = this.$el.querySelector('.fjs-chart svg')
         this.height = container.getBoundingClientRect().height
         this.width = container.getBoundingClientRect().width
       },
@@ -223,7 +229,8 @@
     },
     components: {
       ControlPanel,
-      DataBox
+      DataBox,
+      Chart
     },
     directives: {
       tooltip
@@ -234,9 +241,6 @@
 <style lang="sass" scoped>
   @import './src/assets/base.sass'
 
-  *
-    font-family: Roboto, sans-serif
-
   .fjs-heatmap
     height: 100%
     width: 100%
@@ -244,11 +248,8 @@
     flex-direction: column
 
     .fjs-control-panel
-      hr
-        width: 100%
-        margin: 20px 0 20px 0
 
-    .fjs-vis-container
+    .fjs-chart
       flex: 1
       display: flex
       svg

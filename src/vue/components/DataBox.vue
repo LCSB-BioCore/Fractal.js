@@ -69,8 +69,6 @@
         handler: function (newItems) {
           const existingIDs = newItems.map(d => d.task_id)
           // this removes selected IDs when they expired in the back end
-          console.log(existingIDs)
-          console.log(this.selectedIDs.filter(id => existingIDs.indexOf(id) !== -1))
           this.selectedIDs = this.selectedIDs.filter(id => existingIDs.indexOf(id) !== -1)
         }
       }

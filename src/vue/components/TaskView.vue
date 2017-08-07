@@ -40,10 +40,13 @@
 </script>
 
 <style lang="sass" scoped>
+  @import './src/assets/base.sass'
+
   .fjs-task-view
     display: flex
     flex-direction: column
     justify-content: flex-start
+
     .fjs-state-container
       width: 100%
       display: flex
