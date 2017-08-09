@@ -115,6 +115,6 @@
     min-width: 15vw
 
     .fjs-lock-btn
-      margin-bottom: 5vh
+      margin-bottom: 1vh
       cursor: pointer
 </style>

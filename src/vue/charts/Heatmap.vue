@@ -225,10 +225,10 @@
           options: {
             method: this.cluster.options.method,
             metric: this.cluster.options.metric,
-            n_row_clusters: this.cluster.options.n_row_clusters,
-            n_col_clusters: this.cluster.options.n_col_clusters,
-            n_row_centroids: this.cluster.options.n_row_centroids,
-            n_col_centroids: this.cluster.options.n_col_centroids
+            n_row_clusters: parseInt(this.cluster.options.n_row_clusters),
+            n_col_clusters: parseInt(this.cluster.options.n_col_clusters),
+            n_row_centroids: parseInt(this.cluster.options.n_row_centroids),
+            n_col_centroids: parseInt(this.cluster.options.n_col_centroids)
           }
         }
       },
