@@ -50,7 +50,7 @@
                   :cy="scales.y(point.y)"
                   r="0.4%"
                   :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
-                  :stroke="subsetColors[point.subset]"
+                  :stroke="subsetColors[point.subset % subsetColors.length]"
                   :title="point.tooltip"
                   v-tooltip
                   v-for="point in shownPoints.all">

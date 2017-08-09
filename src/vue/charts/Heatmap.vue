@@ -14,94 +14,94 @@
           <legend>Expression Level</legend>
           <div>
             <label for="fjs-level-1">Mean</label>
-            <input type="radio" id="fjs-level-1" value="mean" v-model="params.rankingMethod">
+            <input type="radio" id="fjs-level-1" value="mean" v-model="rankingMethod">
           </div>
           <div>
             <label for="fjs-level-2">Median</label>
-            <input type="radio" id="fjs-level-2" value="median" v-model="params.rankingMethod">
+            <input type="radio" id="fjs-level-2" value="median" v-model="rankingMethod">
           </div>
         </fieldset>
         <fieldset>
           <legend>Expression Variability</legend>
           <div>
             <label for="fjs-var-1">Variance</label>
-            <input type="radio" id="fjs-var-1" value="variance" v-model="params.rankingMethod">
+            <input type="radio" id="fjs-var-1" value="variance" v-model="rankingMethod">
           </div>
         </fieldset>
         <fieldset>
           <legend>Differential Expression</legend>
           <div>
             <label for="fjs-dgea-1">Something</label>
-            <input type="radio" id="fjs-dgea-1" value="" v-model="params.rankingMethod">
+            <input type="radio" id="fjs-dgea-1" value="" v-model="rankingMethod">
           </div>
         </fieldset>
       </div>
 
       <div class="fjs-clustering-params">
         <span class="fjs-param-header">Heatmap Clustering</span>
-        <fieldset>
+        <fieldset class="fjs-cluster-algo-fieldset">
           <legend>Algorithm</legend>
           <div>
             <label for="fjs-hclust-radio">Hierarch.</label>
-            <input type="radio" id="fjs-hclust-radio" value="hclust" v-model="params.cluster.algorithm"/>
+            <input type="radio" id="fjs-hclust-radio" value="hclust" v-model="cluster.algorithm"/>
           </div>
           <div>
             <label for="fjs-kmeans-radio">KMeans</label>
-            <input type="radio" id="fjs-kmeans-radio" value="kmeans" v-model="params.cluster.algorithm"/>
+            <input type="radio" id="fjs-kmeans-radio" value="kmeans" v-model="cluster.algorithm"/>
           </div>
         </fieldset>
 
-        <fieldset class="fjs-cluster-option-fieldset" v-if="params.cluster.algorithm == 'hclust'">
+        <fieldset class="fjs-cluster-option-fieldset" v-if="cluster.algorithm == 'hclust'">
           <legend>Options</legend>
           <div class="fjs-hclust-selects">
-            <select v-model="params.cluster.options.method">
+            <select v-model="cluster.options.method">
               <option value="" selected disabled>-- Method --</option>
               <option :value="value"
                       v-for="value in ['single', 'complete', 'average', 'weighted', 'centroid', 'median', 'ward']"
-                      v-model="params.cluster.options.method">
+                      v-model="cluster.options.method">
                 {{ value }}
               </option>
             </select>
-            <select v-model="params.cluster.options.metric">
+            <select v-model="cluster.options.metric">
               <option value="" selected disabled>-- Metric --</option>
               <option :value="value"
                       v-for="value in ['euclidean', 'sqeuclidean', 'cityblock', 'correlation', 'cosine']"
-                      v-model="params.cluster.options.metric">
+                      v-model="cluster.options.metric">
                 {{ value }}
               </option>
             </select>
           </div>
           <div class="fjs-cluster-ranges">
-            <label for="fjs-n-row-clusters">{{ params.cluster.options.n_row_clusters }} Row Clusters</label>
+            <label for="fjs-n-row-clusters">{{ cluster.options.n_row_clusters }} Row Clusters</label>
             <input id="fjs-n-row-clusters"
                    type="range"
                    min="1" max="20"
-                   v-model="params.cluster.options.n_row_clusters"/>
+                   v-model="cluster.options.n_row_clusters"/>
           </div>
           <div class="fjs-cluster-ranges">
-            <label for="fjs-n-col-clusters">{{ params.cluster.options.n_col_clusters }} Col Clusters</label>
+            <label for="fjs-n-col-clusters">{{ cluster.options.n_col_clusters }} Col Clusters</label>
             <input id="fjs-n-col-clusters"
                    type="range"
                    min="1" max="20"
-                   v-model="params.cluster.options.n_col_clusters"/>
+                   v-model="cluster.options.n_col_clusters"/>
           </div>
         </fieldset>
 
-        <fieldset class="fjs-cluster-option-fieldset" v-if="params.cluster.algorithm == 'kmeans'">
+        <fieldset class="fjs-cluster-option-fieldset" v-if="cluster.algorithm == 'kmeans'">
           <legend>Options</legend>
           <div class="fjs-cluster-ranges">
-            <label for="fjs-n-row-centroids">{{ params.cluster.options.n_row_centroids }} Row Centroids</label>
+            <label for="fjs-n-row-centroids">{{ cluster.options.n_row_centroids }} Row Centroids</label>
             <input id="fjs-n-row-centroids"
                    type="range"
                    min="1" max="20"
-                   v-model="params.cluster.options.n_row_centroids"/>
+                   v-model="cluster.options.n_row_centroids"/>
           </div>
           <div class="fjs-cluster-ranges">
-            <label for="fjs-n-col-centroids">{{ params.cluster.options.n_col_centroids }} Col Centroids</label>
+            <label for="fjs-n-col-centroids">{{ cluster.options.n_col_centroids }} Col Centroids</label>
             <input id="fjs-n-col-centroids"
                    type="range"
                    min="1" max="20"
-                   v-model="params.cluster.options.n_col_centroids"/>
+                   v-model="cluster.options.n_col_centroids"/>
           </div>
         </fieldset>
       </div>
@@ -111,18 +111,6 @@
     <chart class="fjs-chart">
       <svg height="100%" width="100%">
         <g :transform="`translate(${margin.left}, ${margin.top})`">
-          <text class="fjs-id-label"
-                :transform="label.transform"
-                :font-size="label.fontSize"
-                v-for="label in labels.ids">
-            {{ label.text }}
-          </text>
-          <text class="fjs-variable-label"
-                :transform="label.transform"
-                :font-size="label.fontSize"
-                v-for="label in labels.variables">
-            {{ label.text }}
-          </text>
           <rect class="fjs-sig-bar"
                 :x="bar.x"
                 :y="bar.y"
@@ -130,8 +118,28 @@
                 :width="bar.width"
                 :fill="bar.fill"
                 :title="bar.tooltip"
-                v-tooltip
-                v-for="bar in sigBars">
+                v-for="bar in sigBars"
+                v-tooltip>
+          </rect>
+          <rect class="fjs-cluster-cell"
+                :x="cell.x"
+                :y="cell.y"
+                :height="cell.height"
+                :width="cell.width"
+                :fill="cell.fill"
+                :title="cell.tooltip"
+                v-for="cell in idClusterCells"
+                v-tooltip>
+          </rect>
+          <rect class="fjs-cluster-cell"
+                :x="cell.x"
+                :y="cell.y"
+                :height="cell.height"
+                :width="cell.width"
+                :fill="cell.fill"
+                :title="cell.tooltip"
+                v-for="cell in variableClusterCells"
+                v-tooltip>
           </rect>
           <rect class="fjs-cell"
                 :x="cell.x"
@@ -140,8 +148,8 @@
                 :width="cell.width"
                 :fill="cell.fill"
                 :title="cell.tooltip"
-                v-tooltip
-                v-for="cell in cells">
+                v-for="cell in cells"
+                v-tooltip>
           </rect>
         </g>
       </svg>
@@ -158,7 +166,6 @@
   import * as d3 from 'd3'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
-  import { truncateTextUntil } from '../mixins/utils'
   export default {
     name: 'heatmap',
     data () {
@@ -167,21 +174,26 @@
         height: 500,
         colorScale: d3.interpolateCool,
         numericArrayDataIds: [],
-        selectedSigMes: 'mean',
-        params: {
-          rankingMethod: 'mean',
-          cluster: {
-            algorithm: 'hclust',
-            options: {
-              method: '',
-              metric: '',
-              n_row_clusters: 5,
-              n_col_clusters: 5,
-              n_row_centroids: 5,
-              n_col_centroids: 5
-            }
+        rankingMethod: 'mean',
+        cluster: {
+          algorithm: 'hclust',
+          options: {
+            method: '',
+            metric: '',
+            n_row_clusters: 5,
+            n_col_clusters: 5,
+            n_row_centroids: 5,
+            n_col_centroids: 5
+          },
+          colColors: d3.schemeCategory20,
+          rowColors: d3.schemeCategory20.slice().reverse(),
+          results: {
+            rows: [],
+            cols: []
           }
         },
+        ids: [],
+        variables: [],
         results: {
           data: [],
           stats: []
@@ -189,18 +201,36 @@
       }
     },
     computed: {
-      args () {
+      mainArgs () {
         return {
           numerical_arrays: this.numericArrayDataIds,
           numericals: [],
           categoricals: [],
-          ranking_method: this.params.rankingMethod,
+          ranking_method: this.rankingMethod,
           id_filter: this.idFilter,
           subsets: store.getters.subsets
         }
       },
-      validArgs () {
-        return this.numericArrayDataIds.length > 0
+      clusterArgs () {
+        const df = {}
+        this.results.data.forEach(d => {
+          if (typeof df[d.id] === 'undefined') {
+            df[d.id] = {}
+          }
+          df[d.id][d.variable] = d.zscore
+        })
+        return {
+          df: df,
+          cluster_algo: this.cluster.algorithm,
+          options: {
+            method: this.cluster.options.method,
+            metric: this.cluster.options.metric,
+            n_row_clusters: this.cluster.options.n_row_clusters,
+            n_col_clusters: this.cluster.options.n_col_clusters,
+            n_row_centroids: this.cluster.options.n_row_centroids,
+            n_col_centroids: this.cluster.options.n_col_centroids
+          }
+        }
       },
       idFilter () {
         return store.getters.filter('ids')
@@ -217,29 +247,23 @@
         const height = this.height - this.margin.top - this.margin.bottom
         return { width, height }
       },
-      uniqueIds () {
-        return [...new Set(this.results.data.map(d => d.id))]
-      },
-      uniqueVariables () {
-        return [...new Set(this.results.data.map(d => d.variable))]
-      },
       gridBox () {
-        const width = this.padded.width / this.uniqueIds.length
-        let height = this.padded.height / this.uniqueVariables.length
+        const width = this.padded.width / this.ids.length
+        let height = this.padded.height / this.variables.length
         height = height < width / 4 ? height : width / 4
         return { height, width }
       },
       scales () {
         const x = d3.scaleOrdinal()
-          .domain(this.uniqueIds)
-          .range(this.uniqueIds.map((d, i) => i * this.gridBox.width))
+          .domain(this.ids)
+          .range(this.ids.map((d, i) => i * this.gridBox.width))
         const y = d3.scaleOrdinal()
-          .domain(this.uniqueVariables)
-          .range(this.uniqueVariables.map((d, i) => i * this.gridBox.height))
+          .domain(this.variables)
+          .range(this.variables.map((d, i) => i * this.gridBox.height))
         return { x, y }
       },
       currentStats () {
-        return this.results.stats.map(d => d[this.selectedSigMes])
+        return this.results.stats.map(d => d[this.rankingMethod])
       },
       sigScales () {
         const x = d3.scaleLinear()
@@ -267,42 +291,59 @@
           }
         })
       },
+      idClusterCells () {
+        return this.cluster.results.cols.map(d => {
+          return {
+            x: this.scales.x(d[0]),
+            y: -2 * this.gridBox.height,
+            width: this.gridBox.width,
+            height: this.gridBox.height,
+            fill: this.cluster.colColors[d[1] % this.cluster.colColors.length],
+            tooltip: `
+<div>
+  <p>Cluster: ${d[1]}</p>
+  <p>Identifier: ${d[0]}</p>
+</div>
+`
+          }
+        })
+      },
+      variableClusterCells () {
+        return this.cluster.results.rows.map(d => {
+          // noinspection JSSuspiciousNameCombination
+          return {
+            x: this.padded.width + this.gridBox.height,
+            y: this.scales.y(d[0]),
+            width: this.gridBox.height,
+            height: this.gridBox.height,
+            fill: this.cluster.rowColors[d[1] % this.cluster.rowColors.length],
+            tooltip: `
+<div>
+  <p>Cluster: ${d[1]}</p>
+  <p>Variable: ${d[0]}</p>
+</div>
+`
+          }
+        })
+      },
       sigBars () {
         return this.results.stats.map(d => {
           return {
-            x: -this.sigScales.x(d[this.selectedSigMes]),
+            x: -this.sigScales.x(d[this.rankingMethod]),
             y: this.sigScales.y(d.variable),
-            width: this.sigScales.x(d[this.selectedSigMes]),
+            width: this.sigScales.x(d[this.rankingMethod]),
             height: this.gridBox.height,
-            fill: d[this.selectedSigMes] < 0 ? '#0072ff' : '#ff006a',
+            fill: d[this.rankingMethod] < 0 ? '#0072ff' : '#ff006a',
             tooltip: '<div>' + Object.keys(d).map(key => {
-              const selected = key === this.selectedSigMes ? '<span style="font-weight: bold;">[selected]<span> ' : ''
+              const selected = key === this.rankingMethod ? '<span style="font-weight: bold;">[selected]<span> ' : ''
               return `<p>${selected}${key}: ${d[key]}</p>`
             }).join('') + '</div>'
           }
         })
-      },
-      labels () {
-        const ids = this.uniqueIds.map(id => {
-          const transform = `translate(${this.scales.x(id) + this.gridBox.width / 2}, -10)rotate(-45)`
-          const fontSize = `${this.gridBox.width / 2}px`
-          // noinspection JSSuspiciousNameCombination
-          const text = truncateTextUntil(
-            {text: id, font: `${this.gridBox.width / 2}px Roboto`, maxWidth: this.margin.top})
-          return { transform, fontSize, text }
-        })
-        const variables = this.uniqueVariables.map(variable => {
-          const transform = `translate(${this.padded.width + 10}, ${this.scales.y(variable) + this.gridBox.height})`
-          const fontSize = `${this.gridBox.height}px`
-          const text = truncateTextUntil(
-            {text: variable, font: `${this.gridBox.height}px Roboto`, maxWidth: this.margin.right})
-          return { transform, fontSize, text }
-        })
-        return { ids, variables }
       }
     },
     methods: {
-      runAnalysisWrapper (args) {
+      computeHeatmap (args) {
         runAnalysis({task_name: 'compute-heatmap', args})
           .then(response => {
             const results = JSON.parse(response)
@@ -313,6 +354,18 @@
             deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
             deepFreeze(stats) // massively improve performance by telling Vue that the objects properties won't change
             this.results = results
+            this.ids = [...new Set(results.data.map(d => d.id))]
+            this.variables = [...new Set(results.data.map(d => d.variable))]
+          })
+      },
+      computeCluster (args) {
+        runAnalysis({task_name: 'compute-cluster', args})
+          .then(response => {
+            const results = JSON.parse(response)
+            this.ids = results['col_clusters'].map(d => d[0])
+            this.variables = results['row_clusters'].map(d => d[0])
+            this.cluster.results.rows = results['row_clusters']
+            this.cluster.results.cols = results['col_clusters']
           })
       },
       handleResize () {
@@ -325,10 +378,18 @@
       }
     },
     watch: {
-      'args': {
-        handler: function () {
-          if (this.validArgs) {
-            this.runAnalysisWrapper(this.args)
+      'mainArgs': {
+        handler: function (args) {
+          if (args.numerical_arrays.length > 0) {
+            this.computeHeatmap(args)
+          }
+        }
+      },
+      'clusterArgs': {
+        handler: function (args) {
+          if ((args.cluster_algo === 'hclust' && args.options.method && args.options.metric) ||
+            args.cluster_algo === 'kmeans') {
+            this.computeCluster(args)
           }
         }
       }
@@ -375,10 +436,12 @@
       .fjs-clustering-params
         display: flex
         flex-direction: column
-        fieldset
+        .fjs-cluster-algo-fieldset
+          div
+            float: left
+        .fjs-cluster-option-fieldset
           display: flex
           flex-direction: column
-        .fjs-cluster-option-fieldset
           div
             margin-top: 8px
           .fjs-hclust-selects
