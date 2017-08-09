@@ -8,6 +8,104 @@
       </data-box>
       <hr class="fjs-seperator"/>
 
+      <div class="fjs-ranking-params">
+        <span class="fjs-param-header">Ranking Criteria</span>
+        <fieldset>
+          <legend>Expression Level</legend>
+          <div>
+            <label for="fjs-level-1">Mean</label>
+            <input type="radio" id="fjs-level-1" value="mean" v-model="params.rankingMethod">
+          </div>
+          <div>
+            <label for="fjs-level-2">Median</label>
+            <input type="radio" id="fjs-level-2" value="median" v-model="params.rankingMethod">
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Expression Variability</legend>
+          <div>
+            <label for="fjs-var-1">Variance</label>
+            <input type="radio" id="fjs-var-1" value="variance" v-model="params.rankingMethod">
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Differential Expression</legend>
+          <div>
+            <label for="fjs-dgea-1">Something</label>
+            <input type="radio" id="fjs-dgea-1" value="" v-model="params.rankingMethod">
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="fjs-clustering-params">
+        <span class="fjs-param-header">Heatmap Clustering</span>
+        <fieldset>
+          <legend>Algorithm</legend>
+          <div>
+            <label for="fjs-hclust-radio">Hierarch.</label>
+            <input type="radio" id="fjs-hclust-radio" value="hclust" v-model="params.cluster.algorithm"/>
+          </div>
+          <div>
+            <label for="fjs-kmeans-radio">KMeans</label>
+            <input type="radio" id="fjs-kmeans-radio" value="kmeans" v-model="params.cluster.algorithm"/>
+          </div>
+        </fieldset>
+
+        <fieldset class="fjs-cluster-option-fieldset" v-if="params.cluster.algorithm == 'hclust'">
+          <legend>Options</legend>
+          <div class="fjs-hclust-selects">
+            <select v-model="params.cluster.options.method">
+              <option value="" selected disabled>-- Method --</option>
+              <option :value="value"
+                      v-for="value in ['single', 'complete', 'average', 'weighted', 'centroid', 'median', 'ward']"
+                      v-model="params.cluster.options.method">
+                {{ value }}
+              </option>
+            </select>
+            <select v-model="params.cluster.options.metric">
+              <option value="" selected disabled>-- Metric --</option>
+              <option :value="value"
+                      v-for="value in ['euclidean', 'sqeuclidean', 'cityblock', 'correlation', 'cosine']"
+                      v-model="params.cluster.options.metric">
+                {{ value }}
+              </option>
+            </select>
+          </div>
+          <div class="fjs-cluster-ranges">
+            <label for="fjs-n-row-clusters">{{ params.cluster.options.n_row_clusters }} Row Clusters</label>
+            <input id="fjs-n-row-clusters"
+                   type="range"
+                   min="1" max="20"
+                   v-model="params.cluster.options.n_row_clusters"/>
+          </div>
+          <div class="fjs-cluster-ranges">
+            <label for="fjs-n-col-clusters">{{ params.cluster.options.n_col_clusters }} Col Clusters</label>
+            <input id="fjs-n-col-clusters"
+                   type="range"
+                   min="1" max="20"
+                   v-model="params.cluster.options.n_col_clusters"/>
+          </div>
+        </fieldset>
+
+        <fieldset class="fjs-cluster-option-fieldset" v-if="params.cluster.algorithm == 'kmeans'">
+          <legend>Options</legend>
+          <div class="fjs-cluster-ranges">
+            <label for="fjs-n-row-centroids">{{ params.cluster.options.n_row_centroids }} Row Centroids</label>
+            <input id="fjs-n-row-centroids"
+                   type="range"
+                   min="1" max="20"
+                   v-model="params.cluster.options.n_row_centroids"/>
+          </div>
+          <div class="fjs-cluster-ranges">
+            <label for="fjs-n-col-centroids">{{ params.cluster.options.n_col_centroids }} Col Centroids</label>
+            <input id="fjs-n-col-centroids"
+                   type="range"
+                   min="1" max="20"
+                   v-model="params.cluster.options.n_col_centroids"/>
+          </div>
+        </fieldset>
+      </div>
+
     </control-panel>
 
     <chart class="fjs-chart">
@@ -69,7 +167,21 @@
         height: 500,
         colorScale: d3.interpolateCool,
         numericArrayDataIds: [],
-        selectedSigMes: 'logFC',
+        selectedSigMes: 'mean',
+        params: {
+          rankingMethod: 'mean',
+          cluster: {
+            algorithm: 'hclust',
+            options: {
+              method: '',
+              metric: '',
+              n_row_clusters: 5,
+              n_col_clusters: 5,
+              n_row_centroids: 5,
+              n_col_centroids: 5
+            }
+          }
+        },
         results: {
           data: [],
           stats: []
@@ -82,6 +194,7 @@
           numerical_arrays: this.numericArrayDataIds,
           numericals: [],
           categoricals: [],
+          ranking_method: this.params.rankingMethod,
           id_filter: this.idFilter,
           subsets: store.getters.subsets
         }
@@ -93,10 +206,10 @@
         return store.getters.filter('ids')
       },
       margin () {
-        const left = this.width / 5
+        const left = this.width / 10
         const top = this.height / 10
         const right = this.width / 10
-        const bottom = 50
+        const bottom = 20
         return { left, top, right, bottom }
       },
       padded () {
@@ -248,6 +361,35 @@
     flex-direction: column
 
     .fjs-control-panel
+      .fjs-param-header
+        text-align: center
+        margin: 10px 0 5px 0
+      .fjs-ranking-params
+        display: flex
+        flex-direction: column
+        fieldset
+          display: flex
+          flex-direction: column
+          margin: 5px 0 5px 0
+          text-align: end
+      .fjs-clustering-params
+        display: flex
+        flex-direction: column
+        fieldset
+          display: flex
+          flex-direction: column
+        .fjs-cluster-option-fieldset
+          div
+            margin-top: 8px
+          .fjs-hclust-selects
+            display: flex
+            flex-direction: row
+            justify-content: space-between
+            select
+              width: 49%
+          .fjs-cluster-ranges
+            text-align: center
+
 
     .fjs-chart
       flex: 1
