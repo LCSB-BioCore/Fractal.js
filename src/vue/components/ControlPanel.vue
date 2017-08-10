@@ -110,9 +110,10 @@
     flex-direction: column
     justify-content: flex-start
     top: 0
-    padding: 20px
+    padding: 1vh
     height: 100%
     min-width: 15vw
+    overflow-y: auto
 
     .fjs-lock-btn
       margin-bottom: 1vh

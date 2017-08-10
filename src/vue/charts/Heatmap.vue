@@ -142,13 +142,13 @@
                 v-tooltip>
           </rect>
           <rect class="fjs-cell"
-                :x="cell.x"
-                :y="cell.y"
+                :x="tweened.cells[i].x"
+                :y="tweened.cells[i].y"
                 :height="cell.height"
                 :width="cell.width"
                 :fill="cell.fill"
                 :title="cell.tooltip"
-                v-for="cell in cells"
+                v-for="cell, i in cells"
                 v-tooltip>
           </rect>
         </g>
@@ -166,6 +166,7 @@
   import * as d3 from 'd3'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
+  import { TimelineLite, TweenLite } from 'gsap'
   export default {
     name: 'heatmap',
     data () {
@@ -197,6 +198,9 @@
         results: {
           data: [],
           stats: []
+        },
+        tweened: {
+          cells: []
         }
       }
     },
@@ -391,6 +395,25 @@
             args.cluster_algo === 'kmeans') {
             this.computeCluster(args)
           }
+        }
+      },
+      'cells': {
+        handler: function (newCells, oldCells) {
+          if (!oldCells.length) {
+            this.tweened.cells = newCells
+            return
+          }
+          const timeline = new TimelineLite()
+          if (this.tweened.cells.length >= newCells.length) {
+            this.tweened.cells = this.tweened.cells.slice(0, newCells.length)
+          } else {
+            this.tweened.cells = this.tweened.cells.concat(newCells.slice(this.tweened.cells.length))
+          }
+          this.tweened.cells.forEach((tweenedCell, i) => {
+            const tween = new TweenLite(tweenedCell, 1, newCells[i])
+            timeline.add(tween, 0)
+          })
+          timeline.play()
         }
       }
     },
