@@ -31,8 +31,28 @@
         <fieldset>
           <legend>Differential Expression</legend>
           <div>
-            <label for="fjs-dgea-1">Something</label>
-            <input type="radio" id="fjs-dgea-1" value="" v-model="rankingMethod">
+            <label for="fjs-dgea-1">logFC</label>
+            <input type="radio" id="fjs-dgea-1" value="logFC" v-model="rankingMethod">
+          </div>
+          <div>
+            <label for="fjs-dgea-2">t</label>
+            <input type="radio" id="fjs-dgea-2" value="t" v-model="rankingMethod">
+          </div>
+          <div>
+            <label for="fjs-dgea-3">F</label>
+            <input type="radio" id="fjs-dgea-3" value="F" v-model="rankingMethod">
+          </div>
+          <div>
+            <label for="fjs-dgea-4">B</label>
+            <input type="radio" id="fjs-dgea-4" value="B" v-model="rankingMethod">
+          </div>
+          <div>
+            <label for="fjs-dgea-5">P.Value</label>
+            <input type="radio" id="fjs-dgea-5" value="P.Value" v-model="rankingMethod">
+          </div>
+          <div>
+            <label for="fjs-dgea-6">adj.P.Value</label>
+            <input type="radio" id="fjs-dgea-6" value="adj.P.Value" v-model="rankingMethod">
           </div>
         </fieldset>
       </div>
@@ -118,8 +138,8 @@
                 :width="bar.width"
                 :fill="bar.fill"
                 :title="bar.tooltip"
-                v-for="bar in sigBars"
-                v-tooltip>
+                v-for="bar in tweened.sigBars"
+                v-tooltip="{followCursor: true}">
           </rect>
           <rect class="fjs-cluster-cell"
                 :x="cell.x"
@@ -128,8 +148,10 @@
                 :width="cell.width"
                 :fill="cell.fill"
                 :title="cell.tooltip"
-                v-for="cell in idClusterCells"
-                v-tooltip>
+                @mouseover="selectedID = cell.id"
+                @mouseout="selectedID = null"
+                v-for="cell in tweened.idClusterCells"
+                v-tooltip="{followCursor: true}">
           </rect>
           <rect class="fjs-cluster-cell"
                 :x="cell.x"
@@ -138,18 +160,21 @@
                 :width="cell.width"
                 :fill="cell.fill"
                 :title="cell.tooltip"
-                v-for="cell in variableClusterCells"
-                v-tooltip>
+                @mouseover="selectedVariable = cell.variable"
+                @mouseout="selectedVariable = null"
+                v-for="cell in tweened.variableClusterCells"
+                v-tooltip="{followCursor: true}">
           </rect>
           <rect class="fjs-cell"
-                :x="tweened.cells[i].x"
-                :y="tweened.cells[i].y"
+                :class="{highlight: cell.id == selectedID || cell.variable == selectedVariable}"
+                :x="cell.x"
+                :y="cell.y"
                 :height="cell.height"
                 :width="cell.width"
                 :fill="cell.fill"
                 :title="cell.tooltip"
-                v-for="cell, i in cells"
-                v-tooltip>
+                v-for="cell in tweened.cells"
+                v-tooltip="{followCursor: true}">
           </rect>
         </g>
       </svg>
@@ -166,7 +191,7 @@
   import * as d3 from 'd3'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
-  import { TimelineLite, TweenLite } from 'gsap'
+  import { tweenGroup } from '../mixins/utils'
   export default {
     name: 'heatmap',
     data () {
@@ -195,12 +220,17 @@
         },
         ids: [],
         variables: [],
+        selectedVariable: null,
+        selectedID: null,
         results: {
           data: [],
           stats: []
         },
         tweened: {
-          cells: []
+          cells: [],
+          idClusterCells: [],
+          variableClusterCells: [],
+          sigBars: []
         }
       }
     },
@@ -283,6 +313,8 @@
             y: this.scales.y(d.variable),
             width: this.gridBox.width,
             height: this.gridBox.height,
+            id: d.id,
+            variable: d.variable,
             fill: this.colorScale(1 / (1 + Math.pow(Math.E, -d.zscore))),
             tooltip: `
 <div>
@@ -299,9 +331,10 @@
         return this.cluster.results.cols.map(d => {
           return {
             x: this.scales.x(d[0]),
-            y: -2 * this.gridBox.height,
+            y: -3 * this.gridBox.height,
             width: this.gridBox.width,
-            height: this.gridBox.height,
+            height: this.gridBox.height * 2,
+            id: d[0],
             fill: this.cluster.colColors[d[1] % this.cluster.colColors.length],
             tooltip: `
 <div>
@@ -318,8 +351,9 @@
           return {
             x: this.padded.width + this.gridBox.height,
             y: this.scales.y(d[0]),
-            width: this.gridBox.height,
+            width: this.gridBox.height * 2,
             height: this.gridBox.height,
+            variable: d[0],
             fill: this.cluster.rowColors[d[1] % this.cluster.rowColors.length],
             tooltip: `
 <div>
@@ -398,22 +432,43 @@
         }
       },
       'cells': {
-        handler: function (newCells, oldCells) {
-          if (!oldCells.length) {
-            this.tweened.cells = newCells
-            return
-          }
-          const timeline = new TimelineLite()
-          if (this.tweened.cells.length >= newCells.length) {
-            this.tweened.cells = this.tweened.cells.slice(0, newCells.length)
-          } else {
-            this.tweened.cells = this.tweened.cells.concat(newCells.slice(this.tweened.cells.length))
-          }
-          this.tweened.cells.forEach((tweenedCell, i) => {
-            const tween = new TweenLite(tweenedCell, 1, newCells[i])
-            timeline.add(tween, 0)
+        handler: function (newCells) {
+          tweenGroup({
+            mutation: (v) => { this.tweened.cells = v },
+            model: this.tweened.cells,
+            target: newCells,
+            animationTime: 1
           })
-          timeline.play()
+        }
+      },
+      'idClusterCells': {
+        handler: function (newCells) {
+          tweenGroup({
+            mutation: (v) => { this.tweened.idClusterCells = v },
+            model: this.tweened.idClusterCells,
+            target: newCells,
+            animationTime: 1
+          })
+        }
+      },
+      'variableClusterCells': {
+        handler: function (newCells) {
+          tweenGroup({
+            mutation: (v) => { this.tweened.variableClusterCells = v },
+            model: this.tweened.variableClusterCells,
+            target: newCells,
+            animationTime: 1
+          })
+        }
+      },
+      'sigBars': {
+        handler: function (newSigBars) {
+          tweenGroup({
+            mutation: (v) => { this.tweened.sigBars = v },
+            model: this.tweened.sigBars,
+            target: newSigBars,
+            animationTime: 1
+          })
         }
       }
     },
@@ -451,14 +506,16 @@
       .fjs-ranking-params
         display: flex
         flex-direction: column
+        flex-shrink: 0
         fieldset
           display: flex
-          flex-direction: column
-          margin: 5px 0 5px 0
-          text-align: end
+          flex-direction: row
+          flex-wrap: nowrap
+          justify-content: flex-start
       .fjs-clustering-params
         display: flex
         flex-direction: column
+        flex-shrink: 0
         .fjs-cluster-algo-fieldset
           div
             float: left
@@ -485,6 +542,8 @@
         .fjs-cell
           stroke: none
           shape-rendering: crispEdges
+          &.highlight
+            opacity: 0.4
         .fjs-cell:hover
           opacity: 0.4
         .fjs-sig-bar

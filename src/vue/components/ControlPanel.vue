@@ -114,7 +114,7 @@
     height: 100%
     min-width: 15vw
     overflow-y: auto
-
+    flex-shrink: 0
     .fjs-lock-btn
       margin-bottom: 1vh
       cursor: pointer

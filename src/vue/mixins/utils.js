@@ -1,3 +1,5 @@
+import { TimelineLite, TweenLite } from 'gsap'
+
 /**
  * https://stackoverflow.com/questions/5723154/truncate-a-string-in-the-middle-with-javascript
  */
@@ -34,4 +36,22 @@ export function truncateTextUntil ({text, font, maxWidth}) {
     text = truncate({text, strLen: text.length - 5})
   }
   return text
+}
+
+export function tweenGroup ({mutation, model, target, animationTime}) {
+  if (!model.length) {
+    mutation(target)
+    return
+  }
+  const timeline = new TimelineLite()
+  if (model.length >= target.length) {
+    mutation(model.slice(0, target.length))
+  } else {
+    mutation(model.concat(target.slice(model.length)))
+  }
+  model.forEach((tweenedCell, i) => {
+    const tween = new TweenLite(tweenedCell, animationTime, target[i])
+    timeline.add(tween, 0)
+  })
+  timeline.play()
 }

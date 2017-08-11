@@ -103,7 +103,8 @@
     flex-direction: column
     width: 100%
     text-align: start
-    margin: 10px 0 10px 0
+    margin: 1vh 0 1vh 0
+    min-height: 10vh
     > label
       font-size: 1rem
     .fjs-data-window
@@ -112,7 +113,7 @@
       border-radius: 8px
       font-size: 0.875rem
       overflow-y: scroll
-      padding: 8px
+      padding: 1vh
       .fjs-data-entry-container
         display: flex
         flex-direction: column

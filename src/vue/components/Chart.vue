@@ -14,5 +14,5 @@
   .fjs-chart
     border: 2px solid rgba(0, 0, 0, 0)
     &:hover
-      border: 2px solid #29d5ff
+      border: 2px solid rgba(41, 213, 255, 0.3)
 </style>
