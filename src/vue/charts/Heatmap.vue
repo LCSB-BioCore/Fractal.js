@@ -139,34 +139,9 @@
                 :fill="bar.fill"
                 :title="bar.tooltip"
                 v-for="bar in tweened.sigBars"
-                v-tooltip="{followCursor: true}">
-          </rect>
-          <rect class="fjs-cluster-cell"
-                :x="cell.x"
-                :y="cell.y"
-                :height="cell.height"
-                :width="cell.width"
-                :fill="cell.fill"
-                :title="cell.tooltip"
-                @mouseover="selectedID = cell.id"
-                @mouseout="selectedID = null"
-                v-for="cell in tweened.idClusterCells"
-                v-tooltip="{followCursor: true}">
-          </rect>
-          <rect class="fjs-cluster-cell"
-                :x="cell.x"
-                :y="cell.y"
-                :height="cell.height"
-                :width="cell.width"
-                :fill="cell.fill"
-                :title="cell.tooltip"
-                @mouseover="selectedVariable = cell.variable"
-                @mouseout="selectedVariable = null"
-                v-for="cell in tweened.variableClusterCells"
-                v-tooltip="{followCursor: true}">
+                v-tooltip>
           </rect>
           <rect class="fjs-cell"
-                :class="{highlight: cell.id == selectedID || cell.variable == selectedVariable}"
                 :x="cell.x"
                 :y="cell.y"
                 :height="cell.height"
@@ -174,7 +149,7 @@
                 :fill="cell.fill"
                 :title="cell.tooltip"
                 v-for="cell in tweened.cells"
-                v-tooltip="{followCursor: true}">
+                v-tooltip>
           </rect>
         </g>
       </svg>
@@ -218,18 +193,12 @@
             cols: []
           }
         },
-        ids: [],
-        variables: [],
-        selectedVariable: null,
-        selectedID: null,
         results: {
           data: [],
           stats: []
         },
         tweened: {
           cells: [],
-          idClusterCells: [],
-          variableClusterCells: [],
           sigBars: []
         }
       }
@@ -270,10 +239,10 @@
         return store.getters.filter('ids')
       },
       margin () {
-        const left = this.width / 10
-        const top = this.height / 10
-        const right = this.width / 10
-        const bottom = 20
+        const left = this.width / 15
+        const top = 10
+        const right = 10
+        const bottom = 10
         return { left, top, right, bottom }
       },
       padded () {
@@ -281,19 +250,63 @@
         const height = this.height - this.margin.top - this.margin.bottom
         return { width, height }
       },
-      gridBox () {
-        const width = this.padded.width / this.ids.length
-        let height = this.padded.height / this.variables.length
-        height = height < width / 4 ? height : width / 4
-        return { height, width }
+      cols () {
+        let cols = []
+        if (this.cluster.results.cols.length) {
+          cols = this.cluster.results.cols.map(d => d[0])
+        } else {
+          cols = [...new Set(this.results.data.map(d => d.id))]
+        }
+        cols = cols.concat(['$padding_col$', '$cluster_col$'])
+        return cols
+      },
+      rows () {
+        let rows = ['$cluster_row$', '$padding_row$']
+        if (this.cluster.results.rows.length) {
+          rows = rows.concat(this.cluster.results.rows.map(d => d[0]))
+        } else {
+          rows = rows.concat([...new Set(this.results.data.map(d => d.variable))])
+        }
+        return rows
+      },
+      grid () {
+        const mainWidth = this.padded.width / this.cols.length
+        let mainHeight = this.padded.height / this.rows.length
+        mainHeight = mainHeight < mainWidth / 4 ? mainHeight : mainWidth / 4
+        // noinspection JSSuspiciousNameCombination
+        return {
+          main: { height: mainHeight, width: mainWidth },
+          rowCluster: { height: mainHeight, width: mainWidth / 2 },
+          colCluster: { height: mainHeight * 2, width: mainWidth },
+          padding: { height: mainHeight, width: mainHeight }
+        }
       },
       scales () {
         const x = d3.scaleOrdinal()
-          .domain(this.ids)
-          .range(this.ids.map((d, i) => i * this.gridBox.width))
+          .domain(this.cols)
+          .range((() => {
+            let range = []
+            for (let i = 0; i < this.cols.length - 2; i++) {
+              range.push(i * this.grid.main.width)
+            }
+            range = range.concat([
+              (this.cols.length - 2) * this.grid.main.width,  // '$padding_col$'
+              (this.cols.length - 2) * this.grid.main.width + this.grid.padding.width // '$cluster_col$'
+            ])
+            return range
+          })())
         const y = d3.scaleOrdinal()
-          .domain(this.variables)
-          .range(this.variables.map((d, i) => i * this.gridBox.height))
+          .domain(this.rows)
+          .range((() => {
+            let range = [
+              0,  // '$cluster_row$'
+              this.grid.colCluster.height  // '$padding_row$'
+            ]
+            for (let i = 2; i < this.rows.length; i++) {
+              range.push(this.grid.colCluster.height + this.grid.padding.height + (i - 2) * this.grid.main.height)
+            }
+            return range
+          })())
         return { x, y }
       },
       currentStats () {
@@ -307,62 +320,57 @@
         return { x, y }
       },
       cells () {
-        return this.results.data.map(d => {
-          return {
+        const cells = []
+        this.results.data.forEach(d => {
+          cells.push({
             x: this.scales.x(d.id),
             y: this.scales.y(d.variable),
-            width: this.gridBox.width,
-            height: this.gridBox.height,
-            id: d.id,
-            variable: d.variable,
+            width: this.grid.main.width,
+            height: this.grid.main.height,
             fill: this.colorScale(1 / (1 + Math.pow(Math.E, -d.zscore))),
             tooltip: `
 <div>
-  <p>Identifier: ${d.id}</p>
-  <p>Variable: ${d.variable}</p>
+  <p>Column: ${d.id}</p>
+  <p>Row: ${d.variable}</p>
   <p>Value: ${d.value}</p>
   <p>z-Score ${d.zscore}</p>
 </div>
 `
-          }
+          })
         })
-      },
-      idClusterCells () {
-        return this.cluster.results.cols.map(d => {
-          return {
-            x: this.scales.x(d[0]),
-            y: -3 * this.gridBox.height,
-            width: this.gridBox.width,
-            height: this.gridBox.height * 2,
-            id: d[0],
-            fill: this.cluster.colColors[d[1] % this.cluster.colColors.length],
-            tooltip: `
-<div>
-  <p>Cluster: ${d[1]}</p>
-  <p>Identifier: ${d[0]}</p>
-</div>
-`
-          }
-        })
-      },
-      variableClusterCells () {
-        return this.cluster.results.rows.map(d => {
+        this.cluster.results.rows.forEach(d => {
           // noinspection JSSuspiciousNameCombination
-          return {
-            x: this.padded.width + this.gridBox.height,
+          cells.push({
+            x: this.scales.x('$cluster_col$'),
             y: this.scales.y(d[0]),
-            width: this.gridBox.height * 2,
-            height: this.gridBox.height,
-            variable: d[0],
+            width: this.grid.rowCluster.width,
+            height: this.grid.rowCluster.height,
             fill: this.cluster.rowColors[d[1] % this.cluster.rowColors.length],
             tooltip: `
 <div>
+  <p>Row: ${d[0]}</p>
   <p>Cluster: ${d[1]}</p>
-  <p>Variable: ${d[0]}</p>
 </div>
 `
-          }
+          })
         })
+        this.cluster.results.cols.forEach(d => {
+          // noinspection JSSuspiciousNameCombination
+          cells.push({
+            x: this.scales.x(d[0]),
+            y: this.scales.y('$cluster_row$'),
+            width: this.grid.colCluster.width,
+            height: this.grid.colCluster.height,
+            fill: this.cluster.colColors[d[1] % this.cluster.colColors.length],
+            tooltip: `
+<div>
+  <p>Column: ${d[0]}</p>
+  <p>Cluster: ${d[1]}</p>
+</div>
+`
+          })
+        })
+        return cells
       },
       sigBars () {
         return this.results.stats.map(d => {
@@ -370,7 +378,7 @@
             x: -this.sigScales.x(d[this.rankingMethod]),
             y: this.sigScales.y(d.variable),
             width: this.sigScales.x(d[this.rankingMethod]),
-            height: this.gridBox.height,
+            height: this.grid.main.height,
             fill: d[this.rankingMethod] < 0 ? '#0072ff' : '#ff006a',
             tooltip: '<div>' + Object.keys(d).map(key => {
               const selected = key === this.rankingMethod ? '<span style="font-weight: bold;">[selected]<span> ' : ''
@@ -392,16 +400,12 @@
             deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
             deepFreeze(stats) // massively improve performance by telling Vue that the objects properties won't change
             this.results = results
-            this.ids = [...new Set(results.data.map(d => d.id))]
-            this.variables = [...new Set(results.data.map(d => d.variable))]
           })
       },
       computeCluster (args) {
         runAnalysis({task_name: 'compute-cluster', args})
           .then(response => {
             const results = JSON.parse(response)
-            this.ids = results['col_clusters'].map(d => d[0])
-            this.variables = results['row_clusters'].map(d => d[0])
             this.cluster.results.rows = results['row_clusters']
             this.cluster.results.cols = results['col_clusters']
           })
@@ -436,26 +440,6 @@
           tweenGroup({
             mutation: (v) => { this.tweened.cells = v },
             model: this.tweened.cells,
-            target: newCells,
-            animationTime: 1
-          })
-        }
-      },
-      'idClusterCells': {
-        handler: function (newCells) {
-          tweenGroup({
-            mutation: (v) => { this.tweened.idClusterCells = v },
-            model: this.tweened.idClusterCells,
-            target: newCells,
-            animationTime: 1
-          })
-        }
-      },
-      'variableClusterCells': {
-        handler: function (newCells) {
-          tweenGroup({
-            mutation: (v) => { this.tweened.variableClusterCells = v },
-            model: this.tweened.variableClusterCells,
             target: newCells,
             animationTime: 1
           })
@@ -542,8 +526,6 @@
         .fjs-cell
           stroke: none
           shape-rendering: crispEdges
-          &.highlight
-            opacity: 0.4
         .fjs-cell:hover
           opacity: 0.4
         .fjs-sig-bar
