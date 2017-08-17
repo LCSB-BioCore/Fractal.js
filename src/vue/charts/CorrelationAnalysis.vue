@@ -202,15 +202,15 @@
         const subsets = []
         const categories = []
         const all = this.shownResults.data.map(d => {
-          const x = d[this.shownResults.x_label]
-          const y = d[this.shownResults.y_label]
+          const x = d.value_x
+          const y = d.value_y
           const id = d.id
           const subset = d.subset
           const category = d.category
           let tooltip = `
 <div>
-  <p>${[this.shownResults.x_label]}: ${x}</p>
-  <p>${[this.shownResults.y_label]}: ${y}</p>
+  <p>${d.feature_x}: ${x}</p>
+  <p>${d.feature_y}: ${y}</p>
   <p>Subset: ${subset}</p>
   ${typeof category !== 'undefined' ? '<p>Category: ' + category + '</p>' : ''}
 </div>
@@ -231,8 +231,8 @@
         const subsets = []
         const categories = []
         const all = this.tmpResults.data.map(d => {
-          const x = d[this.tmpResults.x_label]
-          const y = d[this.tmpResults.y_label]
+          const x = d.value_x
+          const y = d.value_y
           const id = d.id
           const subset = d.subset
           const category = d.category
@@ -464,8 +464,7 @@
         runAnalysis({task_name: 'compute-correlation', args})
           .then(response => {
             const results = JSON.parse(response)
-            const data = JSON.parse(results.data)
-            results.data = Object.keys(data).map(key => data[key])
+            results.data = JSON.parse(results.data)
             deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
             if (init) {
               this.shownResults = results

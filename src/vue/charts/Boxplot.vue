@@ -159,7 +159,7 @@
       },
       args () {
         return {
-          variables: this.numData,
+          features: this.numData,
           categories: this.catData,
           id_filter: this.idFilter,
           subsets: store.getters.subsets
@@ -186,21 +186,24 @@
       points () {
         const points = {}
         this.labels.forEach(label => {
-          let [variable, category, subset] = label.split('//')
+          let [feature, category, subset] = label.split('//')
           subset = parseInt(subset.substring(1)) - 1  // revert subset string formatting
           points[label] = this.results.data
-            .filter(d => d.subset === subset && d.category === category && typeof d[variable] === 'number')
+            .filter(d => d.subset === subset &&
+              d.feature === feature &&
+              d.category === category &&
+              typeof d.value === 'number')
             .map(d => {
               return {
                 id: d.id,
-                value: d[variable],
+                value: d.value,
                 jitter: this.params.jitter ? Math.random() * this.boxplotWidth / 2 : this.boxplotWidth / 2,
                 subset: d.subset,
                 category: d.category,
                 get tooltip () {
                   return `
 <div>
-  <p>${variable}: ${this.value}</p>
+  <p>${d.feature}: ${this.value}</p>
   <p>Category: ${this.category}</p>
   <p>Subset: ${this.subset + 1}</p>
 </div>
@@ -236,7 +239,7 @@
         return boxplotWidth
       },
       scales () {
-        const values = this.results.data.map(entry => this.results.variables.map(v => entry[v]))
+        const values = this.results.data.map(d => d.value)
         const flattened = [].concat.apply([], values)
         const extent = d3.extent(flattened)
         const padding = (extent[1] - extent[0]) / 20
@@ -354,8 +357,7 @@
         runAnalysis({task_name: 'compute-boxplot', args})
           .then(response => {
             const results = JSON.parse(response)
-            const data = JSON.parse(results.data)
-            results.data = Object.keys(data).map(key => data[key])
+            results.data = JSON.parse(results.data)
             deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
             this.results = results
           })

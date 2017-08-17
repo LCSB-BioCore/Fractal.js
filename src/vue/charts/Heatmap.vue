@@ -220,7 +220,7 @@
           if (typeof df[d.id] === 'undefined') {
             df[d.id] = {}
           }
-          df[d.id][d.variable] = d.zscore
+          df[d.id][d.feature] = d.zscore
         })
         return {
           df: df,
@@ -265,7 +265,7 @@
         if (this.cluster.results.rows.length) {
           rows = rows.concat(this.cluster.results.rows.map(d => d[0]))
         } else {
-          rows = rows.concat([...new Set(this.results.data.map(d => d.variable))])
+          rows = rows.concat([...new Set(this.results.data.map(d => d.feature))])
         }
         return rows
       },
@@ -324,14 +324,14 @@
         this.results.data.forEach(d => {
           cells.push({
             x: this.scales.x(d.id),
-            y: this.scales.y(d.variable),
+            y: this.scales.y(d.feature),
             width: this.grid.main.width,
             height: this.grid.main.height,
             fill: this.colorScale(1 / (1 + Math.pow(Math.E, -d.zscore))),
             tooltip: `
 <div>
   <p>Column: ${d.id}</p>
-  <p>Row: ${d.variable}</p>
+  <p>Row: ${d.feature}</p>
   <p>Value: ${d.value}</p>
   <p>z-Score ${d.zscore}</p>
 </div>
@@ -376,7 +376,7 @@
         return this.results.stats.map(d => {
           return {
             x: -this.sigScales.x(d[this.rankingMethod]),
-            y: this.sigScales.y(d.variable),
+            y: this.sigScales.y(d.feature),
             width: this.sigScales.x(d[this.rankingMethod]),
             height: this.grid.main.height,
             fill: d[this.rankingMethod] < 0 ? '#0072ff' : '#ff006a',
@@ -393,12 +393,9 @@
         runAnalysis({task_name: 'compute-heatmap', args})
           .then(response => {
             const results = JSON.parse(response)
-            const data = JSON.parse(results.data)
-            const stats = JSON.parse(results.stats)
-            results.data = Object.keys(data).map(key => data[key])
-            results.stats = Object.keys(stats).map(key => stats[key])
+            results.data = JSON.parse(results.data)
+            results.stats = JSON.parse(results.stats)
             deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
-            deepFreeze(stats) // massively improve performance by telling Vue that the objects properties won't change
             this.results = results
           })
       },
