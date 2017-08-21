@@ -1,0 +1,83 @@
+<!doctype html>
+
+<head>
+  <script src="http://localhost:8080/credentials.js"></script>
+  <script src="http://localhost:8080/fractal.js"></script>
+</head>
+
+<body>
+<input type="button" onclick="loadData()" value="load data"/>
+<input type="button" onclick="deleteData()" value="delete data"/>
+<div style="height: 50%; width: 50%">
+  <div id="placeholder1"></div>
+</div>
+<div style="height: 50%; width: 50%">
+  <div id="placeholder2"></div>
+</div>
+<div style="height: 50%; width: 50%">
+  <div id="placeholder3"></div>
+</div>
+</body>
+
+<script>
+  /* eslint-disable */
+
+  const fjs = fractal.init({
+    handler: 'ada',
+    thisBaseURL: 'https://ada.parkinson.lu',
+    fractalisBaseURL: 'http://127.0.0.1:5000',
+    getAuth () {
+      return credentials1
+    }
+  })
+  function loadData () {
+    fjs.loadData([
+      {
+        dictionary: {
+          name: 'cadenceR',
+          projection: 'cadenceR',
+          label: 'Cadence Right',
+          fieldType: 'Double',
+          isArray: false
+        },
+        data_set: 'egait.features'
+      },
+      {
+        dictionary: {
+          name: 'cadenceL',
+          projection: 'cadenceL',
+          label: 'Cadence Left',
+          fieldType: 'Double',
+          isArray: false
+        },
+        data_set: 'egait.features'
+      },
+      {
+        dictionary: {
+          name: 'entropyR',
+          projection: 'entropyR',
+          label: 'Entropy Right',
+          fieldType: 'Double',
+          isArray: true
+        },
+        data_set: 'egait.features'
+      },
+      {
+        dictionary: {
+          name: 'entropyL',
+          projection: 'entropyL',
+          label: 'Entropy Left',
+          fieldType: 'Double',
+          isArray: true
+        },
+        data_set: 'egait.features'
+      }
+    ])
+  }
+
+  function deleteData () {
+    fjs.clearCache()
+  }
+
+  fjs.setChart({chart: 'pca-analysis', selector: '#placeholder1'})
+</script>

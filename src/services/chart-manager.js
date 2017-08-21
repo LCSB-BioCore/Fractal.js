@@ -2,13 +2,15 @@ import Vue from 'vue'
 import CorrelationAnalysis from '../vue/charts/CorrelationAnalysis.vue'
 import Boxplot from '../vue/charts/Boxplot.vue'
 import Heatmap from '../vue/charts/Heatmap.vue'
+import PCA from '../vue/charts/PCA.vue'
 
 export default class {
   constructor () {
     this.AVAILABLE_CHARTS = {
       [CorrelationAnalysis.name]: CorrelationAnalysis,
       [Boxplot.name]: Boxplot,
-      [Heatmap.name]: Heatmap
+      [Heatmap.name]: Heatmap,
+      [PCA.name]: PCA
     }
   }
 

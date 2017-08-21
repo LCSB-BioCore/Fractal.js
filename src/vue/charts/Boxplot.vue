@@ -353,7 +353,6 @@
         this.width = container.getBoundingClientRect().width
       },
       runAnalysisWrapper (args) {
-        // function made available via requestHandling mixin
         runAnalysis({task_name: 'compute-boxplot', args})
           .then(response => {
             const results = JSON.parse(response)
@@ -394,8 +393,6 @@
     .fjs-chart
       flex: 1
       display: flex
-      .fjs-tooltip
-        position: absolute
       svg
         flex: 1
         .fjs-box
