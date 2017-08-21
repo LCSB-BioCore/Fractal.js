@@ -1,5 +1,5 @@
 <template>
-  <div class="fjs-correlation-analysis" @click="$emit('focus')">
+  <div class="fjs-pca-analysis" @click="$emit('focus')">
 
     <control-panel class="fjs-control-panel" focus="focus">
       <data-box class="fjs-data-box"
@@ -18,11 +18,11 @@
       <svg :width="width"
            :height="height">
         <g :transform="`translate(${margin.left}, ${margin.top})`">
-          <g class="fjs-boxplot-axis fjs-x-axis" :transform="`translate(0, ${padded.height})`"></g>
-          <g class="fjs-boxplot-axis fjs-y-axis"></g>
+          <g class="fjs-pca-axis fjs-x-axis" :transform="`translate(0, ${padded.height})`"></g>
+          <g class="fjs-pca-axis fjs-y-axis"></g>
           <circle class="fjs-point"
-                  :cx="scales.x(point.x)"
-                  :cy="scales.y(point.y)"
+                  :cx="point.x"
+                  :cy="point.y"
                   r="0.4%"
                   :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
                   :stroke="subsetColors[point.subset % subsetColors.length]"
@@ -54,7 +54,9 @@
         width: 0,
         featureData: [],
         categoryData: [],
-        results: {},
+        results: {
+          data: []
+        },
         categoryColors: d3.schemeCategory10,
         subsetColors: d3.schemeCategory10.slice().reverse()
       }
@@ -77,9 +79,9 @@
         return this.featureData.length > 1
       },
       margin () {
-        const left = 10
+        const left = 50
         const top = 10
-        const right = 50
+        const right = 10
         const bottom = 50
         return { left, top, right, bottom }
       },
@@ -89,13 +91,39 @@
         return { width, height }
       },
       scales () {
-
+        const x = d3.scaleLinear()
+          .domain(d3.extent(this.results.data.map(d => d['0'])))
+          .range([0, this.padded.width])
+        const y = d3.scaleLinear()
+          .domain(d3.extent(this.results.data.map(d => d['1'])))
+          .range([this.padded.height, 0])
+        return { x, y }
       },
       points () {
-
+        return this.results.data.map(d => {
+          return {
+            x: this.scales.x(d['0']),
+            y: this.scales.y(d['1']),
+            id: d.id,
+            category: d.category,
+            subset: d.subset,
+            tooltip: `
+<div>
+  <p>ID: ${d.id}</p>
+  <p>Subset: ${d.subset}</p>
+  ${d.category !== '' ? '<p>Category: ' + d.category + '</p>' : ''}
+</div>
+`
+          }
+        })
+      },
+      categories () {
+        return [...new Set(this.results.data.map(d => d.category))]
       },
       axis () {
-
+        const x = d3.axisBottom(this.scales.x)
+        const y = d3.axisLeft(this.scales.y)
+        return { x, y }
       }
     },
     watch: {
@@ -109,12 +137,8 @@
       'axis': {
         handler: function (newAxis) {
           this.$nextTick(() => {
-            d3.select(this.$el.querySelector('.fjs-x-axis'))
-              .call(newAxis.x)
-              .selectAll('text')
-              .attr('transform', 'rotate(20)')
-            d3.select(this.$el.querySelector('.fjs-y-axis'))
-              .call(newAxis.y)
+            d3.select(this.$el.querySelector('.fjs-x-axis')).call(newAxis.x)
+            d3.select(this.$el.querySelector('.fjs-y-axis')).call(newAxis.y)
           })
         }
       }
@@ -164,7 +188,7 @@
 <style lang="sass" scoped>
   @import './src/assets/base.sass'
 
-  .fjs-correlation-analysis
+  .fjs-pca-analysis
     height: 100%
     width: 100%
     .fjs-chart
