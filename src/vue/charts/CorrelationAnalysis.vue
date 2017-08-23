@@ -26,7 +26,7 @@
       </fieldset>
     </control-panel>
 
-    <chart class="fjs-chart">
+    <chart>
       <svg :height="height" :width="width">
         <g :transform="`translate(${margin.left}, ${margin.top})`">
           <g class="fjs-corr-axis fjs-x-axis-1" :transform="`translate(0, ${padded.height})`"></g>
@@ -46,14 +46,13 @@
             {{ shownResults.y_label }}
           </text>
           <circle class="fjs-scatterplot-point"
-                  :cx="scales.x(point.x)"
-                  :cy="scales.y(point.y)"
-                  r="0.4%"
+                  :cx="point.x"
+                  :cy="point.y"
+                  :r="width / 300"
                   :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
-                  :stroke="subsetColors[point.subset % subsetColors.length]"
                   :title="point.tooltip"
                   v-tooltip
-                  v-for="point in shownPoints.all">
+                  v-for="point in points">
           </circle>
           <line class="fjs-lin-reg-line"
                 :title="regLine.tooltip"
@@ -67,47 +66,6 @@
           <polyline class="fjs-histogram-polyline fjs-left" points=""></polyline>
         </g>
       </svg>
-      <div class="fjs-table-container">
-        <table class="fjs-stats-table">
-          <caption>Selected points</caption>
-          <tr>
-            <td>Coefficient</td>
-            <td>{{ parseFloat(tmpResults.coef).toFixed(4) }}</td>
-          </tr>
-          <tr>
-            <td>p-value</td>
-            <td>{{ parseFloat(tmpResults.p_value).toFixed(4) }}</td>
-          </tr>
-          <tr>
-            <td>Method</td>
-            <td>{{ tmpResults.method }}</td>
-          </tr>
-          <tr>
-            <td>#Points</td>
-            <td>{{ tmpPoints.all.length }}</td>
-          </tr>
-        </table>
-        <table class="fjs-stats-table"
-               v-for="(stats, i) in tmpResults.subsets">
-          <caption>Subset: {{ i + 1 }}</caption>
-          <tr>
-            <td>Coefficient</td>
-            <td>{{ parseFloat(stats.coef).toFixed(4) }}</td>
-          </tr>
-          <tr>
-            <td>p-value</td>
-            <td>{{ parseFloat(stats.p_value).toFixed(4) }}</td>
-          </tr>
-          <tr>
-            <td>Method</td>
-            <td>{{ tmpResults.method }}</td>
-          </tr>
-          <tr>
-            <td>#Points</td>
-            <td>{{ tmpPoints.subsets.filter(function(d) { return d === i}).length }}</td>
-          </tr>
-        </table>
-      </div>
     </chart>
   </div>
 </template>
@@ -115,6 +73,7 @@
 <script>
   import DataBox from '../components/DataBox.vue'
   import ControlPanel from '../components/ControlPanel.vue'
+  import Icon from '../components/Icon.vue'
   import Chart from '../components/Chart.vue'
   import store from '../../store/store'
   import runAnalysis from '../mixins/run-analysis'
@@ -133,7 +92,6 @@
         xyData: [],
         categoryData: [],
         categoryColors: d3.schemeCategory10,
-        subsetColors: d3.schemeCategory10.slice().reverse(),
         params: {
           method: 'pearson'
         },
@@ -182,8 +140,8 @@
       },
       margin () {
         const left = this.width / 3
-        const top = 50
-        const right = 50
+        const top = 20
+        const right = 20
         const bottom = this.height / 3
         return { left, top, right, bottom }
       },
@@ -193,17 +151,13 @@
         return { width, height }
       },
       categories () {
-        return this.shownPoints.categories.filter((d, i, arr) => arr.indexOf(d) === i)  // make unique
+        return [...new Set(this.shownResults.data.map(d => d.category))]
       },
-      shownPoints () {
-        const xs = []
-        const ys = []
-        const ids = []
-        const subsets = []
-        const categories = []
-        const all = this.shownResults.data.map(d => {
-          const x = d.value_x
-          const y = d.value_y
+      points () {
+        return this.shownResults.data.map(d => {
+          const x = this.scales.x(d.value_x)
+          const y = this.scales.y(d.value_y)
+          const hash = x >= y ? x * x + x + y : x + y * y
           const id = d.id
           const subset = d.subset
           const category = d.category
@@ -215,47 +169,20 @@
   ${typeof category !== 'undefined' ? '<p>Category: ' + category + '</p>' : ''}
 </div>
 `
-          xs.push(x)
-          ys.push(y)
-          ids.push(id)
-          subsets.push(subset)
-          categories.push(category)
-          return {x, y, id, subset, category, tooltip}
+          return {x, y, id, hash, subset, category, tooltip}
         })
-        return { xs, ys, ids, subsets, categories, all }
-      },
-      tmpPoints () {
-        const xs = []
-        const ys = []
-        const ids = []
-        const subsets = []
-        const categories = []
-        const all = this.tmpResults.data.map(d => {
-          const x = d.value_x
-          const y = d.value_y
-          const id = d.id
-          const subset = d.subset
-          const category = d.category
-          xs.push(x)
-          ys.push(y)
-          ids.push(id)
-          subsets.push(subset)
-          categories.push(category)
-          return {x, y, id, subset, category}
-        })
-        return { xs, ys, ids, subsets, categories, all }
       },
       scales () {
         const x = d3.scaleLinear()
           .domain((() => {
-            const xExtent = d3.extent(this.shownPoints.xs)
+            const xExtent = d3.extent(this.shownResults.data.map(d => d.value_x))
             const xPadding = (xExtent[1] - xExtent[0]) / 10
             return [xExtent[0] - xPadding, xExtent[1] + xPadding]
           })())
           .range([0, this.padded.width])
         const y = d3.scaleLinear()
           .domain((() => {
-            const yExtent = d3.extent(this.shownPoints.ys)
+            const yExtent = d3.extent(this.shownResults.data.map(d => d.value_y))
             const yPadding = (yExtent[1] - yExtent[0]) / 10
             return [yExtent[0] - yPadding, yExtent[1] + yPadding]
           })())
@@ -269,13 +196,14 @@
           .tickSizeInner(this.padded.height - 23)
           .tickFormat('')
         const y2 = d3.axisLeft(this.scales.y)
-          .tickSizeInner(this.padded.width - this.yAxisTickWidth - 10)
+          .tickSizeInner(this.padded.width - this.yAxisTickWidth - 15)
           .tickFormat('')
         return { x1, x2, y1, y2 }
       },
       regLine () {
-        const minX = d3.min(this.tmpPoints.xs)
-        const maxX = d3.max(this.tmpPoints.xs)
+        const xValues = this.tmpResults.data.map(d => d.value_x)
+        const minX = d3.min(xValues)
+        const maxX = d3.max(xValues)
         let x1 = this.scales.x(minX)
         let y1 = this.scales.y(this.tmpResults.intercept + this.tmpResults.slope * minX)
         let x2 = this.scales.x(maxX)
@@ -310,10 +238,8 @@
               this.selectedPoints = []
             } else {
               const [[x0, y0], [x1, y1]] = d3.event.selection
-              this.selectedPoints = this.shownPoints.all.filter(d => {
-                const x = this.scales.x(d.x)
-                const y = this.scales.y(d.y)
-                return x0 <= x && x <= x1 && y0 <= y && y <= y1
+              this.selectedPoints = this.points.filter(d => {
+                return x0 <= d.x && d.x <= x1 && y0 <= d.y && d.y <= y1
               })
               if (this.selectedPoints.length > 0 && this.selectedPoints.length < 3) {
                 this.error = 'Selection must be zero (everything is selected) or greater than two.'
@@ -327,19 +253,21 @@
         const BINS = 14
         let xBins = []
         let yBins = []
-        const [xMin, xMax] = d3.extent(this.tmpPoints.xs)
-        const [yMin, yMax] = d3.extent(this.tmpPoints.ys)
+        const xValues = this.tmpResults.data.map(d => d.value_x)
+        const yValues = this.tmpResults.data.map(d => d.value_y)
+        const [xMin, xMax] = d3.extent(xValues)
+        const [yMin, yMax] = d3.extent(yValues)
         const xThresholds = d3.range(xMin, xMax, (xMax - xMin) / BINS)
         const yThresholds = d3.range(yMin, yMax, (yMax - yMin) / BINS)
-        if (this.tmpPoints.xs.length) {
+        if (xValues.length) {
           xBins = d3.histogram()
             .domain([xMin, xMax])
-            .thresholds(xThresholds)(this.tmpPoints.xs)
+            .thresholds(xThresholds)(xValues)
         }
-        if (this.tmpPoints.ys.length) {
+        if (yValues.length) {
           yBins = d3.histogram()
             .domain([yMin, yMax])
-            .thresholds(yThresholds)(this.tmpPoints.ys)
+            .thresholds(yThresholds)(yValues)
         }
         return { xBins, yBins }
       },
@@ -444,16 +372,19 @@
       }
     },
     mounted () {
-      window.addEventListener('resize', this.handleResize)
-      this.handleResize()
+      window.addEventListener('resize', this.resize)
+      window.addEventListener('load', this.resize)
+      this.resize()
     },
     beforeDestroy () {
-      window.removeEventListener('resize', this.handleResize)
+      window.removeEventListener('resize', this.resize)
+      window.removeEventListener('load', this.resize)
     },
     components: {
       ControlPanel,
       DataBox,
-      Chart
+      Chart,
+      Icon
     },
     directives: {
       tooltip
@@ -475,11 +406,9 @@
           })
           .catch(error => console.error(error))
       },
-      handleResize () {
-        const container = this.$el.querySelector(`.fjs-chart svg`)
-        // noinspection JSSuspiciousNameCombination
-        this.height = container.getBoundingClientRect().width
-        this.width = container.getBoundingClientRect().width
+      resize () {
+        this.height = this.$el.parentNode.getBoundingClientRect().height
+        this.width = this.$el.parentNode.getBoundingClientRect().width
       },
       update_xyData (ids) {
         this.xyData = ids
@@ -496,23 +425,15 @@
   @import './src/assets/base.sass'
 
   .fjs-correlation-analysis
-    height: 100%
-    width: 100%
-    display: flex
-    flex-direction: column
     .fjs-control-panel
-    .fjs-correlation-method
-      white-space: nowrap
-      border: solid 1px #fff
-      text-align: left
-      border-radius: 8px
-      margin: 1%
-
+      .fjs-correlation-method
+        white-space: nowrap
+        border: solid 1px #fff
+        text-align: left
+        border-radius: 8px
+        margin: 1%
     .fjs-chart
-      flex: 1
-      display: flex
       svg
-        flex: 4
         .fjs-lin-reg-line
           stroke: #ff5e00
           stroke-width: 0.3%
@@ -520,33 +441,14 @@
           opacity: 0.4
         .fjs-histogram-polyline
           shape-rendering: crispEdges
-          stroke: white
-          stroke-width: 1px
+          stroke-width: 0
           fill: #ffd100
         .fjs-scatterplot-point
-          stroke-width: 1
+          stroke-width: 0
         .fjs-scatterplot-point:hover
           fill: #f00
         .fjs-brush
           stroke-width: 0
-      .fjs-table-container
-        flex: 1
-        display: flex
-        flex-direction: column
-        .fjs-stats-table
-          width: 100%
-          border-spacing: 0
-          border-collapse: collapse
-          font-size: 0.875rem
-          tr:nth-child(even)
-            background-color: #ddd
-          td, th
-            overflow: hidden
-            text-overflow: ellipsis
-            white-space: nowrap
-            border: 1px #ccc solid
-            border-collapse: collapse
-            padding: 2%
 </style>
 
 <!--CSS for dynamically created components-->
@@ -556,7 +458,7 @@
     .tick
       shape-rendering: crispEdges
       line
-        stroke: #999
+        stroke: #c8c8c8
       text
-        font-size: 0.875rem
+        font-size: 1em
 </style>

@@ -6,7 +6,26 @@
 
 <script>
   export default {
-    name: 'chart'
+    name: 'chart',
+    mounted () {
+      window.addEventListener('resize', this.resize)
+      window.addEventListener('load', this.resize)
+      this.resize()
+    },
+    beforeDestroy () {
+      window.removeEventListener('resize', this.resize)
+      window.removeEventListener('load', this.resize)
+    },
+    methods: {
+      resize () {
+        this.$nextTick(() => {
+          const chartWidth = this.$parent.$el.parentNode.getBoundingClientRect().width
+          const chartHeight = this.$parent.$el.parentNode.getBoundingClientRect().height
+          const fontSize = Math.ceil((chartHeight < chartWidth ? chartHeight : chartWidth) / 50)
+          this.$el.style['font-size'] = fontSize + 'pt'
+        })
+      }
+    }
   }
 </script>
 

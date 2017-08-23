@@ -12,6 +12,7 @@
                 dataType="categorical"
                 v-on:update="update_categoryData">
       </data-box>
+
     </control-panel>
 
     <chart class="fjs-chart">
@@ -20,12 +21,22 @@
         <g :transform="`translate(${margin.left}, ${margin.top})`">
           <g class="fjs-pca-axis fjs-x-axis" :transform="`translate(0, ${padded.height})`"></g>
           <g class="fjs-pca-axis fjs-y-axis"></g>
+          <text :x="padded.width / 2"
+                :y="padded.height + 40"
+                text-anchor="middle">
+            Principal Component 1
+          </text>
+          <text :x="0"
+                :y="padded.height / 2"
+                text-anchor="middle"
+                :transform="`rotate(-90 ${-30} ${padded.height / 2})`">
+            Principal Component 2
+          </text>
           <circle class="fjs-point"
                   :cx="point.x"
                   :cy="point.y"
-                  r="0.4%"
+                  :r="width / 300"
                   :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
-                  :stroke="subsetColors[point.subset % subsetColors.length]"
                   :title="point.tooltip"
                   v-tooltip
                   v-for="point in points">
@@ -154,11 +165,9 @@
           })
           .catch(error => console.error(error))
       },
-      handleResize () {
-        const container = this.$el.querySelector(`.fjs-chart svg`)
-        // noinspection JSSuspiciousNameCombination
-        this.height = container.getBoundingClientRect().width
-        this.width = container.getBoundingClientRect().width
+      resize () {
+        this.height = this.$el.parentNode.getBoundingClientRect().height
+        this.width = this.$el.parentNode.getBoundingClientRect().width
       },
       update_featureData (ids) {
         this.featureData = ids
@@ -168,11 +177,13 @@
       }
     },
     mounted () {
-      window.addEventListener('resize', this.handleResize)
-      this.handleResize()
+      window.addEventListener('resize', this.resize)
+      window.addEventListener('load', this.resize)
+      this.resize()
     },
     beforeDestroy () {
-      window.removeEventListener('resize', this.handleResize)
+      window.removeEventListener('resize', this.resize)
+      window.removeEventListener('load', this.resize)
     },
     components: {
       ControlPanel,
@@ -189,10 +200,18 @@
   @import './src/assets/base.sass'
 
   .fjs-pca-analysis
-    height: 100%
-    width: 100%
     .fjs-chart
       svg
-        height: 100%
-        width: 100%
+</style>
+
+<!--CSS for dynamically created components-->
+<style lang="sass">
+  .fjs-pca-axis
+    shape-rendering: crispEdges
+    .tick
+      shape-rendering: crispEdges
+    line
+      stroke: #c8c8c8
+    text
+      font-size: 1em
 </style>

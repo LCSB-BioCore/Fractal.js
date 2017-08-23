@@ -278,7 +278,7 @@
       axis () {
         const x = d3.axisBottom(this.scales.x).tickFormat(d => {
           // noinspection JSSuspiciousNameCombination
-          return truncateTextUntil({text: d, font: `0.875rem Roboto`, maxWidth: this.margin.bottom})
+          return truncateTextUntil({text: d, font: `0.875em Roboto`, maxWidth: this.margin.bottom})
         })
         const y = d3.axisLeft(this.scales.y)
         return { x, y }
@@ -346,11 +346,9 @@
       update_catData (ids) {
         this.catData = ids
       },
-      handleResize () {
-        const container = this.$el.querySelector('.fjs-chart svg')
-        // noinspection JSSuspiciousNameCombination
-        this.height = container.getBoundingClientRect().width
-        this.width = container.getBoundingClientRect().width
+      resize () {
+        this.height = this.$el.parentNode.getBoundingClientRect().height
+        this.width = this.$el.parentNode.getBoundingClientRect().width
       },
       runAnalysisWrapper (args) {
         runAnalysis({task_name: 'compute-boxplot', args})
@@ -372,11 +370,13 @@
       tooltip
     },
     mounted () {
-      window.addEventListener('resize', this.handleResize)
-      this.handleResize()
+      window.addEventListener('resize', this.resize)
+      window.addEventListener('load', this.resize)
+      this.resize()
     },
     beforeDestroy () {
-      window.removeEventListener('resize', this.handleResize)
+      window.removeEventListener('resize', this.resize)
+      window.removeEventListener('load', this.resize)
     }
   }
 </script>
@@ -385,16 +385,8 @@
   @import './src/assets/base.sass'
 
   .fjs-boxplot
-    height: 100%
-    width: 100%
-    display: flex
-    flex-direction: column
-    .fjs-control-panel
     .fjs-chart
-      flex: 1
-      display: flex
       svg
-        flex: 1
         .fjs-box
           .fjs-median, .fjs-lower-quartile, .fjs-upper-quartile
             opacity: 1
@@ -429,12 +421,12 @@
     .tick
       shape-rendering: crispEdges
       text
-        font-size: 1rem
+        font-size: 1em
     line
       stroke: #999
   .fjs-x-axis
     .tick
       text
         text-anchor: start
-        font-size: 1rem
+        font-size: 1em
 </style>

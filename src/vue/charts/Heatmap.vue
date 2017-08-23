@@ -211,6 +211,7 @@
           categoricals: [],
           ranking_method: this.rankingMethod,
           id_filter: this.idFilter,
+          max_rows: 100,
           subsets: store.getters.subsets
         }
       },
@@ -407,10 +408,9 @@
             this.cluster.results.cols = results['col_clusters']
           })
       },
-      handleResize () {
-        const container = this.$el.querySelector('.fjs-chart svg')
-        this.height = container.getBoundingClientRect().height
-        this.width = container.getBoundingClientRect().width
+      resize () {
+        this.height = this.$el.parentNode.getBoundingClientRect().height
+        this.width = this.$el.parentNode.getBoundingClientRect().width
       },
       update_numericArrayData (ids) {
         this.numericArrayDataIds = ids
@@ -454,11 +454,13 @@
       }
     },
     mounted () {
-      window.addEventListener('resize', this.handleResize)
-      this.handleResize()
+      window.addEventListener('resize', this.resize)
+      window.addEventListener('load', this.resize)
+      this.resize()
     },
     beforeDestroy () {
-      window.removeEventListener('resize', this.handleResize)
+      window.removeEventListener('resize', this.resize)
+      window.removeEventListener('load', this.resize)
     },
     components: {
       ControlPanel,
@@ -475,11 +477,6 @@
   @import './src/assets/base.sass'
 
   .fjs-heatmap
-    height: 100%
-    width: 100%
-    display: flex
-    flex-direction: column
-
     .fjs-control-panel
       .fjs-param-header
         text-align: center
@@ -513,13 +510,8 @@
               width: 49%
           .fjs-cluster-ranges
             text-align: center
-
-
     .fjs-chart
-      flex: 1
-      display: flex
       svg
-        flex: 1
         .fjs-cell
           stroke: none
           shape-rendering: crispEdges

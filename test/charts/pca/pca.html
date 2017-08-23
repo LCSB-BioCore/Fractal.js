@@ -34,43 +34,55 @@
     fjs.loadData([
       {
         dictionary: {
-          name: 'cadenceR',
-          projection: 'cadenceR',
-          label: 'Cadence Right',
+          name: 'Geschlecht',
+          projection: 'Geschlecht',
+          label: 'Gender',
+          fieldType: 'Enum',
+          numValues: {"0":"female","1":"male"},
+          isArray: false
+        },
+        data_set: 'denopa.clinical_baseline'
+      },
+      {
+        dictionary: {
+          name: 'a_CRF_Bildung',
+          projection: 'a_CRF_Bildung',
+          label: 'Education',
+          fieldType: 'Enum',
+          numValues: {"0":"High School Degree","1":"High School degree","2":"High school / elementary school","3":"Realschule / GCSE"},
+          isArray: false
+        },
+        data_set: 'denopa.clinical_baseline'
+      },
+      {
+        dictionary: {
+          name: 'a_AESD_S_mean',
+          projection: 'a_AESD_S_mean',
+          label: 'AESD S Mean',
           fieldType: 'Double',
           isArray: false
         },
-        data_set: 'egait.features'
+        data_set: 'denopa.clinical_baseline'
       },
       {
         dictionary: {
-          name: 'cadenceL',
-          projection: 'cadenceL',
-          label: 'Cadence Left',
+          name: 'a_AESD_I_mean',
+          projection: 'a_AESD_I_mean',
+          label: 'AESD I Mean',
           fieldType: 'Double',
           isArray: false
         },
-        data_set: 'egait.features'
+        data_set: 'denopa.clinical_baseline'
       },
       {
         dictionary: {
-          name: 'entropyR',
-          projection: 'entropyR',
-          label: 'Entropy Right',
-          fieldType: 'Double',
-          isArray: true
+          name: 'a_Alter',
+          projection: 'a_Alter',
+          label: 'Age',
+          fieldType: 'Integer',
+          isArray: false
         },
-        data_set: 'egait.features'
-      },
-      {
-        dictionary: {
-          name: 'entropyL',
-          projection: 'entropyL',
-          label: 'Entropy Left',
-          fieldType: 'Double',
-          isArray: true
-        },
-        data_set: 'egait.features'
+        data_set: 'denopa.clinical_baseline'
       }
     ])
   }
