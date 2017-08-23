@@ -1,5 +1,5 @@
 <template>
-  <div class="fjs-chart">
+  <div class="fjs-chart" @click="focusControlPanel">
     <slot></slot>
   </div>
 </template>
@@ -18,12 +18,15 @@
     },
     methods: {
       resize () {
-        this.$nextTick(() => {
-          const chartWidth = this.$parent.$el.parentNode.getBoundingClientRect().width
-          const chartHeight = this.$parent.$el.parentNode.getBoundingClientRect().height
-          const fontSize = Math.ceil((chartHeight < chartWidth ? chartHeight : chartWidth) / 50)
-          this.$el.style['font-size'] = fontSize + 'pt'
-        })
+        const chartWidth = this.$parent.$el.parentNode.getBoundingClientRect().width
+        const chartHeight = this.$parent.$el.parentNode.getBoundingClientRect().height
+        const fontSize = Math.ceil((chartHeight < chartWidth ? chartHeight : chartWidth) / 50)
+        this.$el.style['font-size'] = fontSize + 'pt'
+        this.$emit('resize', {height: chartHeight, width: chartWidth})
+      },
+      focusControlPanel () {
+        const controlPanel = this.$children.filter(d => d.$options.name === 'control-panel')[0]
+        controlPanel.focus()
       }
     }
   }

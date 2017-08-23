@@ -1,6 +1,6 @@
 <template>
-  <div class="fjs-heatmap" @click="$emit('focus')">
-    <control-panel class="fjs-control-panel" focus="focus">
+  <chart v-on:resize="resize">
+    <control-panel class="fjs-control-panel">
       <data-box class="fjs-data-box"
                 header="Numerical Array Data"
                 dataType="numerical_array"
@@ -125,36 +125,34 @@
           </div>
         </fieldset>
       </div>
-
     </control-panel>
 
-    <chart class="fjs-chart">
-      <svg height="100%" width="100%">
-        <g :transform="`translate(${margin.left}, ${margin.top})`">
-          <rect class="fjs-sig-bar"
-                :x="bar.x"
-                :y="bar.y"
-                :height="bar.height"
-                :width="bar.width"
-                :fill="bar.fill"
-                :title="bar.tooltip"
-                v-for="bar in tweened.sigBars"
-                v-tooltip>
-          </rect>
-          <rect class="fjs-cell"
-                :x="cell.x"
-                :y="cell.y"
-                :height="cell.height"
-                :width="cell.width"
-                :fill="cell.fill"
-                :title="cell.tooltip"
-                v-for="cell in tweened.cells"
-                v-tooltip>
-          </rect>
-        </g>
-      </svg>
-    </chart>
-  </div>
+
+    <svg height="100%" width="100%">
+      <g :transform="`translate(${margin.left}, ${margin.top})`">
+        <rect class="fjs-sig-bar"
+              :x="bar.x"
+              :y="bar.y"
+              :height="bar.height"
+              :width="bar.width"
+              :fill="bar.fill"
+              :title="bar.tooltip"
+              v-for="bar in tweened.sigBars"
+              v-tooltip>
+        </rect>
+        <rect class="fjs-cell"
+              :x="cell.x"
+              :y="cell.y"
+              :height="cell.height"
+              :width="cell.width"
+              :fill="cell.fill"
+              :title="cell.tooltip"
+              v-for="cell in tweened.cells"
+              v-tooltip>
+        </rect>
+      </g>
+    </svg>
+  </chart>
 </template>
 
 <script>
@@ -408,9 +406,9 @@
             this.cluster.results.cols = results['col_clusters']
           })
       },
-      resize () {
-        this.height = this.$el.parentNode.getBoundingClientRect().height
-        this.width = this.$el.parentNode.getBoundingClientRect().width
+      resize ({height, width}) {
+        this.height = height
+        this.width = width
       },
       update_numericArrayData (ids) {
         this.numericArrayDataIds = ids
@@ -453,15 +451,6 @@
         }
       }
     },
-    mounted () {
-      window.addEventListener('resize', this.resize)
-      window.addEventListener('load', this.resize)
-      this.resize()
-    },
-    beforeDestroy () {
-      window.removeEventListener('resize', this.resize)
-      window.removeEventListener('load', this.resize)
-    },
     components: {
       ControlPanel,
       DataBox,
@@ -476,48 +465,46 @@
 <style lang="sass" scoped>
   @import './src/assets/base.sass'
 
-  .fjs-heatmap
-    .fjs-control-panel
-      .fjs-param-header
-        text-align: center
-        margin: 10px 0 5px 0
-      .fjs-ranking-params
+  .fjs-control-panel
+    .fjs-param-header
+      text-align: center
+      margin: 10px 0 5px 0
+    .fjs-ranking-params
+      display: flex
+      flex-direction: column
+      flex-shrink: 0
+      fieldset
+        display: flex
+        flex-direction: row
+        flex-wrap: nowrap
+        justify-content: flex-start
+    .fjs-clustering-params
+      display: flex
+      flex-direction: column
+      flex-shrink: 0
+      .fjs-cluster-algo-fieldset
+        div
+          float: left
+      .fjs-cluster-option-fieldset
         display: flex
         flex-direction: column
-        flex-shrink: 0
-        fieldset
+        div
+          margin-top: 8px
+        .fjs-hclust-selects
           display: flex
           flex-direction: row
-          flex-wrap: nowrap
-          justify-content: flex-start
-      .fjs-clustering-params
-        display: flex
-        flex-direction: column
-        flex-shrink: 0
-        .fjs-cluster-algo-fieldset
-          div
-            float: left
-        .fjs-cluster-option-fieldset
-          display: flex
-          flex-direction: column
-          div
-            margin-top: 8px
-          .fjs-hclust-selects
-            display: flex
-            flex-direction: row
-            justify-content: space-between
-            select
-              width: 49%
-          .fjs-cluster-ranges
-            text-align: center
-    .fjs-chart
-      svg
-        .fjs-cell
-          stroke: none
-          shape-rendering: crispEdges
-        .fjs-cell:hover
-          opacity: 0.4
-        .fjs-sig-bar
-          stroke-width: none
-          shape-rendering: crispEdges
+          justify-content: space-between
+          select
+            width: 49%
+        .fjs-cluster-ranges
+          text-align: center
+    svg
+      .fjs-cell
+        stroke: none
+        shape-rendering: crispEdges
+      .fjs-cell:hover
+        opacity: 0.4
+      .fjs-sig-bar
+        stroke-width: none
+        shape-rendering: crispEdges
 </style>

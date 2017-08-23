@@ -17,12 +17,7 @@
   import store from '../../store/store'
   export default {
     name: 'control-panel',
-    props: {
-      focus: {
-        type: String,
-        required: true
-      }
-    },
+    props: {},
     data () {
       return {
         focused: true,
@@ -59,6 +54,13 @@
         this.propagateState()
         return TweenLite.to(this.tweened.position, animate ? 0.75 : 0, {left: window.innerWidth * 0.98})
       },
+      focus () {
+        this.unfocusAll()
+        this.focused = true
+        this.$nextTick(() => {
+          this.expanded ? this.show(false) : this.hide(false)
+        })
+      },
       unFocus () {
         this.focused = false
       },
@@ -83,13 +85,6 @@
     },
     created () {
       store.dispatch('addControlPanel', this)
-      this.$parent.$on(this.focus, () => {
-        this.unfocusAll()
-        this.focused = true
-        this.$nextTick(() => {
-          this.expanded ? this.show(false) : this.hide(false)
-        })
-      })
       this.unfocusAll()
       this.focused = true
     },

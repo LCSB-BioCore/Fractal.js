@@ -1,7 +1,7 @@
 <template>
-  <div class="fjs-correlation-analysis" @click="$emit('focus')">
+  <chart v-on:resize="resize">
 
-    <control-panel class="fjs-control-panel" focus="focus">
+    <control-panel class="fjs-control-panel">
       <data-box class="fjs-data-box"
                 header="X and Y variables"
                 dataType="numerical"
@@ -26,44 +26,43 @@
       </fieldset>
     </control-panel>
 
-    <chart>
-      <svg :height="height" :width="width">
-        <g :transform="`translate(${margin.left}, ${margin.top})`">
-          <g class="fjs-corr-axis fjs-x-axis-1" :transform="`translate(0, ${padded.height})`"></g>
-          <g class="fjs-corr-axis fjs-x-axis-2"></g>
-          <g class="fjs-corr-axis fjs-y-axis-1"></g>
-          <g class="fjs-corr-axis fjs-y-axis-2" :transform="`translate(${padded.width}, 0)`"></g>
-          <g class="fjs-brush"></g>
-          <text :x="padded.width / 2"
-                y="-10"
-                text-anchor="middle">
-            {{ shownResults.x_label }}
-          </text>
-          <text text-anchor="middle"
-                :transform="`translate(${padded.width + 10},${padded.height / 2})rotate(90)`">
-            {{ shownResults.y_label }}
-          </text>
-          <polygon class="fjs-scatterplot-point"
-                   :points="point.shape"
-                   :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
-                   :title="point.tooltip"
-                   v-tooltip
-                   v-for="point in points">
-          </polygon>
-          <line class="fjs-lin-reg-line"
-                :title="regLine.tooltip"
-                v-tooltip="{followCursor: true}"
-                :x1="tweened.regLine.x1"
-                :x2="tweened.regLine.x2"
-                :y1="tweened.regLine.y1"
-                :y2="tweened.regLine.y2">
-          </line>
-          <polyline class="fjs-histogram-polyline fjs-bottom" points=""></polyline>
-          <polyline class="fjs-histogram-polyline fjs-left" points=""></polyline>
-        </g>
-      </svg>
-    </chart>
-  </div>
+    <svg :height="height" :width="width">
+      <g :transform="`translate(${margin.left}, ${margin.top})`">
+        <g class="fjs-corr-axis fjs-x-axis-1" :transform="`translate(0, ${padded.height})`"></g>
+        <g class="fjs-corr-axis fjs-x-axis-2"></g>
+        <g class="fjs-corr-axis fjs-y-axis-1"></g>
+        <g class="fjs-corr-axis fjs-y-axis-2" :transform="`translate(${padded.width}, 0)`"></g>
+        <g class="fjs-brush"></g>
+        <text :x="padded.width / 2"
+              y="-10"
+              text-anchor="middle">
+          {{ shownResults.x_label }}
+        </text>
+        <text text-anchor="middle"
+              :transform="`translate(${padded.width + 10},${padded.height / 2})rotate(90)`">
+          {{ shownResults.y_label }}
+        </text>
+        <polygon class="fjs-scatterplot-point"
+                 :points="point.shape"
+                 :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
+                 :title="point.tooltip"
+                 v-tooltip
+                 v-for="point in points">
+        </polygon>
+        <line class="fjs-lin-reg-line"
+              :title="regLine.tooltip"
+              v-tooltip="{followCursor: true}"
+              :x1="tweened.regLine.x1"
+              :x2="tweened.regLine.x2"
+              :y1="tweened.regLine.y1"
+              :y2="tweened.regLine.y2">
+        </line>
+        <polyline class="fjs-histogram-polyline fjs-bottom" points=""></polyline>
+        <polyline class="fjs-histogram-polyline fjs-left" points=""></polyline>
+      </g>
+    </svg>
+
+  </chart>
 </template>
 
 <script>
@@ -367,15 +366,6 @@
         }
       }
     },
-    mounted () {
-      window.addEventListener('resize', this.resize)
-      window.addEventListener('load', this.resize)
-      this.resize()
-    },
-    beforeDestroy () {
-      window.removeEventListener('resize', this.resize)
-      window.removeEventListener('load', this.resize)
-    },
     components: {
       ControlPanel,
       DataBox,
@@ -401,9 +391,9 @@
           })
           .catch(error => console.error(error))
       },
-      resize () {
-        this.height = this.$el.parentNode.getBoundingClientRect().height
-        this.width = this.$el.parentNode.getBoundingClientRect().width
+      resize ({height, width}) {
+        this.height = height
+        this.width = width
       },
       update_xyData (ids) {
         this.xyData = ids
@@ -417,33 +407,30 @@
 
 
 <style lang="sass" scoped>
-  @import './src/assets/base.sass'
-
-  .fjs-correlation-analysis
-    .fjs-control-panel
-      .fjs-correlation-method
-        white-space: nowrap
-        border: solid 1px #fff
-        text-align: left
-        border-radius: 8px
-        margin: 1%
-    .fjs-chart
-      svg
-        .fjs-lin-reg-line
-          stroke: #ff5e00
-          stroke-width: 0.3%
-        .fjs-lin-reg-line:hover
-          opacity: 0.4
-        .fjs-histogram-polyline
-          shape-rendering: crispEdges
-          stroke-width: 0
-          fill: #ffd100
-        .fjs-scatterplot-point
-          stroke-width: 0
-        .fjs-scatterplot-point:hover
-          fill: #f00
-        .fjs-brush
-          stroke-width: 0
+  @import './src/assets/base.sass';
+  .fjs-control-panel
+    .fjs-correlation-method
+      white-space: nowrap
+      border: solid 1px #fff
+      text-align: left
+      border-radius: 8px
+      margin: 1%
+  svg
+    .fjs-lin-reg-line
+      stroke: #ff5e00
+      stroke-width: 0.3%
+    .fjs-lin-reg-line:hover
+      opacity: 0.4
+    .fjs-histogram-polyline
+      shape-rendering: crispEdges
+      stroke-width: 0
+      fill: #ffd100
+    .fjs-scatterplot-point
+      stroke-width: 0
+    .fjs-scatterplot-point:hover
+      fill: #f00
+    .fjs-brush
+      stroke-width: 0
 </style>
 
 <!--CSS for dynamically created components-->

@@ -1,7 +1,7 @@
 <template>
-  <div class="fjs-pca-analysis" @click="$emit('focus')">
+  <chart v-on:resize="resize">
 
-    <control-panel class="fjs-control-panel" focus="focus">
+    <control-panel class="fjs-control-panel">
       <data-box class="fjs-data-box"
                 header="Features"
                 dataType="numerical"
@@ -15,33 +15,30 @@
 
     </control-panel>
 
-    <chart class="fjs-chart">
-      <svg :width="width"
-           :height="height">
-        <g :transform="`translate(${margin.left}, ${margin.top})`">
-          <g class="fjs-pca-axis fjs-x-axis" :transform="`translate(0, ${padded.height})`"></g>
-          <g class="fjs-pca-axis fjs-y-axis"></g>
-          <text :x="padded.width / 2"
-                :y="padded.height + 40"
-                text-anchor="middle">
-            Principal Component 1
-          </text>
-          <text text-anchor="middle"
-                :transform="`translate(-30, ${this.padded.height / 2})rotate(-90)`">
-            Principal Component 2
-          </text>
-          <polygon class="fjs-scatterplot-point"
-                   :points="point.shape"
-                   :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
-                   :title="point.tooltip"
-                   v-tooltip
-                   v-for="point in points">
-          </polygon>
-        </g>
-      </svg>
-    </chart>
-
-  </div>
+    <svg :width="width"
+         :height="height">
+      <g :transform="`translate(${margin.left}, ${margin.top})`">
+        <g class="fjs-pca-axis fjs-x-axis" :transform="`translate(0, ${padded.height})`"></g>
+        <g class="fjs-pca-axis fjs-y-axis"></g>
+        <text :x="padded.width / 2"
+              :y="padded.height + 40"
+              text-anchor="middle">
+          Principal Component 1
+        </text>
+        <text text-anchor="middle"
+              :transform="`translate(-30, ${this.padded.height / 2})rotate(-90)`">
+          Principal Component 2
+        </text>
+        <polygon class="fjs-scatterplot-point"
+                 :points="point.shape"
+                 :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
+                 :title="point.tooltip"
+                 v-tooltip
+                 v-for="point in points">
+        </polygon>
+      </g>
+    </svg>
+  </chart>
 </template>
 
 <script>
@@ -164,9 +161,9 @@
           })
           .catch(error => console.error(error))
       },
-      resize () {
-        this.height = this.$el.parentNode.getBoundingClientRect().height
-        this.width = this.$el.parentNode.getBoundingClientRect().width
+      resize ({height, width}) {
+        this.height = height
+        this.width = width
       },
       update_featureData (ids) {
         this.featureData = ids
@@ -174,15 +171,6 @@
       update_categoryData (ids) {
         this.categoryData = ids
       }
-    },
-    mounted () {
-      window.addEventListener('resize', this.resize)
-      window.addEventListener('load', this.resize)
-      this.resize()
-    },
-    beforeDestroy () {
-      window.removeEventListener('resize', this.resize)
-      window.removeEventListener('load', this.resize)
     },
     components: {
       ControlPanel,
@@ -197,10 +185,6 @@
 
 <style lang="sass" scoped>
   @import './src/assets/base.sass'
-
-  .fjs-pca-analysis
-    .fjs-chart
-      svg
 </style>
 
 <!--CSS for dynamically created components-->

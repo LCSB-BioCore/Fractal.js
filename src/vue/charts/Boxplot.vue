@@ -1,7 +1,7 @@
 <template>
-  <div class="fjs-boxplot" @click="$emit('focus')">
+  <chart v-on:resize="resize">
 
-    <control-panel class="fjs-control-panel" focus="focus">
+    <control-panel class="fjs-control-panel">
       <data-box class="fjs-data-box"
                 header="Numerical Variables"
                 dataType="numerical"
@@ -25,96 +25,95 @@
       </div>
     </control-panel>
 
-    <chart class="fjs-chart">
-      <svg :width="width"
-           :height="height">
-        <g :transform="`translate(${margin.left}, ${margin.top})`">
-          <g class="fjs-boxplot-axis fjs-x-axis" :transform="`translate(0, ${padded.height})`"></g>
-          <g class="fjs-boxplot-axis fjs-y-axis"></g>
-          <g class="fjs-box"
-             :transform="`translate(${scales.x(label)}, 0)`"
-             v-tooltip="{position: 'bottom'}"
-             :title="label"
-             :data-label="label"
-             @mouseenter="showTooltip(label)"
-             @mouseleave="hideTooltip(label)"
-             v-for="label in labels" >
-            <line class="fjs-upper-whisker"
-                  :title="results.statistics[label].u_wsk"
-                  v-tooltip="{position: 'right'}"
-                  :x1="- boxplotWidth / 6"
-                  :y1="tweened.boxes[label].u_wsk"
-                  :x2="boxplotWidth / 6"
-                  :y2="tweened.boxes[label].u_wsk">
-            </line>
-            <line class="fjs-lower-whisker"
-                  :title="results.statistics[label].l_wsk"
-                  v-tooltip="{position: 'right'}"
-                  :x1="- boxplotWidth / 6"
-                  :y1="tweened.boxes[label].l_wsk"
-                  :x2="boxplotWidth / 6"
-                  :y2="tweened.boxes[label].l_wsk">
-            </line>
-            <line class="fjs-upper-quartile"
-                  :title="results.statistics[label].u_qrt"
-                  v-tooltip="{position: 'left'}"
-                  :x1="- boxplotWidth / 2"
-                  :y1="tweened.boxes[label].u_qrt"
-                  :x2="boxplotWidth / 2"
-                  :y2="tweened.boxes[label].u_qrt">
-            </line>
-            <line class="fjs-lower-quartile"
-                  :title="results.statistics[label].l_qrt"
-                  v-tooltip="{position: 'left'}"
-                  :x1="- boxplotWidth / 2"
-                  :y1="tweened.boxes[label].l_qrt"
-                  :x2="boxplotWidth / 2"
-                  :y2="tweened.boxes[label].l_qrt">
-            </line>
-            <line class="fjs-median"
-                  :title="results.statistics[label].median"
-                  v-tooltip="{position: 'right'}"
-                  :x1="- boxplotWidth / 2"
-                  :y1="tweened.boxes[label].median"
-                  :x2="boxplotWidth / 2"
-                  :y2="tweened.boxes[label].median">
-            </line>
-            <line class="fjs-antenna"
-                  :x1="0"
-                  :y1="tweened.boxes[label].u_wsk"
-                  :x2="0"
-                  :y2="tweened.boxes[label].l_wsk">
-            </line>
-            <rect class="fjs-above-median-box"
-                  :x="- boxplotWidth / 2"
-                  :y="tweened.boxes[label].u_qrt"
-                  :width="boxplotWidth"
-                  :height="tweened.boxes[label].median - tweened.boxes[label].u_qrt">
-            </rect>
-            <rect class="fjs-below-median-box"
-                  :x="- boxplotWidth / 2"
-                  :y="tweened.boxes[label].median"
-                  :width="boxplotWidth"
-                  :height="tweened.boxes[label].l_qrt - tweened.boxes[label].median">
-            </rect>
-            <circle class="fjs-points"
-                    :title="point.tooltip"
-                    v-tooltip="{arrow: true, theme: 'light'}"
-                    :cx="point.jitter"
-                    :cy="scales.y(point.value)"
-                    r="0.4%"
-                    v-for="point in points[label]"
-                    v-if="params.showData">
-            </circle>
-            <polyline class="fjs-kde"
-                      :points="kdePolyPoints[label]"
-                      v-if="params.showKDE">
-            </polyline>
-          </g>
+    <svg :width="width"
+         :height="height">
+      <g :transform="`translate(${margin.left}, ${margin.top})`">
+        <g class="fjs-boxplot-axis fjs-x-axis" :transform="`translate(0, ${padded.height})`"></g>
+        <g class="fjs-boxplot-axis fjs-y-axis"></g>
+        <g class="fjs-box"
+           :transform="`translate(${scales.x(label)}, 0)`"
+           v-tooltip="{position: 'bottom'}"
+           :title="label"
+           :data-label="label"
+           @mouseenter="showTooltip(label)"
+           @mouseleave="hideTooltip(label)"
+           v-for="label in labels" >
+          <line class="fjs-upper-whisker"
+                :title="results.statistics[label].u_wsk"
+                v-tooltip="{position: 'right'}"
+                :x1="- boxplotWidth / 6"
+                :y1="tweened.boxes[label].u_wsk"
+                :x2="boxplotWidth / 6"
+                :y2="tweened.boxes[label].u_wsk">
+          </line>
+          <line class="fjs-lower-whisker"
+                :title="results.statistics[label].l_wsk"
+                v-tooltip="{position: 'right'}"
+                :x1="- boxplotWidth / 6"
+                :y1="tweened.boxes[label].l_wsk"
+                :x2="boxplotWidth / 6"
+                :y2="tweened.boxes[label].l_wsk">
+          </line>
+          <line class="fjs-upper-quartile"
+                :title="results.statistics[label].u_qrt"
+                v-tooltip="{position: 'left'}"
+                :x1="- boxplotWidth / 2"
+                :y1="tweened.boxes[label].u_qrt"
+                :x2="boxplotWidth / 2"
+                :y2="tweened.boxes[label].u_qrt">
+          </line>
+          <line class="fjs-lower-quartile"
+                :title="results.statistics[label].l_qrt"
+                v-tooltip="{position: 'left'}"
+                :x1="- boxplotWidth / 2"
+                :y1="tweened.boxes[label].l_qrt"
+                :x2="boxplotWidth / 2"
+                :y2="tweened.boxes[label].l_qrt">
+          </line>
+          <line class="fjs-median"
+                :title="results.statistics[label].median"
+                v-tooltip="{position: 'right'}"
+                :x1="- boxplotWidth / 2"
+                :y1="tweened.boxes[label].median"
+                :x2="boxplotWidth / 2"
+                :y2="tweened.boxes[label].median">
+          </line>
+          <line class="fjs-antenna"
+                :x1="0"
+                :y1="tweened.boxes[label].u_wsk"
+                :x2="0"
+                :y2="tweened.boxes[label].l_wsk">
+          </line>
+          <rect class="fjs-above-median-box"
+                :x="- boxplotWidth / 2"
+                :y="tweened.boxes[label].u_qrt"
+                :width="boxplotWidth"
+                :height="tweened.boxes[label].median - tweened.boxes[label].u_qrt">
+          </rect>
+          <rect class="fjs-below-median-box"
+                :x="- boxplotWidth / 2"
+                :y="tweened.boxes[label].median"
+                :width="boxplotWidth"
+                :height="tweened.boxes[label].l_qrt - tweened.boxes[label].median">
+          </rect>
+          <circle class="fjs-points"
+                  :title="point.tooltip"
+                  v-tooltip="{arrow: true, theme: 'light'}"
+                  :cx="point.jitter"
+                  :cy="scales.y(point.value)"
+                  r="0.4%"
+                  v-for="point in points[label]"
+                  v-if="params.showData">
+          </circle>
+          <polyline class="fjs-kde"
+                    :points="kdePolyPoints[label]"
+                    v-if="params.showKDE">
+          </polyline>
         </g>
-      </svg>
-    </chart>
-  </div>
+      </g>
+    </svg>
+
+  </chart>
 </template>
 
 <script>
@@ -346,9 +345,9 @@
       update_catData (ids) {
         this.catData = ids
       },
-      resize () {
-        this.height = this.$el.parentNode.getBoundingClientRect().height
-        this.width = this.$el.parentNode.getBoundingClientRect().width
+      resize ({height, width}) {
+        this.height = height
+        this.width = width
       },
       runAnalysisWrapper (args) {
         runAnalysis({task_name: 'compute-boxplot', args})
@@ -368,15 +367,6 @@
     },
     directives: {
       tooltip
-    },
-    mounted () {
-      window.addEventListener('resize', this.resize)
-      window.addEventListener('load', this.resize)
-      this.resize()
-    },
-    beforeDestroy () {
-      window.removeEventListener('resize', this.resize)
-      window.removeEventListener('load', this.resize)
     }
   }
 </script>
@@ -384,33 +374,31 @@
 <style lang="sass" scoped>
   @import './src/assets/base.sass'
 
-  .fjs-boxplot
-    .fjs-chart
-      svg
-        .fjs-box
-          .fjs-median, .fjs-lower-quartile, .fjs-upper-quartile
-            opacity: 1
-          .fjs-lower-whisker, .fjs-upper-whisker, .fjs-antenna
-            shape-rendering: crispEdges
-            stroke: black
-            stroke-width: 1px
-          .fjs-below-median-box
-            stroke: none
-            fill: rgb(205, 232, 254)
-            shape-rendering: crispEdges
-          .fjs-above-median-box
-            stroke: none
-            fill: rgb(180, 221, 253)
-            shape-rendering: crispEdges
-        .fjs-points
-          stroke: white
-          stroke-width: 1px
-        .fjs-points:hover
-          opacity: 0.4
-        .fjs-kde
-          fill: none
-          stroke: black
-          stroke-width: 0.2%
+  svg
+    .fjs-box
+      .fjs-median, .fjs-lower-quartile, .fjs-upper-quartile
+        opacity: 1
+      .fjs-lower-whisker, .fjs-upper-whisker, .fjs-antenna
+        shape-rendering: crispEdges
+        stroke: black
+        stroke-width: 1px
+      .fjs-below-median-box
+        stroke: none
+        fill: rgb(205, 232, 254)
+        shape-rendering: crispEdges
+      .fjs-above-median-box
+        stroke: none
+        fill: rgb(180, 221, 253)
+        shape-rendering: crispEdges
+    .fjs-points
+      stroke: white
+      stroke-width: 1px
+    .fjs-points:hover
+      opacity: 0.4
+    .fjs-kde
+      fill: none
+      stroke: black
+      stroke-width: 0.2%
 </style>
 
 
@@ -424,9 +412,9 @@
         font-size: 1em
     line
       stroke: #999
-  .fjs-x-axis
-    .tick
-      text
-        text-anchor: start
-        font-size: 1em
+    .fjs-x-axis
+      .tick
+        text
+          text-anchor: start
+          font-size: 1em
 </style>
