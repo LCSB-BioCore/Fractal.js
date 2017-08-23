@@ -26,21 +26,17 @@
                 text-anchor="middle">
             Principal Component 1
           </text>
-          <text :x="0"
-                :y="padded.height / 2"
-                text-anchor="middle"
-                :transform="`rotate(-90 ${-30} ${padded.height / 2})`">
+          <text text-anchor="middle"
+                :transform="`translate(-30, ${this.padded.height / 2})rotate(-90)`">
             Principal Component 2
           </text>
-          <circle class="fjs-point"
-                  :cx="point.x"
-                  :cy="point.y"
-                  :r="width / 300"
-                  :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
-                  :title="point.tooltip"
-                  v-tooltip
-                  v-for="point in points">
-          </circle>
+          <polygon class="fjs-scatterplot-point"
+                   :points="point.shape"
+                   :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
+                   :title="point.tooltip"
+                   v-tooltip
+                   v-for="point in points">
+          </polygon>
         </g>
       </svg>
     </chart>
@@ -52,6 +48,7 @@
   import DataBox from '../components/DataBox.vue'
   import ControlPanel from '../components/ControlPanel.vue'
   import Chart from '../components/Chart.vue'
+  import { getPolygonPointsForSubset } from '../mixins/utils'
   import store from '../../store/store'
   import runAnalysis from '../mixins/run-analysis'
   import * as d3 from 'd3'
@@ -118,6 +115,8 @@
             id: d.id,
             category: d.category,
             subset: d.subset,
+            shape: getPolygonPointsForSubset(
+              {cx: this.scales.x(d['0']), cy: this.scales.y(d['1']), size: this.width / 150, subset: d.subset}),
             tooltip: `
 <div>
   <p>ID: ${d.id}</p>

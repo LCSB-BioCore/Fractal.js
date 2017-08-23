@@ -39,21 +39,17 @@
                 text-anchor="middle">
             {{ shownResults.x_label }}
           </text>
-          <text :x="padded.width + 10"
-                :y="padded.height / 2"
-                text-anchor="middle"
-                :transform="`rotate(90 ${padded.width + 10} ${padded.height / 2})`">
+          <text text-anchor="middle"
+                :transform="`translate(${padded.width + 10},${padded.height / 2})rotate(90)`">
             {{ shownResults.y_label }}
           </text>
-          <circle class="fjs-scatterplot-point"
-                  :cx="point.x"
-                  :cy="point.y"
-                  :r="width / 300"
-                  :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
-                  :title="point.tooltip"
-                  v-tooltip
-                  v-for="point in points">
-          </circle>
+          <polygon class="fjs-scatterplot-point"
+                   :points="point.shape"
+                   :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
+                   :title="point.tooltip"
+                   v-tooltip
+                   v-for="point in points">
+          </polygon>
           <line class="fjs-lin-reg-line"
                 :title="regLine.tooltip"
                 v-tooltip="{followCursor: true}"
@@ -73,7 +69,7 @@
 <script>
   import DataBox from '../components/DataBox.vue'
   import ControlPanel from '../components/ControlPanel.vue'
-  import Icon from '../components/Icon.vue'
+  import { getPolygonPointsForSubset } from '../mixins/utils'
   import Chart from '../components/Chart.vue'
   import store from '../../store/store'
   import runAnalysis from '../mixins/run-analysis'
@@ -157,9 +153,9 @@
         return this.shownResults.data.map(d => {
           const x = this.scales.x(d.value_x)
           const y = this.scales.y(d.value_y)
-          const hash = x >= y ? x * x + x + y : x + y * y
           const id = d.id
           const subset = d.subset
+          const shape = getPolygonPointsForSubset({cx: x, cy: y, size: this.width / 150, subset: subset})
           const category = d.category
           let tooltip = `
 <div>
@@ -169,7 +165,7 @@
   ${typeof category !== 'undefined' ? '<p>Category: ' + category + '</p>' : ''}
 </div>
 `
-          return {x, y, id, hash, subset, category, tooltip}
+          return {x, y, id, shape, subset, category, tooltip}
         })
       },
       scales () {
@@ -383,8 +379,7 @@
     components: {
       ControlPanel,
       DataBox,
-      Chart,
-      Icon
+      Chart
     },
     directives: {
       tooltip

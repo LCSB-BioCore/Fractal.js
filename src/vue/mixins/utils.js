@@ -55,3 +55,9 @@ export function tweenGroup ({mutation, model, target, animationTime}) {
   })
   timeline.play()
 }
+
+export function getPolygonPointsForSubset ({cx, cy, size, subset}) {
+  const diamond = (cx, cy, size) => `${cx},${cy - size / 2} ${cx + size / 2},${cy} ${cx},${cy + size / 2} ${cx - size / 2},${cy}`
+  const shapes = [diamond]
+  return shapes[subset % shapes.length](cx, cy, size)
+}
