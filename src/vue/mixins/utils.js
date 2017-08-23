@@ -58,6 +58,9 @@ export function tweenGroup ({mutation, model, target, animationTime}) {
 
 export function getPolygonPointsForSubset ({cx, cy, size, subset}) {
   const diamond = (cx, cy, size) => `${cx},${cy - size / 2} ${cx + size / 2},${cy} ${cx},${cy + size / 2} ${cx - size / 2},${cy}`
-  const shapes = [diamond]
+  const square = (cx, cy, size) => `${cx - size / 2},${cy - size / 2} ${cx + size / 2},${cy - size / 2} ${cx + size / 2},${cy + size / 2} ${cx - size / 2},${cy + size / 2}`
+  const triangle = (cx, cy, size) => `${cx},${cy - size / 2} ${cx + size / 2},${cy + size / 2} ${cx - size / 2},${cy + size / 2}`
+  const revTriangle = (cx, cy, size) => `${cx - size / 2},${cy - size / 2} ${cx + size / 2},${cy - size / 2} ${cx},${cy + size / 2}`
+  const shapes = [diamond, square, triangle, revTriangle]
   return shapes[subset % shapes.length](cx, cy, size)
 }
