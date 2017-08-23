@@ -57,10 +57,10 @@
         max-width: 75%
       .fjs-failed
         color: #ff3336
-        font-size: 0.875rem
+        font-size: 0.75em
         max-width: 75%
       .fjs-cancel-btn
-        font-size: 1.5rem
+        font-size: 1em
         color: #ff3336
         cursor: pointer
 </style>

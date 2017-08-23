@@ -106,12 +106,12 @@
     margin: 1vh 0 1vh 0
     min-height: 10vh
     > label
-      font-size: 1rem
+      font-size: 1em
     .fjs-data-window
       flex: 1
       border: 1px solid #fff
       border-radius: 8px
-      font-size: 0.875rem
+      font-size: 0.875em
       overflow-y: scroll
       padding: 1vh
       .fjs-data-entry-container
@@ -139,5 +139,5 @@
             span
               padding: 10px
               cursor: pointer
-              font-size: 1.4rem
+              font-size: 1em
 </style>
