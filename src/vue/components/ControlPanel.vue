@@ -4,16 +4,21 @@
        v-show="focused"
        @mouseover="locked ? noop() : show()"
        @mouseout="locked ? noop() : hide()">
-    <span class="fjs-lock-btn" v-html="lockIcon" @click="toggleLock"></span>
-    <slot></slot>
-    <hr class="fjs-seperator"/>
-    <task-view></task-view>
+    <div class="fjs-panel-header">
+      <span v-show="shown">{{ chartName }}</span>
+      <span class="fjs-lock-btn" v-html="lockIcon" @click="toggleLock"></span>
+    </div>
+    <span class="fjs-panel-label" v-show="!shown">Control Panel</span>
+    <div v-show="shown">
+      <slot></slot>
+      <hr class="fjs-seperator"/>
+      <task-view></task-view>
+    </div>
   </div>
 </template>
 
 <script>
   import TaskView from './TaskView.vue'
-  import { TweenLite } from 'gsap'
   import store from '../../store/store'
   export default {
     name: 'control-panel',
@@ -23,6 +28,7 @@
         focused: true,
         locked: false,
         expanded: false,
+        shown: true,
         tweened: {
           position: {
             left: 0
@@ -33,6 +39,9 @@
     computed: {
       lockIcon () {
         return this.locked ? '&#128274;' : '&#128275;'
+      },
+      chartName () {
+        return this.$parent.$parent.$options.name
       }
     },
     methods: {
@@ -43,16 +52,15 @@
       },
       show (animate) {
         animate = typeof animate === 'undefined' ? true : animate
-        const panelWidth = window.innerWidth - this.$el.getBoundingClientRect().width
         this.expanded = true
         this.propagateState()
-        return TweenLite.to(this.tweened.position, animate ? 0.75 : 0, {left: panelWidth})
+        this.shown = true
       },
       hide (animate) {
         animate = typeof animate === 'undefined' ? true : animate
         this.expanded = false
         this.propagateState()
-        return TweenLite.to(this.tweened.position, animate ? 0.75 : 0, {left: window.innerWidth * 0.98})
+        this.shown = false
       },
       focus () {
         this.unfocusAll()
@@ -80,8 +88,7 @@
       window.addEventListener('resize', () => {
         this.expanded ? this.show(false) : this.hide(false)
       })
-      this.tweened.position.left = window.innerWidth
-      this.show().eventCallback('onComplete', this.hide)
+      this.show()
     },
     created () {
       store.dispatch('addControlPanel', this)
@@ -105,12 +112,21 @@
     flex-direction: column
     justify-content: flex-start
     top: 0
+    left: 0
     padding: 1vh
-    height: 100%
-    min-width: 15vw
+    height: 100vh
+    min-width: 1vw
     overflow-y: auto
     flex-shrink: 0
-    .fjs-lock-btn
+    .fjs-panel-header
+      display: flex
+      justify-content: space-between
       margin-bottom: 1vh
+    .fjs-lock-btn
       cursor: pointer
+    .fjs-panel-label
+      text-anchor: middle
+      font-size: 1em
+      font-style: italic
+      transform: translate(0,50vh)rotate(-90deg)
 </style>
