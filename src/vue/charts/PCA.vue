@@ -22,12 +22,12 @@
         <g class="fjs-pca-axis fjs-x-axis" :transform="`translate(0, ${padded.height})`"></g>
         <g class="fjs-pca-axis fjs-y-axis"></g>
         <text :x="padded.width / 2"
-              :y="padded.height + 40"
+              :y="padded.height + margin.bottom / 2"
               text-anchor="middle">
           Principal Component 1
         </text>
         <text text-anchor="middle"
-              :transform="`translate(-30, ${this.padded.height / 2})rotate(-90)`">
+              :transform="`translate(${- this.margin.left / 2}, ${this.padded.height / 2})rotate(-90)`">
           Principal Component 2
         </text>
         <polygon class="fjs-scatterplot-point"
@@ -107,10 +107,10 @@
         return this.featureData.length > 1
       },
       margin () {
-        const left = 50
+        const left = this.width / 20
         const top = 10
         const right = 10
-        const bottom = 50
+        const bottom = this.height / 20
         return { left, top, right, bottom }
       },
       padded () {
@@ -162,8 +162,8 @@
         return [...new Set(this.results.data.map(d => d.category))]
       },
       axis () {
-        const x = d3.axisBottom(this.scales.x)
-        const y = d3.axisLeft(this.scales.y)
+        const x = d3.axisTop(this.scales.x)
+        const y = d3.axisRight(this.scales.y)
         return { x, y }
       },
       brush () {
@@ -279,5 +279,5 @@
     line
       stroke: #c8c8c8
     text
-      font-size: 1em
+      font-size: 0.75em
 </style>

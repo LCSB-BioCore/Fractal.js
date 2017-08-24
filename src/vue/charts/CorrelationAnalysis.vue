@@ -28,18 +28,18 @@
 
     <svg :height="height" :width="width">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
-        <g class="fjs-corr-axis fjs-x-axis-1" :transform="`translate(0, ${padded.height})`"></g>
-        <g class="fjs-corr-axis fjs-x-axis-2"></g>
-        <g class="fjs-corr-axis fjs-y-axis-1"></g>
         <g class="fjs-corr-axis fjs-y-axis-2" :transform="`translate(${padded.width}, 0)`"></g>
+        <g class="fjs-corr-axis fjs-x-axis-2"></g>
+        <g class="fjs-corr-axis fjs-x-axis-1" :transform="`translate(0, ${padded.height})`"></g>
+        <g class="fjs-corr-axis fjs-y-axis-1"></g>
         <g class="fjs-brush"></g>
         <text :x="padded.width / 2"
-              y="-10"
+              :y="-margin.top / 2"
               text-anchor="middle">
           {{ shownResults.x_label }}
         </text>
         <text text-anchor="middle"
-              :transform="`translate(${padded.width + 10},${padded.height / 2})rotate(90)`">
+              :transform="`translate(${padded.width + margin.right / 2},${padded.height / 2})rotate(90)`">
           {{ shownResults.y_label }}
         </text>
         <polygon class="fjs-scatterplot-point"
@@ -83,7 +83,6 @@
         error: '',
         width: 0,
         height: 0,
-        yAxisTickWidth: 0,
         xyData: [],
         categoryData: [],
         categoryColors: d3.schemeCategory10,
@@ -137,8 +136,8 @@
       },
       margin () {
         const left = this.width / 3
-        const top = 20
-        const right = 20
+        const top = this.height / 20
+        const right = this.width / 20
         const bottom = this.height / 3
         return { left, top, right, bottom }
       },
@@ -190,10 +189,10 @@
         const x1 = d3.axisTop(this.scales.x)
         const y1 = d3.axisRight(this.scales.y)
         const x2 = d3.axisBottom(this.scales.x)
-          .tickSizeInner(this.padded.height - 23)
+          .tickSizeInner(this.padded.height)
           .tickFormat('')
         const y2 = d3.axisLeft(this.scales.y)
-          .tickSizeInner(this.padded.width - this.yAxisTickWidth - 15)
+          .tickSizeInner(this.padded.width)
           .tickFormat('')
         return { x1, x2, y1, y2 }
       },
@@ -336,17 +335,10 @@
       'axis': {
         handler: function (newAxis) {
           this.$nextTick(() => {
-            d3.select(this.$el.querySelector('.fjs-x-axis-1')).call(newAxis.x1)
-            d3.select(this.$el.querySelector('.fjs-x-axis-2')).call(newAxis.x2)
-            d3.select(this.$el.querySelector('.fjs-y-axis-1')).call(newAxis.y1)
             d3.select(this.$el.querySelector('.fjs-y-axis-2')).call(newAxis.y2)
-            const text = this.$el.querySelector('.fjs-y-axis-1 text')
-            if (text) {
-              const width = Math.ceil(text.getBoundingClientRect().width)
-              if (width !== this.yAxisTickWidth) {
-                this.yAxisTickWidth = width
-              }
-            }
+            d3.select(this.$el.querySelector('.fjs-x-axis-2')).call(newAxis.x2)
+            d3.select(this.$el.querySelector('.fjs-x-axis-1')).call(newAxis.x1)
+            d3.select(this.$el.querySelector('.fjs-y-axis-1')).call(newAxis.y1)
           })
         }
       },
@@ -443,7 +435,7 @@
     .tick
       shape-rendering: crispEdges
       line
-        stroke: #c8c8c8
+        stroke: #E2E2E2
       text
-        font-size: 1em
+        font-size: 0.75em
 </style>

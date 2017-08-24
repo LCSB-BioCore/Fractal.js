@@ -279,7 +279,8 @@
           // noinspection JSSuspiciousNameCombination
           return truncateTextUntil({text: d, font: `0.875em Roboto`, maxWidth: this.margin.bottom})
         })
-        const y = d3.axisLeft(this.scales.y)
+        const y = d3.axisRight(this.scales.y)
+          .tickSizeInner(this.padded.width)
         return { x, y }
       }
     },
@@ -411,7 +412,9 @@
       text
         font-size: 1em
     line
-      stroke: #999
+      stroke: #E2E2E2
+    path
+      stroke: none
     .fjs-x-axis
       .tick
         text
