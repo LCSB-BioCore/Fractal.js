@@ -88,7 +88,7 @@
       window.addEventListener('resize', () => {
         this.expanded ? this.show(false) : this.hide(false)
       })
-      this.show()
+      this.hide()
     },
     created () {
       store.dispatch('addControlPanel', this)
@@ -105,7 +105,7 @@
   @import './src/assets/base.sass'
 
   .fjs-control-panel
-    background: rgba(0, 0, 0, 0.8)
+    background: rgba(0, 0, 0, 0.5)
     color: white
     position: fixed
     display: flex
@@ -129,4 +129,6 @@
       font-size: 1em
       font-style: italic
       transform: translate(0,50vh)rotate(-90deg)
+      /*remove any margin after rotation*/
+      margin: -100vw
 </style>
