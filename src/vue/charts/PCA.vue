@@ -37,6 +37,21 @@
                  v-tooltip
                  v-for="point in tweened.points">
         </polygon>
+        <g v-for="loading in tweened.loadings">
+          <line class="fjs-loadings"
+                :x1="loading.x1"
+                :x2="loading.x2"
+                :y1="loading.y1"
+                :y2="loading.y2">
+          </line>
+          <text class="fjs-loading-label"
+                :x="loading.x2"
+                :y="loading.y2"
+                text-anchor="middle">
+            {{ loading.feature }}
+          </text>
+        </g>
+
       </g>
     </svg>
   </chart>
@@ -61,13 +76,15 @@
         featureData: [],
         categoryData: [],
         results: {
-          data: []
+          data: [],
+          loadings: []
         },
         categoryColors: d3.schemeCategory10,
         subsetColors: d3.schemeCategory10.slice().reverse(),
         selectedPoints: [],
         tweened: {
-          points: []
+          points: [],
+          loadings: []
         },
         hasSetFilter: false
       }
@@ -130,6 +147,17 @@
           }
         })
       },
+      loadings () {
+        return this.results.loadings.map(d => {
+          return {
+            x1: this.scales.x(0),
+            y1: this.scales.y(0),
+            x2: this.scales.x(d[0]),
+            y2: this.scales.y(d[1]),
+            feature: d.feature
+          }
+        })
+      },
       categories () {
         return [...new Set(this.results.data.map(d => d.category))]
       },
@@ -182,6 +210,16 @@
           })
         }
       },
+      'loadings': {
+        handler: function (newLoadings) {
+          tweenGroup({
+            mutation: (v) => { this.tweened.loadings = v },
+            model: this.tweened.loadings,
+            target: newLoadings,
+            animationTime: 0.5
+          })
+        }
+      },
       'brush': {
         handler: function (newBrush) {
           this.$nextTick(() => {
@@ -196,6 +234,7 @@
           .then(response => {
             const results = JSON.parse(response)
             results.data = JSON.parse(results.data)
+            results.loadings = JSON.parse(results.loadings)
             deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
             this.results = results
           })
@@ -225,6 +264,10 @@
 
 <style lang="sass" scoped>
   @import './src/assets/base.sass'
+  svg
+    .fjs-loadings
+      stroke: #f00
+      stroke-width: 1px
 </style>
 
 <!--CSS for dynamically created components-->
