@@ -18,6 +18,7 @@
     <svg :width="width"
          :height="height">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
+        <g class="fjs-brush"></g>
         <g class="fjs-pca-axis fjs-x-axis" :transform="`translate(0, ${padded.height})`"></g>
         <g class="fjs-pca-axis fjs-y-axis"></g>
         <text :x="padded.width / 2"
@@ -34,7 +35,7 @@
                  :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
                  :title="point.tooltip"
                  v-tooltip
-                 v-for="point in points">
+                 v-for="point in tweened.points">
         </polygon>
       </g>
     </svg>
@@ -45,7 +46,7 @@
   import DataBox from '../components/DataBox.vue'
   import ControlPanel from '../components/ControlPanel.vue'
   import Chart from '../components/Chart.vue'
-  import { getPolygonPointsForSubset } from '../mixins/utils'
+  import { getPolygonPointsForSubset, tweenGroup } from '../mixins/utils'
   import store from '../../store/store'
   import runAnalysis from '../mixins/run-analysis'
   import * as d3 from 'd3'
@@ -63,7 +64,12 @@
           data: []
         },
         categoryColors: d3.schemeCategory10,
-        subsetColors: d3.schemeCategory10.slice().reverse()
+        subsetColors: d3.schemeCategory10.slice().reverse(),
+        selectedPoints: [],
+        tweened: {
+          points: []
+        },
+        hasSetFilter: false
       }
     },
     computed: {
@@ -131,14 +137,31 @@
         const x = d3.axisBottom(this.scales.x)
         const y = d3.axisLeft(this.scales.y)
         return { x, y }
+      },
+      brush () {
+        return d3.brush()
+          .extent([[0, 0], [this.padded.width, this.padded.height]])
+          .on('end', () => {
+            if (!d3.event.selection) {
+              this.selectedPoints = []
+            } else {
+              const [[x0, y0], [x1, y1]] = d3.event.selection
+              this.selectedPoints = this.points.filter(d => {
+                return x0 <= d.x && d.x <= x1 && y0 <= d.y && d.y <= y1
+              })
+            }
+            store.dispatch('setFilter', {filter: 'ids', value: this.selectedPoints.map(d => d.id)})
+            this.hasSetFilter = true
+          })
       }
     },
     watch: {
       'args': {
-        handler: function () {
-          if (this.validArgs) {
-            this.runAnalysisWrapper(this.args)
+        handler: function (newArgs) {
+          if (this.validArgs && !this.hasSetFilter) {
+            this.runAnalysisWrapper(newArgs)
           }
+          this.hasSetFilter = false
         }
       },
       'axis': {
@@ -146,6 +169,23 @@
           this.$nextTick(() => {
             d3.select(this.$el.querySelector('.fjs-x-axis')).call(newAxis.x)
             d3.select(this.$el.querySelector('.fjs-y-axis')).call(newAxis.y)
+          })
+        }
+      },
+      'points': {
+        handler: function (newPoints) {
+          tweenGroup({
+            mutation: (v) => { this.tweened.points = v },
+            model: this.tweened.points,
+            target: newPoints,
+            animationTime: 0.5
+          })
+        }
+      },
+      'brush': {
+        handler: function (newBrush) {
+          this.$nextTick(() => {
+            d3.select(this.$el.querySelector('.fjs-brush')).call(newBrush)
           })
         }
       }

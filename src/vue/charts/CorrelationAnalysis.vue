@@ -47,7 +47,7 @@
                  :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
                  :title="point.tooltip"
                  v-tooltip
-                 v-for="point in points">
+                 v-for="point in tweened.points">
         </polygon>
         <line class="fjs-lin-reg-line"
               :title="regLine.tooltip"
@@ -68,7 +68,7 @@
 <script>
   import DataBox from '../components/DataBox.vue'
   import ControlPanel from '../components/ControlPanel.vue'
-  import { getPolygonPointsForSubset } from '../mixins/utils'
+  import { getPolygonPointsForSubset, tweenGroup } from '../mixins/utils'
   import Chart from '../components/Chart.vue'
   import store from '../../store/store'
   import runAnalysis from '../mixins/run-analysis'
@@ -112,8 +112,10 @@
         },
         selectedPoints: [],
         tweened: {
-          regLine: {x1: 0, x2: 0, y1: 0, y2: 0}
-        }
+          regLine: {x1: 0, x2: 0, y1: 0, y2: 0},
+          points: []
+        },
+        hasSetFilter: false
       }
     },
     computed: {
@@ -127,7 +129,7 @@
         return {
           x: this.xyData[0],
           y: this.xyData[1],
-          id_filter: this.selectedPoints.map(d => d.id),
+          id_filter: this.idFilter,
           method: this.params.method,
           subsets: store.getters.subsets,
           categories: this.categoryData
@@ -242,6 +244,7 @@
               }
             }
             store.dispatch('setFilter', {filter: 'ids', value: this.selectedPoints.map(d => d.id)})
+            this.hasSetFilter = true
           })
       },
       histograms () {
@@ -320,15 +323,14 @@
       },
       'args': {
         handler: function (newArgs, oldArgs) {
-          // if our data selection change we will want to re-initialize the current view
           const init = newArgs.x !== oldArgs.x ||
             newArgs.y !== oldArgs.y ||
-            JSON.stringify(newArgs.categories) !== JSON.stringify(oldArgs.categories)
-          const args = this.args
-          args.id_filter = init ? [] : args.id_filter
+            JSON.stringify(newArgs.categories) !== JSON.stringify(oldArgs.categories) ||
+            !this.hasSetFilter
           if (this.validArgs) {
-            this.runAnalysisWrapper({init, args})
+            this.runAnalysisWrapper({init, args: newArgs})
           }
+          this.hasSetFilter = false
         }
       },
       'axis': {
@@ -355,14 +357,14 @@
           })
         }
       },
-      'idFilter': {
-        handler: function (newIDFilter) {
-          const isFiltered = (newIDFilter.length === this.selectedPoints.length) &&
-            this.selectedPoints.map(d => d.id).every(id => newIDFilter.indexOf(id) !== -1)
-          if (!isFiltered) {
-            // FIXME: This will probably not work because args is a computed property, not static data
-            this.args.id_filter = newIDFilter
-          }
+      'points': {
+        handler: function (newPoints) {
+          tweenGroup({
+            mutation: (v) => { this.tweened.points = v },
+            model: this.tweened.points,
+            target: newPoints,
+            animationTime: 0.5
+          })
         }
       }
     },
@@ -407,7 +409,8 @@
 
 
 <style lang="sass" scoped>
-  @import './src/assets/base.sass';
+  @import './src/assets/base.sass'
+
   .fjs-control-panel
     .fjs-correlation-method
       white-space: nowrap
