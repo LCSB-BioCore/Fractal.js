@@ -183,7 +183,7 @@
         return { width, height }
       },
       labels () {
-        return Object.keys(this.results.statistics)
+        return Object.keys(this.results.statistics).sort()
       },
       points () {
         const points = {}
