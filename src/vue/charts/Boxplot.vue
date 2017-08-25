@@ -27,6 +27,7 @@
 
     <svg :width="width"
          :height="height">
+      <rect x="0" y="0" :height="height" :width="width" style="opacity: 0;" @click="resetFilter"></rect>
       <g :transform="`translate(${margin.left}, ${margin.top})`">
         <g class="fjs-boxplot-axis fjs-x-axis" :transform="`translate(0, ${padded.height})`"></g>
         <g class="fjs-boxplot-axis fjs-y-axis"></g>
@@ -35,6 +36,7 @@
            v-tooltip="{position: 'bottom'}"
            :title="label"
            :data-label="label"
+           @click="setIDFilter(label)"
            @mouseenter="showTooltip(label)"
            @mouseleave="hideTooltip(label)"
            v-for="label in labels" >
@@ -135,6 +137,7 @@
         height: 0,
         numData: [],
         catData: [],
+        hasSetFilter: false,
         tooltips: {
           boxes: {}
         },
@@ -303,9 +306,10 @@
       },
       'args': {
         handler: function () {
-          if (this.validArgs) {
+          if (this.validArgs && !this.hasSetFilter) {
             this.runAnalysisWrapper(this.args)
           }
+          this.hasSetFilter = false
         }
       },
       'axis': {
@@ -345,6 +349,14 @@
       },
       update_catData (ids) {
         this.catData = ids
+      },
+      setIDFilter (label) {
+        store.dispatch('setFilter', {filter: 'ids', value: this.points[label].map(d => d.id)})
+        this.hasSetFilter = true
+      },
+      resetFilter () {
+        store.dispatch('setFilter', {filter: 'ids', value: []})
+        this.hasSetFilter = true
       },
       resize ({height, width}) {
         this.height = height
