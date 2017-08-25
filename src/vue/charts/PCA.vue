@@ -14,8 +14,8 @@
       </data-box>
       <hr class="fjs-seperator"/>
       <div>
-        <label for="fjs-whiten-check">Whiten Output</label>
         <input id="fjs-whiten-check" type="checkbox" v-model="params.whiten"/>
+        <label for="fjs-whiten-check">Whiten Output</label>
       </div>
     </control-panel>
 

@@ -4,10 +4,13 @@
     <div :id="`fjs-data-window-${_uid}`" class="fjs-data-window">
       <div class="fjs-data-entry-container" :data-state="item.etl_state" v-for="item in items">
 
-        <div class="fjs-data-entry-header"
-             :class="{'fjs-selected': !!~selectedIDs.indexOf(item.task_id)}"
-             :data-state="item.etl_state">
-          <span :data-id="item.task_id" @click="toggleTaskId(item.task_id)">{{ item.label }}</span>
+        <div class="fjs-data-entry-header">
+          <span :data-id="item.task_id"
+                :data-state="item.etl_state"
+                :class="{'fjs-selected':
+                !!~selectedIDs.indexOf(item.task_id)}"
+                @click="toggleTaskId(item.task_id)">{{ item.label }}
+          </span>
           <span class="fjs-options" @click="toggleDataEntryBody(item.task_id)">&#9776;</span>
         </div>
 
@@ -16,7 +19,7 @@
             <span class="fjs-reload-btn" @click="reloadData(item.task_id)">&#8635;</span>
             <span class="fjs-delete-btn" @click="deleteData(item.task_id)">&#215;</span>
           </div>
-          {{ item.etl_message }}
+          <span>{{ item.etl_message }}</span>
         </div>
 
       </div>
@@ -104,14 +107,11 @@
     width: 100%
     text-align: start
     margin: 1vh 0 1vh 0
-    min-height: 10vh
-    > label
-      font-size: 1em
+    height: 10vh
     .fjs-data-window
       flex: 1
       border: 1px solid #fff
       border-radius: 8px
-      font-size: 0.875em
       overflow-y: scroll
       padding: 1vh
       .fjs-data-entry-container
@@ -121,23 +121,31 @@
           display: flex
           justify-content: space-between
           cursor: pointer
-          padding: 4px
-          margin: 2px 0 2px 0
+          padding: 0.2vw
+        span
+          &[data-state="PENDING"]
+            animation: loadingColorCycle 2s infinite
           &[data-state="FAILURE"]
-            background-color: #cc4040
+            color: #cc4040
         .fjs-selected
-          background-color: rgba(16, 95, 190, 0.5)
+          color: #00ff37
         .fjs-data-entry-body
           display: none
           padding: 1%
-          &[data-state="FAILURE"]
-            background-color: #cc4040
+          span
+            &[data-state="FAILURE"]
+              color: #cc4040
           .fjs-action-btns
             display: flex
             flex-direction: row
             justify-content: space-around
             span
-              padding: 10px
               cursor: pointer
-              font-size: 1em
+  @keyframes loadingColorCycle
+    0%
+      opacity: 1
+    50%
+      opacity: 0
+    100%
+      opacity: 1
 </style>

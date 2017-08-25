@@ -1,12 +1,12 @@
 <template>
   <div class="fjs-control-panel"
-       :style="{left: tweened.position.left + 'px'}"
+       :style="{width: shown ? '15vw' : '1vw'}"
        v-show="focused"
        @mouseover="locked ? noop() : show()"
        @mouseout="locked ? noop() : hide()">
     <div class="fjs-panel-header">
       <span v-show="shown">{{ chartName }}</span>
-      <span class="fjs-lock-btn" v-html="lockIcon" @click="toggleLock"></span>
+      <i class="fjs-lock-btn material-icons" @click="toggleLock">{{ lockIcon }}</i>
     </div>
     <span class="fjs-panel-label" v-show="!shown">Control Panel</span>
     <div v-show="shown">
@@ -38,7 +38,7 @@
     },
     computed: {
       lockIcon () {
-        return this.locked ? '&#128274;' : '&#128275;'
+        return this.locked ? 'lock' : 'lock_open'
       },
       chartName () {
         return this.$parent.$parent.$options.name
@@ -115,10 +115,9 @@
     left: 0
     padding: 1vh
     height: 100vh
-    min-width: 1vw
-    max-width: 20vw
     overflow-y: auto
     flex-shrink: 0
+    font-size: 0.875em
     .fjs-panel-header
       display: flex
       justify-content: space-between

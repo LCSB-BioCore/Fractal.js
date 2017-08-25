@@ -42,8 +42,8 @@ module.exports = {
     rules: [
       {
         test: /\.vue$/,
-        loader: 'vue-loader',
         exclude: /node_modules/,
+        loader: 'vue-loader',
         options: {
           loaders: {
             sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax' // <style lang="sass">
@@ -57,11 +57,8 @@ module.exports = {
       },
       {
         test: /\.sass$/,
+        exclude: /node_modules/,
         loader: 'style-loader!css-loader!sass-loader?indentedSyntax'
-      },
-      {
-        test: /\.(png|woff|woff2|eot|ttf|svg)$/,
-        loader: 'url-loader?limit=100000'
       }
     ]
   },
