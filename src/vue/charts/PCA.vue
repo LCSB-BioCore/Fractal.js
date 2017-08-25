@@ -12,7 +12,11 @@
                 dataType="categorical"
                 v-on:update="update_categoryData">
       </data-box>
-
+      <hr class="fjs-seperator"/>
+      <div>
+        <label for="fjs-whiten-check">Whiten Output</label>
+        <input id="fjs-whiten-check" type="checkbox" v-model="params.whiten"/>
+      </div>
     </control-panel>
 
     <svg :width="width"
@@ -105,7 +109,10 @@
           points: [],
           loadings: []
         },
-        hasSetFilter: false
+        hasSetFilter: false,
+        params: {
+          whiten: false
+        }
       }
     },
     computed: {
@@ -117,7 +124,7 @@
           features: this.featureData,
           categories: this.categoryData,
           n_components: 2,
-          whiten: false,
+          whiten: this.params.whiten,
           id_filter: this.idFilter,
           subsets: store.getters.subsets
         }
@@ -154,6 +161,15 @@
           .range([this.padded.height, 0])
         return { x, y }
       },
+      loadingScales () {
+        const x = d3.scaleLinear()
+          .domain(d3.extent(this.scales.x.domain().concat(this.results.loadings.map(d => d[0]))))
+          .range(this.scales.x.range())
+        const y = d3.scaleLinear()
+          .domain(d3.extent(this.scales.y.domain().concat(this.results.loadings.map(d => d[1]))))
+          .range(this.scales.y.range())
+        return { x, y }
+      },
       points () {
         return this.results.data.map(d => {
           return {
@@ -177,10 +193,10 @@
       loadings () {
         return this.results.loadings.map(d => {
           return {
-            x1: this.scales.x(0),
-            y1: this.scales.y(0),
-            x2: this.scales.x(d[0]),
-            y2: this.scales.y(d[1]),
+            x1: this.loadingScales.x(0),
+            y1: this.loadingScales.y(0),
+            x2: this.loadingScales.x(d[0]),
+            y2: this.loadingScales.y(d[1]),
             feature: d.feature
           }
         })
