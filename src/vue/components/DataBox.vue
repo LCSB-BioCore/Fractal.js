@@ -126,7 +126,7 @@
           &[data-state="FAILURE"]
             background-color: #cc4040
         .fjs-selected
-          background-color: rgb(16, 95, 190)
+          background-color: rgba(16, 95, 190, 0.5)
         .fjs-data-entry-body
           display: none
           padding: 1%
