@@ -168,9 +168,9 @@
         return this.numData.length > 0
       },
       margin () {
-        const left = 60
+        const left = 10
         const top = 10
-        const right = this.width * 0.3
+        const right = this.width / 20
         const bottom = this.height * 0.3
         return { left, top, right, bottom }
       },
@@ -410,7 +410,7 @@
     .tick
       shape-rendering: crispEdges
       text
-        font-size: 1em
+        font-size: 0.75em
     line
       stroke: #E2E2E2
     path
@@ -419,5 +419,5 @@
       .tick
         text
           text-anchor: start
-          font-size: 1em
+          font-size: 0.75em
 </style>

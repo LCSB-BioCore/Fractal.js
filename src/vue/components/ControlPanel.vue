@@ -116,6 +116,7 @@
     padding: 1vh
     height: 100vh
     min-width: 1vw
+    max-width: 20vw
     overflow-y: auto
     flex-shrink: 0
     .fjs-panel-header

@@ -19,16 +19,18 @@
          :height="height">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
         <g class="fjs-brush"></g>
-        <g class="fjs-pca-axis fjs-x-axis" :transform="`translate(0, ${padded.height})`"></g>
-        <g class="fjs-pca-axis fjs-y-axis"></g>
+        <g class="fjs-axis fjs-y-axis-2" :transform="`translate(${padded.width}, 0)`"></g>
+        <g class="fjs-axis fjs-x-axis-2"></g>
+        <g class="fjs-axis fjs-x-axis-1" :transform="`translate(0, ${padded.height})`"></g>
+        <g class="fjs-axis fjs-y-axis-1"></g>
         <text :x="padded.width / 2"
-              :y="padded.height + margin.bottom / 2"
+              :y="- margin.top / 2"
               text-anchor="middle">
-          Principal Component 1
+          Principal Component 1 (Variance Ratio: {{ results.variance_ratios[0].toFixed(2) }})
         </text>
         <text text-anchor="middle"
-              :transform="`translate(${- this.margin.left / 2}, ${this.padded.height / 2})rotate(-90)`">
-          Principal Component 2
+              :transform="`translate(${this.padded.width + this.margin.right / 2}, ${this.padded.height / 2})rotate(90)`">
+          Principal Component 2 (Variance Ratio: {{ results.variance_ratios[1].toFixed(2) }})
         </text>
         <polygon class="fjs-scatterplot-point"
                  :points="point.shape"
@@ -50,6 +52,22 @@
                 text-anchor="middle">
             {{ loading.feature }}
           </text>
+          <g class="fjs-pc-distribution" :transform="`translate(0, ${padded.height + margin.bottom / 2})`">
+            <line x1="0" y1="0" :x2="padded.width" y2="0"></line>
+            <circle :cx="point.x"
+                    cy="0"
+                    :r="width / 150"
+                    v-for="point in tweened.points">
+            </circle>
+          </g>
+          <g class="fjs-pc-distribution" :transform="`translate(${- margin.left / 2}, 0)`">
+            <line x1="0" y1="0" x2="0" :y2="padded.height"></line>
+            <circle cx="0"
+                    :cy="point.y"
+                    :r="width / 150"
+                    v-for="point in tweened.points">
+            </circle>
+          </g>
         </g>
 
       </g>
@@ -77,7 +95,8 @@
         categoryData: [],
         results: {
           data: [],
-          loadings: []
+          loadings: [],
+          variance_ratios: [0, 0]
         },
         categoryColors: d3.schemeCategory10,
         subsetColors: d3.schemeCategory10.slice().reverse(),
@@ -108,8 +127,8 @@
       },
       margin () {
         const left = this.width / 20
-        const top = 10
-        const right = 10
+        const top = this.height / 20
+        const right = this.width / 20
         const bottom = this.height / 20
         return { left, top, right, bottom }
       },
@@ -120,10 +139,18 @@
       },
       scales () {
         const x = d3.scaleLinear()
-          .domain(d3.extent(this.results.data.map(d => d['0'])))
+          .domain((() => {
+            const xExtent = d3.extent(this.results.data.map(d => d['0']))
+            const xPadding = (xExtent[1] - xExtent[0]) / 10
+            return [xExtent[0] - xPadding, xExtent[1] + xPadding]
+          })())
           .range([0, this.padded.width])
         const y = d3.scaleLinear()
-          .domain(d3.extent(this.results.data.map(d => d['1'])))
+          .domain((() => {
+            const yExtent = d3.extent(this.results.data.map(d => d['1']))
+            const yPadding = (yExtent[1] - yExtent[0]) / 10
+            return [yExtent[0] - yPadding, yExtent[1] + yPadding]
+          })())
           .range([this.padded.height, 0])
         return { x, y }
       },
@@ -162,9 +189,15 @@
         return [...new Set(this.results.data.map(d => d.category))]
       },
       axis () {
-        const x = d3.axisTop(this.scales.x)
-        const y = d3.axisRight(this.scales.y)
-        return { x, y }
+        const x1 = d3.axisTop(this.scales.x)
+        const y1 = d3.axisRight(this.scales.y)
+        const x2 = d3.axisBottom(this.scales.x)
+          .tickSizeInner(this.padded.height)
+          .tickFormat('')
+        const y2 = d3.axisLeft(this.scales.y)
+          .tickSizeInner(this.padded.width)
+          .tickFormat('')
+        return { x1, x2, y1, y2 }
       },
       brush () {
         return d3.brush()
@@ -195,8 +228,10 @@
       'axis': {
         handler: function (newAxis) {
           this.$nextTick(() => {
-            d3.select(this.$el.querySelector('.fjs-x-axis')).call(newAxis.x)
-            d3.select(this.$el.querySelector('.fjs-y-axis')).call(newAxis.y)
+            d3.select(this.$el.querySelector('.fjs-y-axis-2')).call(newAxis.y2)
+            d3.select(this.$el.querySelector('.fjs-x-axis-2')).call(newAxis.x2)
+            d3.select(this.$el.querySelector('.fjs-x-axis-1')).call(newAxis.x1)
+            d3.select(this.$el.querySelector('.fjs-y-axis-1')).call(newAxis.y1)
           })
         }
       },
@@ -268,16 +303,25 @@
     .fjs-loadings
       stroke: #f00
       stroke-width: 1px
+    .fjs-pc-distribution
+      line
+        stroke: #000
+        stroke-width: 1px
+        shape-rendering: crispEdges
+      circle
+        opacity: 0.05
 </style>
 
 <!--CSS for dynamically created components-->
 <style lang="sass">
-  .fjs-pca-axis
+  .fjs-axis
     shape-rendering: crispEdges
     .tick
       shape-rendering: crispEdges
-    line
-      stroke: #c8c8c8
-    text
-      font-size: 0.75em
+      line
+        stroke: #E2E2E2
+      text
+        font-size: 0.75em
+    path
+      stroke: none
 </style>

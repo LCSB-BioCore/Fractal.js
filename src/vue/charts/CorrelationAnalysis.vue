@@ -33,12 +33,14 @@
         <g class="fjs-corr-axis fjs-x-axis-1" :transform="`translate(0, ${padded.height})`"></g>
         <g class="fjs-corr-axis fjs-y-axis-1"></g>
         <g class="fjs-brush"></g>
-        <text :x="padded.width / 2"
+        <text class="fjs-axis-label"
+              :x="padded.width / 2"
               :y="-margin.top / 2"
               text-anchor="middle">
           {{ shownResults.x_label }}
         </text>
-        <text text-anchor="middle"
+        <text class="fjs-axis-label"
+              text-anchor="middle"
               :transform="`translate(${padded.width + margin.right / 2},${padded.height / 2})rotate(90)`">
           {{ shownResults.y_label }}
         </text>
@@ -418,7 +420,8 @@
       opacity: 0.4
     .fjs-histogram-polyline
       shape-rendering: crispEdges
-      stroke-width: 0
+      stroke: #fff
+      stroke-width: 1px
       fill: #ffd100
     .fjs-scatterplot-point
       stroke-width: 0
@@ -438,4 +441,6 @@
         stroke: #E2E2E2
       text
         font-size: 0.75em
+    path
+      stroke: none
 </style>
