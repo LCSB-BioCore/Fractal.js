@@ -128,7 +128,7 @@
     </control-panel>
 
 
-    <svg height="100%" width="100%">
+    <svg :height="height" :width="width">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
         <rect class="fjs-sig-bar"
               :x="bar.x"
@@ -169,8 +169,8 @@
     name: 'heatmap',
     data () {
       return {
-        width: 500,
-        height: 500,
+        width: 0,
+        height: 0,
         colorScale: d3.interpolateCool,
         numericArrayDataIds: [],
         rankingMethod: 'mean',
