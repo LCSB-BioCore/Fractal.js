@@ -4,7 +4,7 @@
     <control-panel class="fjs-control-panel">
       <data-box class="fjs-data-box"
                 header="Features"
-                dataType="numerical"
+                dataType="numerical,numerical_array"
                 v-on:update="update_featureData">
       </data-box>
       <data-box class="fjs-data-box"

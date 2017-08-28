@@ -7,8 +7,7 @@
         <div class="fjs-data-entry-header">
           <span :data-id="item.task_id"
                 :data-state="item.etl_state"
-                :class="{'fjs-selected':
-                !!~selectedIDs.indexOf(item.task_id)}"
+                :class="{'fjs-selected': !!~selectedIDs.indexOf(item.task_id)}"
                 @click="toggleTaskId(item.task_id)">{{ item.label }}
           </span>
           <span class="fjs-options" @click="toggleDataEntryBody(item.task_id)">&#9776;</span>
@@ -53,7 +52,7 @@
     },
     computed: {
       items () {
-        return store.getters.data.filter(item => item.data_type === this.dataType)
+        return store.getters.data.filter(item => ~this.dataType.split(',').map(s => s.trim()).indexOf(item.data_type))
       },
       transformedIDs () {
         return this.selectedIDs.map(d => `$${d}$`)
