@@ -56,11 +56,11 @@
       .fjs-pending
         max-width: 75%
       .fjs-failed
-        color: #ff3336
+        color: #f0ff9b
         font-size: 0.75em
         max-width: 75%
       .fjs-cancel-btn
         font-size: 1em
-        color: #ff3336
+        color: #ff9fa1
         cursor: pointer
 </style>

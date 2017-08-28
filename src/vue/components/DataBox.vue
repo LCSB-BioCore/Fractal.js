@@ -128,7 +128,7 @@
           &[data-state="FAILURE"]
             color: #cc4040
         .fjs-selected
-          color: #00ff37
+          color: #00ffff
         .fjs-data-entry-body
           display: none
           padding: 1%
