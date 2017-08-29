@@ -44,8 +44,8 @@ export default class {
    * @returns {AxiosPromise} An ES6 promise.
    */
   async reloadData ({taskID}) {
-    const dataItem = store.getters.data.find(d => d.task_id === taskID)
-    const descriptors = [dataItem.descriptor]
+    const metaData = await this.getMetaData({taskID})
+    const descriptors = [metaData.data.meta['descriptor']]
     await this.deleteData({taskID})
     return this.createData({descriptors})
   }
@@ -56,6 +56,15 @@ export default class {
    * */
   getAllDataStates () {
     return this._axios.get('/data')
+  }
+
+  /**
+   * Submits a GET request that will return meta information for the data associated with the given task id.
+   * @param data task id to get meta information for.
+   * @returns {AxiosPromise} An ES6 promise.
+   */
+  getMetaData ({taskID}) {
+    return this._axios.get(`/data/meta/${taskID}?wait=1`)
   }
 
   /**
