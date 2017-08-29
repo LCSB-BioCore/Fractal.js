@@ -125,15 +125,14 @@
           &[data-state="PENDING"]
             animation: loadingColorCycle 2s infinite
           &[data-state="FAILURE"]
-            color: #cc4040
+            color: #ff6565
         .fjs-selected
           color: #00ffff
         .fjs-data-entry-body
           display: none
           padding: 1%
-          span
-            &[data-state="FAILURE"]
-              color: #cc4040
+          > span
+              color: #ff6565
           .fjs-action-btns
             display: flex
             flex-direction: row
