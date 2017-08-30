@@ -18,6 +18,10 @@
             <span class="fjs-reload-btn" @click="reloadData(item.task_id)">&#8635;</span>
             <span class="fjs-delete-btn" @click="deleteData(item.task_id)">&#215;</span>
           </div>
+          <autocomplete class="fjs-autocomplete"
+                        v-on:select="updateFilter($event, item.task_id)"
+                        :itemGetter="featureGetter(item.task_id)">
+          </autocomplete>
           <span>{{ item.etl_message }}</span>
         </div>
 
@@ -29,11 +33,15 @@
 <script>
   import store from '../../store/store'
   import $ from 'jquery'
+  import 'devbridge-autocomplete'
+  import Autocomplete from './Autocomplete.vue'
   export default {
+    components: {Autocomplete},
     name: 'data-box',
     data () {
       return {
-        selectedIDs: []
+        selectedIDs: [],
+        featureFilter: {}
       }
     },
     props: {
@@ -55,7 +63,7 @@
         return store.getters.data.filter(item => ~this.dataType.split(',').map(s => s.trim()).indexOf(item.data_type))
       },
       transformedIDs () {
-        return this.selectedIDs.map(d => `$${d}$`)
+        return this.selectedIDs.map(id => `$${JSON.stringify({id, filters: { feature: this.featureFilter[id] }})}$`)
       }
     },
     watch: {
@@ -84,6 +92,12 @@
           this.selectedIDs.push(taskID)
         }
       },
+      featureGetter (taskID) {
+        return async () => {
+          const metaData = await store.getters.requestManager.getMetaData({taskID})
+          return metaData.data.meta['features'] || []
+        }
+      },
       toggleDataEntryBody (taskID) {
         const $body = $(this.$el.querySelector(`.fjs-data-entry-body[data-id="${taskID}"]`))
         $body.slideToggle(500)
@@ -93,6 +107,9 @@
       },
       deleteData (taskID) {
         store.getters.requestManager.deleteData({taskID})
+      },
+      updateFilter (filter, taskID) {
+        this.featureFilter[taskID] = filter
       }
     }
   }
@@ -130,15 +147,20 @@
           color: #00ffff
         .fjs-data-entry-body
           display: none
-          padding: 1%
+          padding: 0.25vh 0.25vh 3vh 0.25vh
           > span
               color: #ff6565
           .fjs-action-btns
             display: flex
             flex-direction: row
             justify-content: space-around
+            border: 1px solid #fff
+            border-radius: 3px
+            margin: 0 0 0.5vh 0
             span
               cursor: pointer
+        .fjs-autocomplete
+          text-align: center
   @keyframes loadingColorCycle
     0%
       opacity: 1
