@@ -489,7 +489,7 @@
         display: flex
         flex-direction: column
         div
-          margin-top: 8px
+          margin-top: 3px
         .fjs-hclust-selects
           display: flex
           flex-direction: row

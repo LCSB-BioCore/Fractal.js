@@ -410,7 +410,7 @@
       white-space: nowrap
       border: solid 1px #fff
       text-align: left
-      border-radius: 8px
+      border-radius: 3px
       margin: 1%
   svg
     .fjs-lin-reg-line

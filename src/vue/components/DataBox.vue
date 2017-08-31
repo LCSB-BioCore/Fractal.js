@@ -2,12 +2,15 @@
   <div class="fjs-data-box">
     <label :for="`fjs-data-window-${_uid}`" :tooltip="tooltip">{{ header }}</label>
     <div :id="`fjs-data-window-${_uid}`" class="fjs-data-window">
-      <div class="fjs-data-entry-container" :data-state="item.etl_state" v-for="item in items">
+      <div class="fjs-data-entry-container"
+           :data-state="item.etl_state"
+           v-for="item in items">
 
         <div class="fjs-data-entry-header">
+          <input type="checkbox" :checked="!!~selectedIDs.indexOf(item.task_id)" />
           <span :data-id="item.task_id"
                 :data-state="item.etl_state"
-                :class="{'fjs-selected': !!~selectedIDs.indexOf(item.task_id)}"
+                class="fjs-data-label"
                 @click="toggleTaskId(item.task_id)">{{ item.label }}
           </span>
           <span class="fjs-options" @click="toggleDataEntryBody(item.task_id)">&#9776;</span>
@@ -123,13 +126,15 @@
     width: 100%
     text-align: start
     margin: 1vh 0 1vh 0
-    height: 10vh
+    height: 15vh
+    label
+      text-align: right
     .fjs-data-window
       flex: 1
       border: 1px solid #fff
-      border-radius: 8px
+      border-radius: 3px
       overflow-y: scroll
-      padding: 1vh
+      padding: 0.3vh 0.3vw 0.3vh 0.3vw
       .fjs-data-entry-container
         display: flex
         flex-direction: column
@@ -137,17 +142,18 @@
           display: flex
           justify-content: space-between
           cursor: pointer
-          padding: 0.2vw
-        span
-          &[data-state="PENDING"]
-            animation: loadingColorCycle 2s infinite
-          &[data-state="FAILURE"]
-            color: #ff6565
-        .fjs-selected
-          color: #00ffff
+          padding: 0.25vh 0.25vw 0.25vh 0.25vw
+          .fjs-data-label
+            width: 100%
+            overflow: hidden
+            overflow-wrap: break-word
+            &[data-state="PENDING"]
+              animation: loadingColorCycle 2s infinite
+            &[data-state="FAILURE"]
+              color: #ff6565
         .fjs-data-entry-body
           display: none
-          padding: 0.25vh 0.25vh 3vh 0.25vh
+          padding: 0.25vh 0.25vw 0.25vh 0.25vw
           > span
               color: #ff6565
           .fjs-action-btns
