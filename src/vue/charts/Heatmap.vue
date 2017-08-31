@@ -478,16 +478,25 @@
         flex-direction: row
         flex-wrap: nowrap
         justify-content: flex-start
+        margin: 0.4vh 0 0.4vh 0
+        border: solid 1px #fff
+        border-radius: 3px
     .fjs-clustering-params
       display: flex
       flex-direction: column
       flex-shrink: 0
       .fjs-cluster-algo-fieldset
+        border: solid 1px #fff
+        border-radius: 3px
+        margin: 0.4vh 0 0.4vh 0
         div
           float: left
       .fjs-cluster-option-fieldset
         display: flex
         flex-direction: column
+        border: solid 1px #fff
+        border-radius: 3px
+        margin: 0.4vh 0 0.4vh 0
         div
           margin-top: 3px
         .fjs-hclust-selects
