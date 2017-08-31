@@ -52,9 +52,8 @@
     },
     computed: {
       suggestedItems () {
-        const re = new RegExp(this.keyword, 'i')
         return this.items
-          .filter(item => !~this.selections.indexOf(item) && item.match(re))
+          .filter(item => !~this.selections.indexOf(item) && item.toString().includes(this.keyword))
           .slice(0, this.maxSuggestions)
       }
     },
