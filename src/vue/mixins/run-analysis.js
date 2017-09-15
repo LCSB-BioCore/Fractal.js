@@ -21,7 +21,7 @@ async function runAnalysis ({task_name, args}) {
   store.dispatch('setTask', {
     taskID,
     taskName: task_name,
-    taskState: 'PENDING'
+    taskState: 'SUBMITTED'
   })
   let counter = 0
   while (counter++ < 1000) {
@@ -43,7 +43,7 @@ async function runAnalysis ({task_name, args}) {
         taskMessage: taskInfo.result
       })
       throw new Error(taskInfo.result)
-    } else if (taskInfo.state === 'PENDING') {
+    } else if (taskInfo.state === 'SUBMITTED') {
       store.dispatch('setTask', {
         taskID,
         taskName: task_name,

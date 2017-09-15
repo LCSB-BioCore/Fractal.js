@@ -147,7 +147,7 @@
             width: 100%
             overflow: hidden
             overflow-wrap: break-word
-            &[data-state="PENDING"]
+            &[data-state="SUBMITTED"]
               animation: loadingColorCycle 2s infinite
             &[data-state="FAILURE"]
               color: #ff6565

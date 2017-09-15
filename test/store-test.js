@@ -44,7 +44,7 @@ describe('store', () => {
 
   describe('task actions', () => {
     it('should have working setTask action', () => {
-      const task = {taskID: 'A', taskName: 'foo', taskState: 'PENDING'}
+      const task = {taskID: 'A', taskName: 'foo', taskState: 'SUBMITTED'}
       store.dispatch('setTask', task)
       expect(store.getters.tasks['A']).toBeDefined()
       expect(store.getters.tasks['A'].taskName).toEqual(task.taskName)
@@ -52,7 +52,7 @@ describe('store', () => {
     })
 
     it('should have working unsetTask action', () => {
-      const task = {taskID: 'A', taskName: 'foo', taskState: 'PENDING'}
+      const task = {taskID: 'A', taskName: 'foo', taskState: 'SUBMITTED'}
       store.dispatch('setTask', task)
       store.dispatch('unsetTask', {taskID: 'A'})
       expect(store.getters.tasks['A']).not.toBeDefined()

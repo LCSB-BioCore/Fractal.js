@@ -3,12 +3,12 @@
 
     <control-panel class="fjs-control-panel">
       <data-box class="fjs-data-box"
-                header="X and Y variables"
-                dataType="numerical"
+                header="Numerical Variables"
+                dataType="numerical,numerical_array"
                 v-on:update="update_xyData">
       </data-box>
       <data-box class="fjs-data-box"
-                header="Categories"
+                header="Categorical Variables"
                 dataType="categorical"
                 v-on:update="update_categoryData">
       </data-box>

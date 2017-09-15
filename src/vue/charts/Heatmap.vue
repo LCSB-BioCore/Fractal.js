@@ -2,7 +2,7 @@
   <chart v-on:resize="resize">
     <control-panel class="fjs-control-panel">
       <data-box class="fjs-data-box"
-                header="Numerical Array Data"
+                header="Numerical Variables"
                 dataType="numerical_array"
                 v-on:update="update_numericArrayData">
       </data-box>

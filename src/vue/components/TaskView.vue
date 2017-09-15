@@ -1,8 +1,8 @@
 <template>
   <div class="fjs-task-view">
     <div class="fjs-state-container" v-for="task in incompleteTasks">
-      <loader class="fjs-loader" :style="{opacity: task.taskState === 'PENDING' ? 1 : 0}"></loader>
-      <span class="fjs-pending" v-if="task.taskState === 'PENDING'">{{ task.taskName }}</span>
+      <loader class="fjs-loader" :style="{opacity: task.taskState === 'SUBMITTED' ? 1 : 0}"></loader>
+      <span class="fjs-submitted" v-if="task.taskState === 'SUBMITTED'">{{ task.taskName }}</span>
       <span class="fjs-failed" v-else>{{ task.taskMessage }}</span>
       <span class="fjs-cancel-btn" @click="cancelTask(task.taskID)">&#215;</span>
     </div>
@@ -53,7 +53,7 @@
       flex-direction: row
       justify-content: space-between
       margin: 1% 0 1% 0
-      .fjs-pending
+      .fjs-submitted
         max-width: 75%
       .fjs-failed
         color: #f0ff9b

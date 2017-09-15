@@ -63,7 +63,7 @@ export default {
    * @param context The context of the action.
    * @param taskID The id of the task.
    * @param taskName The name of the task.
-   * @param taskState The current state of the task. (SUCCESS, PENDING, FAILURE)
+   * @param taskState The current state of the task. (PENDING, SUBMITTED, SUCCESS, FAILURE)
    * @param taskMessage A message in case the task failed.
    */
   setTask: (context, {taskID, taskName, taskState, taskMessage}) => {

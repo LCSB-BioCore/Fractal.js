@@ -49,14 +49,14 @@ describe('runAnalysis method', () => {
       .catch(done)
   })
 
-  it('does wait for task state to switch from PENDING to final state', done => {
+  it('does wait for task state to switch from SUBMITTED to final state', done => {
     spyOn(store.getters.requestManager, 'createAnalysis')
       .and.returnValue(Promise.resolve({data: {task_id: 123}}))
     spyOn(store.getters.requestManager, 'getAnalysisStatus')
       .and.returnValues(
-        Promise.resolve({data: {state: 'PENDING', result: ''}}),
-        Promise.resolve({data: {state: 'PENDING', result: ''}}),
-        Promise.resolve({data: {state: 'PENDING', result: ''}}),
+        Promise.resolve({data: {state: 'SUBMITTED', result: ''}}),
+        Promise.resolve({data: {state: 'SUBMITTED', result: ''}}),
+        Promise.resolve({data: {state: 'SUBMITTED', result: ''}}),
         Promise.resolve({data: {state: 'SUCCESS', result: 123}})
       )
     runAnalysis({name: '', args: {}})
