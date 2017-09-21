@@ -16,16 +16,22 @@ async function runAnalysis ({task_name, args}) {
   function timeout (ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
-  const rv1 = await store.getters.requestManager.createAnalysis({task_name, args})
-  const taskID = rv1.data.task_id
+
+  const rv = await store.getters.requestManager.createAnalysis({task_name, args})
+  const taskID = rv.data.task_id
   store.dispatch('setTask', {
     taskID,
     taskName: task_name,
     taskState: 'SUBMITTED'
   })
-  let counter = 0
-  while (counter++ < 1000) {
-    await timeout(400)
+
+  let timeWaited = 0
+  let delay = 200
+  while (timeWaited <= 900000) {  // we wait 15 minutes
+    await timeout(delay)
+    timeWaited += delay
+    delay += 100
+    delay = delay > 3000 ? 3000 : delay
     const rv2 = await store.getters.requestManager.getAnalysisStatus({taskID})
     const taskInfo = rv2.data
     if (taskInfo.state === 'SUCCESS') {
@@ -49,9 +55,17 @@ async function runAnalysis ({task_name, args}) {
         taskName: task_name,
         taskState: taskInfo.state})
     } else {
-      throw new Error(`Analysis Task has unknown state: ${taskInfo.state}`)
+      throw new Error(`Analysis Task has unhandled state: ${taskInfo.state}`)
     }
   }
+  const error = 'Analysis took too long. Stopped listener.'
+  store.dispatch('setTask', {
+    taskID,
+    taskName: task_name,
+    taskState: 'FAILURE',
+    taskMessage: error
+  })
+  throw new Error(error)
 }
 
 // This code is here because of: https://github.com/babel/babel/issues/3786

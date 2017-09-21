@@ -137,7 +137,7 @@
               :width="bar.width"
               :fill="bar.fill"
               :title="bar.tooltip"
-              v-for="bar in tweened.sigBars"
+              v-for="bar in sigBars"
               v-tooltip>
         </rect>
         <rect class="fjs-cell"
@@ -147,7 +147,7 @@
               :width="cell.width"
               :fill="cell.fill"
               :title="cell.tooltip"
-              v-for="cell in tweened.cells"
+              v-for="cell in cells"
               v-tooltip>
         </rect>
       </g>
@@ -164,7 +164,6 @@
   import * as d3 from 'd3'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
-  import { tweenGroup } from '../mixins/utils'
   export default {
     name: 'heatmap',
     data () {
@@ -192,12 +191,8 @@
           }
         },
         results: {
-          data: [],
-          stats: []
-        },
-        tweened: {
-          cells: [],
-          sigBars: []
+          data: {id: [], feature: [], value: [], zscore: []},
+          stats: {feature: []}
         }
       }
     },
@@ -215,11 +210,11 @@
       },
       clusterArgs () {
         const df = {}
-        this.results.data.forEach(d => {
-          if (typeof df[d.id] === 'undefined') {
-            df[d.id] = {}
+        this.results.data.id.forEach((d, i) => {
+          if (typeof df[d] === 'undefined') {
+            df[d] = {}
           }
-          df[d.id][d.feature] = d.zscore
+          df[d][this.results.data.feature[i]] = this.results.data.zscore[i]
         })
         return {
           df: df,
@@ -254,7 +249,7 @@
         if (this.cluster.results.cols.length) {
           cols = this.cluster.results.cols.map(d => d[0])
         } else {
-          cols = [...new Set(this.results.data.map(d => d.id))]
+          cols = [...new Set(this.results.data.id)]
         }
         cols = cols.concat(['$padding_col$', '$cluster_col$'])
         return cols
@@ -264,20 +259,20 @@
         if (this.cluster.results.rows.length) {
           rows = rows.concat(this.cluster.results.rows.map(d => d[0]))
         } else {
-          rows = rows.concat([...new Set(this.results.data.map(d => d.feature))])
+          rows = rows.concat([...new Set(this.results.data.feature)])
         }
         return rows
       },
       grid () {
-        const mainWidth = this.padded.width / this.cols.length
-        let mainHeight = this.padded.height / this.rows.length
-        mainHeight = mainHeight < mainWidth / 4 ? mainHeight : mainWidth / 4
+        const maxWidth = this.padded.width / this.cols.length
+        let maxHeight = this.padded.height / this.rows.length
+        const gridSize = maxWidth < maxHeight ? maxWidth : maxHeight
         // noinspection JSSuspiciousNameCombination
         return {
-          main: { height: mainHeight, width: mainWidth },
-          rowCluster: { height: mainHeight, width: mainWidth / 2 },
-          colCluster: { height: mainHeight * 2, width: mainWidth },
-          padding: { height: mainHeight, width: mainHeight }
+          main: { height: gridSize, width: gridSize },
+          rowCluster: { height: gridSize, width: gridSize },
+          colCluster: { height: gridSize , width: gridSize },
+          padding: { height: gridSize, width: gridSize }
         }
       },
       scales () {
@@ -309,7 +304,7 @@
         return { x, y }
       },
       currentStats () {
-        return this.results.stats.map(d => d[this.rankingMethod])
+        return this.results.stats[this.rankingMethod]
       },
       sigScales () {
         const x = d3.scaleLinear()
@@ -320,19 +315,19 @@
       },
       cells () {
         const cells = []
-        this.results.data.forEach(d => {
+        this.results.data.id.forEach((d, i) => {
           cells.push({
-            x: this.scales.x(d.id),
-            y: this.scales.y(d.feature),
+            x: this.scales.x(d),
+            y: this.scales.y(this.results.data.feature[i]),
             width: this.grid.main.width,
             height: this.grid.main.height,
-            fill: this.colorScale(1 / (1 + Math.pow(Math.E, -d.zscore))),
+            fill: this.colorScale(1 / (1 + Math.pow(Math.E, -this.results.data.zscore[i]))),
             tooltip: `
 <div>
-  <p>Column: ${d.id}</p>
-  <p>Row: ${d.feature}</p>
-  <p>Value: ${d.value}</p>
-  <p>z-Score ${d.zscore}</p>
+  <p>Column: ${d}</p>
+  <p>Row: ${this.results.data.feature[i]}</p>
+  <p>Value: ${this.results.data.value[i]}</p>
+  <p>z-Score ${this.results.data.zscore[i]}</p>
 </div>
 `
           })
@@ -372,16 +367,16 @@
         return cells
       },
       sigBars () {
-        return this.results.stats.map(d => {
+        return this.results.stats.feature.map((d, i) => {
           return {
-            x: -this.sigScales.x(d[this.rankingMethod]),
-            y: this.sigScales.y(d.feature),
-            width: this.sigScales.x(d[this.rankingMethod]),
+            x: -this.sigScales.x(this.results.stats[this.rankingMethod][i]),
+            y: this.sigScales.y(d),
+            width: this.sigScales.x(this.results.stats[this.rankingMethod][i]),
             height: this.grid.main.height,
-            fill: d[this.rankingMethod] < 0 ? '#0072ff' : '#ff006a',
-            tooltip: '<div>' + Object.keys(d).map(key => {
+            fill: this.results.stats[this.rankingMethod][i] < 0 ? '#0072ff' : '#ff006a',
+            tooltip: '<div>' + Object.keys(this.results.stats).map(key => {
               const selected = key === this.rankingMethod ? '<span style="font-weight: bold;">[selected]<span> ' : ''
-              return `<p>${selected}${key}: ${d[key]}</p>`
+              return `<p>${selected}${key}: ${this.results.stats[key][i]}</p>`
             }).join('') + '</div>'
           }
         })
@@ -392,8 +387,6 @@
         runAnalysis({task_name: 'compute-heatmap', args})
           .then(response => {
             const results = JSON.parse(response)
-            results.data = JSON.parse(results.data)
-            results.stats = JSON.parse(results.stats)
             deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
             this.results = results
           })
@@ -402,6 +395,7 @@
         runAnalysis({task_name: 'compute-cluster', args})
           .then(response => {
             const results = JSON.parse(response)
+            deepFreeze(results)
             this.cluster.results.rows = results['row_clusters']
             this.cluster.results.cols = results['col_clusters']
           })
@@ -428,26 +422,6 @@
             args.cluster_algo === 'kmeans') {
             this.computeCluster(args)
           }
-        }
-      },
-      'cells': {
-        handler: function (newCells) {
-          tweenGroup({
-            mutation: (v) => { this.tweened.cells = v },
-            model: this.tweened.cells,
-            target: newCells,
-            animationTime: 1
-          })
-        }
-      },
-      'sigBars': {
-        handler: function (newSigBars) {
-          tweenGroup({
-            mutation: (v) => { this.tweened.sigBars = v },
-            model: this.tweened.sigBars,
-            target: newSigBars,
-            animationTime: 1
-          })
         }
       }
     },

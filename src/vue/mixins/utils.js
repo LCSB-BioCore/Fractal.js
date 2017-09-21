@@ -1,4 +1,5 @@
 import { TimelineLite, TweenLite } from 'gsap'
+TweenLite.ticker.fps(30)
 
 /**
  * https://stackoverflow.com/questions/5723154/truncate-a-string-in-the-middle-with-javascript
