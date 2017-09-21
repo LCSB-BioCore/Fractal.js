@@ -31,8 +31,8 @@
   /* eslint-disable */
 
   const fjs = fractal.init({
-    handler: 'ada',
-    thisBaseURL: 'https://ada.parkinson.lu',
+    handler: 'test',
+    thisBaseURL: 'http://127.0.0.1:5000',
     fractalisBaseURL: 'http://127.0.0.1:5000',
     getAuth () {
       return credentials1
@@ -41,107 +41,37 @@
   function loadData () {
     fjs.loadData([
       {
-        dictionary: {
-          name: 'cadenceR',
-          projection: 'cadenceR',
-          label: 'Cadence Right',
-          fieldType: 'Double',
-          isArray: false
-        },
-        data_set: 'egait.features'
+        data_type: 'numerical_array',
+        label: 'Expression Data',
+        num_samples: 200,
+        num_features: 100
       },
       {
-        dictionary: {
-          name: 'cadenceL',
-          projection: 'cadenceL',
-          label: 'Cadence Left',
-          fieldType: 'Double',
-          isArray: false
-        },
-        data_set: 'egait.features'
+        data_type: 'numerical',
+        label: 'Numerical Data 1',
+        num_samples: 500
       },
       {
-        dictionary: {
-          name: 'entropyR',
-          projection: 'entropyR',
-          label: 'Entropy Right',
-          fieldType: 'Double',
-          isArray: true
-        },
-        data_set: 'egait.features'
+        data_type: 'numerical',
+        label: 'Numerical Data 2',
+        num_samples: 500
       },
       {
-        dictionary: {
-          name: 'entropyL',
-          projection: 'entropyL',
-          label: 'Entropy Left',
-          fieldType: 'Double',
-          isArray: true
-        },
-        data_set: 'egait.features'
-      },
-
-      {
-        dictionary: {
-          name: 'Geschlecht',
-          projection: 'Geschlecht',
-          label: 'Gender',
-          fieldType: 'Enum',
-          numValues: {"0":"female","1":"male"},
-          isArray: false
-        },
-        data_set: 'denopa.clinical_baseline'
+        data_type: 'numerical',
+        label: 'Numerical Data 3',
+        num_samples: 500
       },
       {
-        dictionary: {
-          name: 'a_CRF_Bildung',
-          projection: 'a_CRF_Bildung',
-          label: 'Education',
-          fieldType: 'Enum',
-          numValues: {"0":"High School Degree","1":"High School degree","2":"High school / elementary school","3":"Realschule / GCSE"},
-          isArray: false
-        },
-        data_set: 'denopa.clinical_baseline'
+        data_type: 'categorical',
+        label: 'Categorical Data 1',
+        num_samples: 500,
+        values: ['A', 'B', 'C', 'D']
       },
       {
-        dictionary: {
-          name: 'a_AESD_S_mean',
-          projection: 'a_AESD_S_mean',
-          label: 'AESD S Mean',
-          fieldType: 'Double',
-          isArray: false
-        },
-        data_set: 'denopa.clinical_baseline'
-      },
-      {
-        dictionary: {
-          name: 'a_AESD_I_mean',
-          projection: 'a_AESD_I_mean',
-          label: 'AESD I Mean',
-          fieldType: 'Double',
-          isArray: false
-        },
-        data_set: 'denopa.clinical_baseline'
-      },
-      {
-        dictionary: {
-          name: 'a_Alter',
-          projection: 'a_Alter',
-          label: 'Age',
-          fieldType: 'Integer',
-          isArray: false
-        },
-        data_set: 'denopa.clinical_baseline'
-      },
-      {
-        dictionary: {
-          name: 'a_SonoRestharn',
-          projection: 'a_SonoRestharn',
-          label: 'SonoRestharn',
-          fieldType: 'Double',
-          isArray: true
-        },
-        data_set: 'denopa.clinical_baseline'
+        data_type: 'categorical',
+        label: 'Categorical Data 2',
+        num_samples: 500,
+        values:['X', 'Y']
       }
     ])
   }
