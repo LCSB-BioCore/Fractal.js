@@ -6,14 +6,18 @@ export default {
     if (typeof vnode.context._tippyInstances === 'undefined') {
       vnode.context._tippyInstances = {}
     }
-    const uuid = uuid4()
-    el.setAttribute('data-uuid', uuid)
-    const tip = tippy(el, Object.assign({
-      performance: true,
-      arrow: true,
-      theme: 'light',
-      dynamicTitle: true
-    }, binding.value))
-    vnode.context._tippyInstances[uuid] = tip
+    const addTooltip = (event) => {
+      const uuid = uuid4()
+      el.setAttribute('data-uuid', uuid)
+      const target = event.target || event.srcElement
+      vnode.context._tippyInstances[uuid] = tippy(target, Object.assign({
+        performance: true,
+        arrow: true,
+        theme: 'light',
+        dynamicTitle: true
+      }, binding.value))
+      el.removeEventListener('mouseover', addTooltip)
+    }
+    el.addEventListener('mouseover', addTooltip)
   }
 }

@@ -327,6 +327,8 @@
     },
     methods: {
       getTippyInstances (label) {
+        const event = document.createEvent('Event')
+        event.initEvent('mouseover', true, true)
         return [
           this.$el.querySelector(`.fjs-box[data-label="${label}"] .fjs-upper-whisker`),
           this.$el.querySelector(`.fjs-box[data-label="${label}"] .fjs-lower-whisker`),
@@ -334,6 +336,7 @@
           this.$el.querySelector(`.fjs-box[data-label="${label}"] .fjs-lower-quartile`),
           this.$el.querySelector(`.fjs-box[data-label="${label}"] .fjs-median`)
         ].map(el => {
+          el.dispatchEvent(event)  // populate tooltips
           const uuid = el.getAttribute('data-uuid')
           return { el, tip: this._tippyInstances[uuid] }
         })
