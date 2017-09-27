@@ -51,14 +51,13 @@ export function tweenGroup ({mutation, model, target, animationTime}) {
     mutation(model.concat(target.slice(model.length)))
   }
   model.forEach((tweenedCell, i) => {
-    const tween = new TweenLite(tweenedCell, animationTime, target[i])
-    timeline.add(tween, 0)
+    timeline.to(tweenedCell, animationTime, target[i], 0)
   })
   timeline.play()
 }
 
 export function getPolygonPointsForSubset ({cx, cy, size, subset}) {
-  const diamond = (cx, cy, size) => `${cx},${cy - size / 2} ${cx + size / 2},${cy} ${cx},${cy + size / 2} ${cx - size / 2},${cy}`
+  const diamond = (cx, cy, size) => `${cx},${cy - size * 0.75} ${cx + size * 0.75},${cy} ${cx},${cy + size * 0.75} ${cx - size * 0.75},${cy}`
   const square = (cx, cy, size) => `${cx - size / 2},${cy - size / 2} ${cx + size / 2},${cy - size / 2} ${cx + size / 2},${cy + size / 2} ${cx - size / 2},${cy + size / 2}`
   const triangle = (cx, cy, size) => `${cx},${cy - size / 2} ${cx + size / 2},${cy + size / 2} ${cx - size / 2},${cy + size / 2}`
   const revTriangle = (cx, cy, size) => `${cx - size / 2},${cy - size / 2} ${cx + size / 2},${cy - size / 2} ${cx},${cy + size / 2}`

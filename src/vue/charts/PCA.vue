@@ -29,11 +29,13 @@
         <g class="fjs-axis fjs-y-axis-1"></g>
         <text :x="padded.width / 2"
               :y="- margin.top / 2"
-              text-anchor="middle">
+              text-anchor="middle"
+              v-show="results.data.length">
           Principal Component 1 (Variance Ratio: {{ results.variance_ratios[0].toFixed(2) }})
         </text>
         <text text-anchor="middle"
-              :transform="`translate(${this.padded.width + this.margin.right / 2}, ${this.padded.height / 2})rotate(90)`">
+              :transform="`translate(${this.padded.width + this.margin.right / 2}, ${this.padded.height / 2})rotate(90)`"
+              v-show="results.data.length">
           Principal Component 2 (Variance Ratio: {{ results.variance_ratios[1].toFixed(2) }})
         </text>
         <polygon class="fjs-scatterplot-point"

@@ -38,6 +38,7 @@
       return credentials1
     }
   })
+  fjs.setSubsets([[...new Array(250).keys()], [...new Array(500).keys()].slice(250, 500)])
   function loadData () {
     fjs.loadData([
       {

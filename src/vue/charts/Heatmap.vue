@@ -48,11 +48,11 @@
           </div>
           <div>
             <label for="fjs-dgea-5">P.Value</label>
-            <input type="radio" id="fjs-dgea-5" value="P.Value" v-model="rankingMethod">
+            <input type="radio" id="fjs-dgea-5" value="P.Val" v-model="rankingMethod">
           </div>
           <div>
             <label for="fjs-dgea-6">adj.P.Value</label>
-            <input type="radio" id="fjs-dgea-6" value="adj.P.Value" v-model="rankingMethod">
+            <input type="radio" id="fjs-dgea-6" value="adj.P.Val" v-model="rankingMethod">
           </div>
         </fieldset>
       </div>
@@ -271,7 +271,7 @@
         return {
           main: { height: gridSize, width: gridSize },
           rowCluster: { height: gridSize, width: gridSize },
-          colCluster: { height: gridSize , width: gridSize },
+          colCluster: { height: gridSize, width: gridSize },
           padding: { height: gridSize, width: gridSize }
         }
       },
