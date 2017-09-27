@@ -171,6 +171,7 @@
         width: 0,
         height: 0,
         colorScale: d3.interpolateCool,
+        subsetColors: d3.schemeCategory10,
         numericArrayDataIds: [],
         rankingMethod: 'mean',
         cluster: {
@@ -255,7 +256,7 @@
         return cols
       },
       rows () {
-        let rows = ['$cluster_row$', '$padding_row$']
+        let rows = ['$subset_row$', '$cluster_row$', '$padding_row$']
         if (this.cluster.results.rows.length) {
           rows = rows.concat(this.cluster.results.rows.map(d => d[0]))
         } else {
@@ -267,7 +268,6 @@
         const maxWidth = this.padded.width / this.cols.length
         let maxHeight = this.padded.height / this.rows.length
         const gridSize = maxWidth < maxHeight ? maxWidth : maxHeight
-        // noinspection JSSuspiciousNameCombination
         return {
           main: { height: gridSize, width: gridSize },
           rowCluster: { height: gridSize, width: gridSize },
@@ -332,8 +332,29 @@
 `
           })
         })
+        const idSubsetMap = this.results.data.id.map((d, i) => { return {id: d, subset: this.results.data.subset[i]} })
+          .reduce((acc, curr) => {
+            if (typeof acc[curr.id] === 'undefined') {
+              acc[curr.id] = curr.subset
+            }
+            return acc
+          }, {})
+        Object.keys(idSubsetMap).forEach(d => {
+          cells.push({
+            x: this.scales.x(d),
+            y: this.scales.y('$subset_row$'),
+            width: this.grid.main.width,
+            height: this.grid.main.height,
+            fill: this.subsetColors[idSubsetMap[d] % this.subsetColors.length],
+            tooltip: `
+<div>
+  <p>Col: ${d}</p>
+  <p>Subset: ${idSubsetMap[d]}</p>
+</div>
+`
+          })
+        })
         this.cluster.results.rows.forEach(d => {
-          // noinspection JSSuspiciousNameCombination
           cells.push({
             x: this.scales.x('$cluster_col$'),
             y: this.scales.y(d[0]),
@@ -349,7 +370,6 @@
           })
         })
         this.cluster.results.cols.forEach(d => {
-          // noinspection JSSuspiciousNameCombination
           cells.push({
             x: this.scales.x(d[0]),
             y: this.scales.y('$cluster_row$'),

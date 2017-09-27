@@ -38,40 +38,44 @@
       return credentials1
     }
   })
-  fjs.setSubsets([[...new Array(250).keys()], [...new Array(500).keys()].slice(250, 500)])
+  fjs.setSubsets([
+    [...new Array(100).keys()],
+    [...new Array(500).keys()].slice(100, 200),
+    [...new Array(500).keys()].slice(200, 300)
+  ])
   function loadData () {
     fjs.loadData([
       {
         data_type: 'numerical_array',
         label: 'Expression Data',
-        num_samples: 200,
+        num_samples: 300,
         num_features: 100
       },
       {
         data_type: 'numerical',
         label: 'Numerical Data 1',
-        num_samples: 500
+        num_samples: 300
       },
       {
         data_type: 'numerical',
         label: 'Numerical Data 2',
-        num_samples: 500
+        num_samples: 300
       },
       {
         data_type: 'numerical',
         label: 'Numerical Data 3',
-        num_samples: 500
+        num_samples: 300
       },
       {
         data_type: 'categorical',
         label: 'Categorical Data 1',
-        num_samples: 500,
+        num_samples: 300,
         values: ['A', 'B', 'C', 'D']
       },
       {
         data_type: 'categorical',
         label: 'Categorical Data 2',
-        num_samples: 500,
+        num_samples: 300,
         values:['X', 'Y']
       }
     ])
