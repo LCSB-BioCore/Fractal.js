@@ -14,6 +14,16 @@
       </data-box>
       <hr class="fjs-seperator"/>
       <div>
+        <label for="fjs-pc-x-select">X-Axis</label>
+        <select id="fjs-pc-x-select" v-model="pcX">
+          <option :value="i" v-for="i in components">Principal Component {{i}}</option>
+        </select><br/>
+        <label for="fjs-pc-y-select">Y-Axis</label>
+        <select id="fjs-pc-y-select" v-model="pcY">
+          <option :value="i" v-for="i in components">Principal Component {{i}}</option>
+        </select>
+      </div>
+      <div>
         <input id="fjs-whiten-check" type="checkbox" v-model="params.whiten"/>
         <label for="fjs-whiten-check">Whiten Output</label>
       </div>
@@ -30,13 +40,13 @@
         <text :x="padded.width / 2"
               :y="- margin.top / 2"
               text-anchor="middle"
-              v-show="results.data.length">
-          Principal Component 1 (Variance Ratio: {{ results.variance_ratios[0].toFixed(2) }})
+              v-show="results.data.id.length">
+          Principal Component {{pcX}} (Variance Ratio: {{ results.variance_ratios[pcX].toFixed(2) }})
         </text>
         <text text-anchor="middle"
               :transform="`translate(${this.padded.width + this.margin.right / 2}, ${this.padded.height / 2})rotate(90)`"
-              v-show="results.data.length">
-          Principal Component 2 (Variance Ratio: {{ results.variance_ratios[1].toFixed(2) }})
+              v-show="results.data.id.length">
+          Principal Component {{pcY}} (Variance Ratio: {{ results.variance_ratios[pcY].toFixed(2) }})
         </text>
         <polygon class="fjs-scatterplot-point"
                  :points="point.shape"
@@ -100,10 +110,22 @@
         featureData: [],
         categoryData: [],
         results: {
-          data: [],
-          loadings: [],
+          data: {
+            0: [],
+            1: [],
+            id: [],
+            subset: [],
+            category: []
+          },
+          loadings: {
+            0: [],
+            1: [],
+            feature: []
+          },
           variance_ratios: [0, 0]
         },
+        pcX: 0,
+        pcY: 1,
         categoryColors: d3.schemeCategory10,
         subsetColors: d3.schemeCategory10.slice().reverse(),
         selectedPoints: [],
@@ -125,7 +147,6 @@
         return {
           features: this.featureData,
           categories: this.categoryData,
-          n_components: 2,
           whiten: this.params.whiten,
           id_filter: this.idFilter,
           subsets: store.getters.subsets
@@ -149,14 +170,14 @@
       scales () {
         const x = d3.scaleLinear()
           .domain((() => {
-            const xExtent = d3.extent(this.results.data.map(d => d['0']))
+            const xExtent = d3.extent(this.results.data[this.pcX])
             const xPadding = (xExtent[1] - xExtent[0]) / 10
             return [xExtent[0] - xPadding, xExtent[1] + xPadding]
           })())
           .range([0, this.padded.width])
         const y = d3.scaleLinear()
           .domain((() => {
-            const yExtent = d3.extent(this.results.data.map(d => d['1']))
+            const yExtent = d3.extent(this.results.data[this.pcY])
             const yPadding = (yExtent[1] - yExtent[0]) / 10
             return [yExtent[0] - yPadding, yExtent[1] + yPadding]
           })())
@@ -165,46 +186,55 @@
       },
       loadingScales () {
         const x = d3.scaleLinear()
-          .domain(d3.extent(this.scales.x.domain().concat(this.results.loadings.map(d => d[0]))))
+          .domain(d3.extent(this.scales.x.domain().concat(this.results.loadings[this.pcX])))
           .range(this.scales.x.range())
         const y = d3.scaleLinear()
-          .domain(d3.extent(this.scales.y.domain().concat(this.results.loadings.map(d => d[1]))))
+          .domain(d3.extent(this.scales.y.domain().concat(this.results.loadings[this.pcY])))
           .range(this.scales.y.range())
         return { x, y }
       },
       points () {
-        return this.results.data.map(d => {
+        return this.results.data.id.map((d, i) => {
           return {
-            x: this.scales.x(d['0']),
-            y: this.scales.y(d['1']),
-            id: d.id,
-            category: d.category,
-            subset: d.subset,
+            x: this.scales.x(this.results.data[this.pcX][i]),
+            y: this.scales.y(this.results.data[this.pcY][i]),
+            id: d,
+            category: this.results.data.category[i],
+            subset: this.results.data.subset[i],
             shape: getPolygonPointsForSubset(
-              {cx: this.scales.x(d['0']), cy: this.scales.y(d['1']), size: this.width / 150, subset: d.subset}),
+              {
+                cx: this.scales.x(this.results.data[this.pcX][i]),
+                cy: this.scales.y(this.results.data[this.pcY][i]),
+                size: this.width / 150,
+                subset: this.results.data.subset[i]
+              }
+            ),
             tooltip: `
 <div>
-  <p>ID: ${d.id}</p>
-  <p>Subset: ${d.subset}</p>
-  ${d.category !== '' ? '<p>Category: ' + d.category + '</p>' : ''}
+  <p>ID: ${d}</p>
+  <p>Subset: ${this.results.data.subset[i]}</p>
+  ${this.results.data.category[i] !== '' ? '<p>Category: ' + this.results.data.category[i] + '</p>' : ''}
 </div>
 `
           }
         })
       },
       loadings () {
-        return this.results.loadings.map(d => {
+        return this.results.loadings.feature.map((d, i) => {
           return {
             x1: this.loadingScales.x(0),
             y1: this.loadingScales.y(0),
-            x2: this.loadingScales.x(d[0]),
-            y2: this.loadingScales.y(d[1]),
-            feature: d.feature
+            x2: this.loadingScales.x(this.results.loadings[this.pcX][i]),
+            y2: this.loadingScales.y(this.results.loadings[this.pcY][i]),
+            feature: d
           }
         })
       },
+      components () {
+        return Object.keys(this.results.loadings).filter(d => d !== 'feature')
+      },
       categories () {
-        return [...new Set(this.results.data.map(d => d.category))]
+        return [...new Set(this.results.data.category)]
       },
       axis () {
         const x1 = d3.axisTop(this.scales.x)
@@ -286,8 +316,6 @@
         runAnalysis({task_name: 'compute-pca', args})
           .then(response => {
             const results = JSON.parse(response)
-            results.data = JSON.parse(results.data)
-            results.loadings = JSON.parse(results.loadings)
             deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
             this.results = results
           })
@@ -328,6 +356,9 @@
         shape-rendering: crispEdges
       circle
         opacity: 0.05
+  .fjs-control-panel
+    select
+      margin: 0 0 0.5vh 0
 </style>
 
 <!--CSS for dynamically created components-->
