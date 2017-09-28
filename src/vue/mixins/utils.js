@@ -1,5 +1,6 @@
-import { TimelineLite, TweenLite } from 'gsap'
-TweenLite.ticker.fps(30)
+import { TimelineLite } from 'gsap'
+import deepFreeze from 'deep-freeze-strict'
+import store from '../../store/store'
 
 /**
  * https://stackoverflow.com/questions/5723154/truncate-a-string-in-the-middle-with-javascript
@@ -40,19 +41,28 @@ export function truncateTextUntil ({text, font, maxWidth}) {
 }
 
 export function tweenGroup ({mutation, model, target, animationTime}) {
-  if (!model.length) {
+  const copyGroup = group => group.map(d => Object.assign({}, d))
+  animationTime = store.getters.animation ? animationTime : 0
+  if (!model.length || animationTime === 0) {
+    deepFreeze(target)
     mutation(target)
     return
   }
+  model = copyGroup(model)
   const timeline = new TimelineLite()
   if (model.length >= target.length) {
-    mutation(model.slice(0, target.length))
+    model = model.slice(0, target.length)
   } else {
-    mutation(model.concat(target.slice(model.length)))
+    model = model.concat(target.slice(model.length))
   }
   model.forEach((tweenedCell, i) => {
     timeline.to(tweenedCell, animationTime, target[i], 0)
   })
+  timeline.to({}, animationTime, {onUpdate: () => {
+    const currentState = copyGroup(model)
+    deepFreeze(currentState)
+    mutation(currentState)
+  }}, 0)
   timeline.play()
 }
 

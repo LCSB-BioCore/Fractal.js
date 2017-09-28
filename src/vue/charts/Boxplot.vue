@@ -125,7 +125,7 @@
   import store from '../../store/store'
   import runAnalysis from '../mixins/run-analysis'
   import * as d3 from 'd3'
-  import { TweenLite } from 'gsap'
+  import { TimelineLite } from 'gsap'
   import deepFreeze from 'deep-freeze-strict'
   import { truncateTextUntil } from '../mixins/utils'
   import tooltip from '../directives/tooltip'
@@ -294,14 +294,15 @@
       'boxes': {
         handler: function (newBoxes) {
           const labels = Object.keys(newBoxes)
-          labels.forEach((label, i) => {
+          const timeline = new TimelineLite()
+          labels.forEach(label => {
             if (typeof this.tweened.boxes[label] === 'undefined') {
               this.$set(this.tweened.boxes, label, newBoxes[label])
             } else {
-              TweenLite.to(this.tweened.boxes[label], 0.5 / labels.length,
-                Object.assign(newBoxes[label], {delay: i * 0.5 / labels.length}))
+              timeline.to(this.tweened.boxes[label], store.getters.animation ? 0.5 : 0, newBoxes[label], 0)
             }
           })
+          timeline.play()
         }
       },
       'args': {

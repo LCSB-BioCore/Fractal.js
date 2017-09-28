@@ -14,7 +14,8 @@ const state = {
   subsets: [],
   filters: {
     ids: []
-  }
+  },
+  animation: true
 }
 
 export default new Vuex.Store({

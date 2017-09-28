@@ -304,7 +304,7 @@
     watch: {
       'regLine': {
         handler: function (newRegLine) {
-          TweenLite.to(this.tweened.regLine, 0.5, newRegLine)
+          TweenLite.to(this.tweened.regLine, store.getters.animation ? 0.5 : 0, newRegLine)
         }
       },
       'histPolyPoints': {
@@ -313,11 +313,11 @@
             // we use d3 instead of TweenLite here because d3 can transition point paths
             d3.select(this.$el.querySelector('.fjs-histogram-polyline.fjs-bottom'))
               .transition()
-              .duration(500)
+              .duration(store.getters.animation ? 500 : 0)
               .attr('points', newPoints.bottom)
             d3.select(this.$el.querySelector('.fjs-histogram-polyline.fjs-left'))
               .transition()
-              .duration(500)
+              .duration(store.getters.animation ? 500 : 0)
               .attr('points', newPoints.left)
           })
         }

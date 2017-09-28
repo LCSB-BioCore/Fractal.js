@@ -1,5 +1,6 @@
 import types from './mutation-types'
 import RequestManager from '../services/request-manager'
+import { TweenLite } from 'gsap'
 
 export default {
   /**
@@ -84,5 +85,13 @@ export default {
    */
   addControlPanel: (context, vm) => {
     context.commit(types.ADD_CONTROL_PANEL, {vm})
+  },
+  /**
+   * Commits a change to the animation state to deterime whether or not visuals are animated
+   * @param context The context of the action.
+   * @param enabled Whether or not to animate
+   */
+  setAnimation: (context, enabled) => {
+    context.commit(types.SET_ANIMATION, {enabled})
   }
 }
