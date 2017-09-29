@@ -128,7 +128,13 @@
     </control-panel>
 
 
-    <svg :height="height" :width="width">
+    <svg xmlns="http://www.w3.org/2000/svg" :height="height" :width="width">
+      <foreignObject :x="margin.left" :y="margin.top"
+                     :width="this.padded.width" :height="this.padded.height">
+        <body xmlns="http://www.w3.org/1999/xhtml" style="margin: 0">
+          <canvas :width="this.padded.width" :height="this.padded.height"></canvas>
+        </body>
+      </foreignObject>
       <g :transform="`translate(${margin.left}, ${margin.top})`">
         <rect class="fjs-sig-bar"
               :x="bar.x"
@@ -138,16 +144,6 @@
               :fill="bar.fill"
               :title="bar.tooltip"
               v-for="bar in sigBars"
-              v-tooltip>
-        </rect>
-        <rect class="fjs-cell"
-              :x="cell.x"
-              :y="cell.y"
-              :height="cell.height"
-              :width="cell.width"
-              :fill="cell.fill"
-              :title="cell.tooltip"
-              v-for="cell in cells"
               v-tooltip>
         </rect>
       </g>
@@ -241,8 +237,10 @@
         return { left, top, right, bottom }
       },
       padded () {
-        const width = this.width - this.margin.left - this.margin.right
-        const height = this.height - this.margin.top - this.margin.bottom
+        let width = this.width - this.margin.left - this.margin.right
+        let height = this.height - this.margin.top - this.margin.bottom
+        width = width < 0 ? 0 : width
+        height = height < 0 ? 0 : height
         return { width, height }
       },
       cols () {
@@ -426,6 +424,16 @@
       },
       update_numericArrayData (ids) {
         this.numericArrayDataIds = ids
+      },
+      drawCells (cells) {
+        const canvas = this.$el.querySelector('canvas')
+        const ctx = canvas.getContext('2d')
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        cells.forEach(d => {
+          ctx.beginPath()
+          ctx.fillStyle = d.fill
+          ctx.fillRect(d.x, d.y, d.width, d.height)
+        })
       }
     },
     watch: {
@@ -442,6 +450,11 @@
             args.cluster_algo === 'kmeans') {
             this.computeCluster(args)
           }
+        }
+      },
+      'cells': {
+        handler: function (newCells) {
+          this.$nextTick(() => this.drawCells(newCells))
         }
       }
     },
