@@ -8,7 +8,13 @@ module.exports = config => {
     files: [
       {pattern: 'test/**/*-test.js'}
     ],
-    browsers: ['ChromeHeadless'],
+    browsers: ['NoSandboxHeadlessChrome'],
+    customLaunchers: {
+      NoSandboxHeadlessChrome: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox']
+      }
+    },
     preprocessors: {
       'test/**/*-test.js': ['webpack', 'sourcemap']
     },

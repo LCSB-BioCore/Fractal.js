@@ -8,7 +8,21 @@ before_script:
     # install dependencies
     - yum install -y npm
     - npm install
+    # install chrome
+    - cat << EOF > /etc/yum.repos.d/google-chrome.repo
+      [google-chrome]
+      name=google-chrome - \$basearch
+      baseurl=http://dl.google.com/linux/chrome/rpm/stable/\$basearch
+      enabled=1
+      gpgcheck=1
+      gpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub
+      EOF
+    - yum install -y google-chrome-stable
 
 test:
     script:
         - npm test
+
+
+
+
