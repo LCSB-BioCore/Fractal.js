@@ -44,7 +44,7 @@ describe('DataBox', () => {
     const data = {selectedIDs: ['A']}
     const vm = new Component({propsData, data}).$mount()
     expect(vm.$el.querySelectorAll('.fjs-data-entry-header').length).toBe(2)
-    expect(vm.$el.querySelector(`#fjs-checkbox-A-${vm._uid}`).checked).toBeTruthy()
-    expect(vm.$el.querySelector(`#fjs-checkbox-B-${vm._uid}`).checked).toBeFalsy()
+    expect(vm.$el.querySelector('.fjs-data-entry-header input[data-id="A"]').checked).toBeTruthy()
+    expect(vm.$el.querySelector('.fjs-data-entry-header input[data-id="B"]').checked).toBeFalsy()
   })
 })

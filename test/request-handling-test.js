@@ -1,10 +1,8 @@
-import requestHandling from '../src/vue/mixins/run-analysis'
+import runAnalysis from '../src/vue/mixins/run-analysis'
 import RequestManager from '../src/services/request-manager'
 import store from '../src/store/store'
 
 describe('runAnalysis method', () => {
-  const runAnalysis = requestHandling.methods.runAnalysis
-
   beforeEach(() => {
     const requestManager = new RequestManager(
       {handler: '', thisBaseURL: '', fractalisBaseURL: '', getAuth: () => {}})

@@ -1,12 +1,14 @@
 const webpackConfig = require('./webpack.config.js')
 
+process.env.CHROME_BIN = require('puppeteer').executablePath()
+
 module.exports = config => {
   config.set({
     frameworks: ['jasmine'],
     files: [
       {pattern: 'test/**/*-test.js'}
     ],
-    browsers: ['Chrome'],
+    browsers: ['ChromeHeadless'],
     preprocessors: {
       'test/**/*-test.js': ['webpack', 'sourcemap']
     },

@@ -403,7 +403,7 @@
 
 
 <style lang="sass" scoped>
-  @import './src/assets/base.sass'
+  @import './../../../src/assets/base.sass'
 
   .fjs-control-panel
     .fjs-correlation-method

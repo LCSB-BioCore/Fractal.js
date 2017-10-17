@@ -7,7 +7,9 @@
            v-for="item in items">
 
         <div class="fjs-data-entry-header">
-          <input type="checkbox" :checked="!!~selectedIDs.indexOf(item.task_id)" />
+          <input type="checkbox"
+                 :data-id="item.task_id"
+                 :checked="!!~selectedIDs.indexOf(item.task_id)" />
           <span :data-id="item.task_id"
                 :data-state="item.etl_state"
                 class="fjs-data-label"

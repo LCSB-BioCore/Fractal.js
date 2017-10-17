@@ -25,7 +25,7 @@ module.exports = {
   devServer: {
     hot: true,
     inline: true,
-    publicPath: 'http://localhost:8080/',
+    publicPath: 'http://127.0.0.1:8080/',
     headers: { 'Access-Control-Allow-Origin': '*' }
   },
   plugins: plugins,
@@ -46,7 +46,7 @@ module.exports = {
         loader: 'vue-loader',
         options: {
           loaders: {
-            sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax' // <style lang="sass">
+            sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax'
           }
         }
       },

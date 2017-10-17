@@ -1,4 +1,5 @@
 <!doctype html>
+<meta charset="UTF-8">
 
 <head>
   <script src="http://localhost:8080/credentials.js"></script>
@@ -35,7 +36,7 @@
     thisBaseURL: 'http://127.0.0.1:5000',
     fractalisBaseURL: 'http://127.0.0.1:5000',
     getAuth () {
-      return credentials1
+      return {user: '', passwd: ''}
     }
   })
   fjs.setSubsets([

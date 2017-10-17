@@ -1,0 +1,14 @@
+image: centos:latest
+
+before_script:
+    # add epel-repo to centos
+    - yum install -y epel-release
+    - yum update -y
+
+    # install dependencies
+    - yum install -y npm
+    - npm install
+
+test:
+    script:
+        - npm test

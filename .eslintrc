@@ -3,5 +3,8 @@
   "env": {
     "jasmine": true
   },
-  "plugins": ["html"]
+  "plugins": ["html"],
+  "rules": {
+    "no-extra-semi": "warn"
+  }
 }
