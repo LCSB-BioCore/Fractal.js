@@ -26,7 +26,7 @@ module.exports = config => {
       }
     },
     reporter: ['progress'],
-    singleRun: false,
+    singleRun: true,
     colors: true
   })
 }
