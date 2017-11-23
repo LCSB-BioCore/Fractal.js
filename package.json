@@ -1,16 +1,16 @@
 {
-  "name": "Fractalis",
+  "name": "fractalis",
   "description": "The front-end component of the Fractalis visual analytics project.",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "author": "Sascha Herzinger <sascha.herzinger@uni.lu>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://git-r3lab.uni.lu/sascha.herzinger/fractal.js",
+    "url": "https://git-r3lab.uni.lu/Fractalis/fractal.js/issues",
     "email": "sascha.herzinger@uni.lu"
   },
   "repository": {
     "type": "git",
-    "url": "https://git-r3lab.uni.lu/sascha.herzinger/fractal.js"
+    "url": "https://git-r3lab.uni.lu/Fractalis/fractal.js"
   },
   "scripts": {
     "build": "./node_modules/webpack/bin/webpack.js --config webpack.config.js --env production",

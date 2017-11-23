@@ -113,4 +113,12 @@ export default class {
     store.dispatch('unsetTask', {taskID})
     return this._axios.delete(`/analytics/${taskID}`)
   }
+
+  /**
+   * Submits a GET request to retrieve the fractalis backend version.
+   * @returns {AxiosPromise} An ES6 promise.
+   */
+  getVersion () {
+    return this._axios.get('/misc/version')
+  }
 }

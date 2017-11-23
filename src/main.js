@@ -1,3 +1,4 @@
+import {version} from '../package.json'
 import store from './store/store'
 import RequestManager from './services/request-manager'
 import ChartManager from './services/chart-manager'
@@ -8,6 +9,16 @@ class FractalJS {
     store.dispatch('setRequestManager', requestManager)
     store.dispatch('updateData')
     this._chartManager = new ChartManager()
+    this._versionCheck()
+  }
+
+  async _versionCheck () {
+    const rv = await store.state.requestManager.getVersion()
+    const backendVersion = rv.data.version
+    if (backendVersion !== version) {
+      console.warn(`WARNING: The Fractalis backend is version ${backendVersion},
+      but the frontend is version ${version}. This might or might not cause issues.`)
+    }
   }
 
   // noinspection JSMethodCanBeStatic
