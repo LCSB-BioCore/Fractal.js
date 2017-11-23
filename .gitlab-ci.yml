@@ -4,27 +4,24 @@ variables:
     NPM_TOKEN: SECURE
 
 stages:
-    - setup
     - test
-    - deploy
+    - publish
     - cleanup
 
-install_deps:
-    stage: setup
-    script:
-        - yum install -y epel-release
-        - yum update -y
-        - echo -e "[google-chrome]\nname=google-chrome\nbaseurl=http://dl.google.com/linux/chrome/rpm/stable/\$basearch\nenabled=1\ngpgcheck=1\ngpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub" > /etc/yum.repos.d/google-chrome.repo
-        - yum install -y npm google-chrome-stable
-        - npm install
+script:
+    - yum install -y epel-release
+    - yum update -y
+    - echo -e "[google-chrome]\nname=google-chrome\nbaseurl=http://dl.google.com/linux/chrome/rpm/stable/\$basearch\nenabled=1\ngpgcheck=1\ngpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub" > /etc/yum.repos.d/google-chrome.repo
+    - yum install -y npm google-chrome-stable
+    - npm install
 
 tests:
     stage: test
     script:
         - npm test
 
-publish:
-    stage: deploy
+release:
+    stage: publish
     script:
         - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
         - npm publish
