@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://git-r3lab.uni.lu/Fractalis/fractal.js.git"
+    "url": "git+ssh://git@git-r3lab-server.uni.lu:8022/Fractalis/fractal.js.git"
   },
   "scripts": {
     "build": "./node_modules/webpack/bin/webpack.js --config webpack.config.js --env production",
     "devbuild": "./node_modules/webpack/bin/webpack.js --config webpack.config.js",
     "test": "./node_modules/karma/bin/karma start karma.config.js"
   },
-  "main": "lib/fractal.min.js",
+  "main": "src/main.js",
   "dependencies": {
     "axios": "^0.16.1",
     "d3": "^4.11.0",
