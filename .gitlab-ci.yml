@@ -23,7 +23,7 @@ release:npm:
     script:
         - yum install -y epel-release
         - yum update -y
-        - npm install -y npm
+        - yum install -y npm
         - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
         - npm publish
     only:
