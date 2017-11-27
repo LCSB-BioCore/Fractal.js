@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@git-r3lab-server.uni.lu:8022/Fractalis/fractal.js.git"
+    "url": "https://git-r3lab.uni.lu/Fractalis/fractal.js.git"
   },
   "scripts": {
     "build": "./node_modules/webpack/bin/webpack.js --config webpack.config.js --env production",
