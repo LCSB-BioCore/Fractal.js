@@ -10,12 +10,12 @@ stages:
 
 test:all:
     stage: test
+    script:
         - yum install -y epel-release
         - yum update -y
         - echo -e "[google-chrome]\nname=google-chrome\nbaseurl=http://dl.google.com/linux/chrome/rpm/stable/\$basearch\nenabled=1\ngpgcheck=1\ngpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub" > /etc/yum.repos.d/google-chrome.repo
         - yum install -y npm google-chrome-stable
         - npm install
-    script:
         - npm test
 
 release:npm:
