@@ -3,6 +3,9 @@
 ### About
 This is the front-end component of the Fractalis project. It is responsible for the communication with the back-end and the visualisation of analysis results.
 
+### Demo
+Please have a look at this playlist to see a demo of the visual aspects of Fractalis: [Playlist](https://www.youtube.com/playlist?list=PLNvp9GB9uBmH1NNAf-qTyj_jN2aCPISFU).
+
 ### Installation
 Run `npm install` within the project to install all dependencies.
 Once this step is finished you can run `./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config webpack.config.js` which will run a local web server to serve the project to you. Open the shown URL and navigate to the test charts in 'test/charts' to play around or do your own development.
