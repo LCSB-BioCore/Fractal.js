@@ -15,7 +15,8 @@
   "scripts": {
     "build": "./node_modules/webpack/bin/webpack.js --config webpack.config.js --env production",
     "devbuild": "./node_modules/webpack/bin/webpack.js --config webpack.config.js",
-    "test": "./node_modules/karma/bin/karma start karma.config.js"
+    "test": "./node_modules/karma/bin/karma start karma.config.js",
+    "devserver": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config webpack.config.js"
   },
   "main": "src/main.js",
   "dependencies": {

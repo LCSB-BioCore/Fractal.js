@@ -7,11 +7,14 @@ This is the front-end component of the Fractalis project. It is responsible for 
 Please have a look at this playlist to see a demo of the visual aspects of Fractalis: [Playlist](https://www.youtube.com/playlist?list=PLNvp9GB9uBmH1NNAf-qTyj_jN2aCPISFU).
 
 ### Installation
-Run `npm install` within the project to install all dependencies.
-Once this step is finished you can run `./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config webpack.config.js` which will run a local web server to serve the project to you. Open the shown URL and navigate to the test charts in 'test/charts' to play around or do your own development.
+- Install npm
+- Run `npm install` within the project to install all dependencies.
+- Run `npm run-script devserver`, which will run a local web server to serve the project to you.
+- Open the shown URL and navigate to the test charts in 'test/charts' to play around or do your own development.
+- Please note that the test charts might not always be up-to-date. They are really just playground for developers and work-in-progress charts.
 
-### Howto to compile a .js file if you can't use NPM tooling.
-Just run `npm run-script build` to create a single .js file that you can include in your project.
+### I don't use webpack or similar tools. How can I include Fractalis in my project?
+Just run `npm run-script build` to create a single .js file that you can include/import however you want.
 
 ### Usage
 Please refer to the [main.js file](https://git-r3lab.uni.lu/Fractalis/fractal.js/blob/master/src/main.js). It is the only file directly exposed to your code.
