@@ -1,5 +1,6 @@
 .idea
 credentials.js
+lib/
 
 # Created by https://www.gitignore.io/api/web,vim,node,macos,linux,windows,webstorm,intellij
 

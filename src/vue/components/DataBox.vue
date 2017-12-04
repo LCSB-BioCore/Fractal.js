@@ -146,6 +146,8 @@
           cursor: pointer
           padding: 0.25vh 0.25vw 0.25vh 0.25vw
           .fjs-data-label
+            display: inline-flex
+            align-items: center
             width: 100%
             overflow: hidden
             overflow-wrap: break-word
