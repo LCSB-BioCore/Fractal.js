@@ -1,6 +1,7 @@
 const webpack = require('webpack')
 const path = require('path')
 const env = require('yargs').argv.env
+const VERSION = require('./package.json').version
 
 let plugins = [
   new webpack.HotModuleReplacementPlugin(),
@@ -12,9 +13,9 @@ const library = 'fractal'
 if (env === 'production') {
   plugins.push(new webpack.optimize.UglifyJsPlugin({minimize: true}))
   plugins.push(new webpack.DefinePlugin({'process.env': {NODE_ENV: '"production"'}}))
-  filename = library + '.min.js'
+  filename = `${library}-${VERSION}.min.js`
 } else {
-  filename = library + '.js'
+  filename = `${library}-${VERSION}.js`
 }
 
 module.exports = {
