@@ -109,7 +109,7 @@
 </script>
 
 <style lang="sass" scoped>
-  @import './../../../src/assets/base.sass'
+  @import '~assets/base.sass'
 
   .fjs-control-panel
     background: rgba(0, 0, 0, 0.5)

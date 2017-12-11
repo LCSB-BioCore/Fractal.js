@@ -470,7 +470,8 @@
 </script>
 
 <style lang="sass" scoped>
-  @import './../../../src/assets/base.sass'
+  @import '~assets/base.sass'
+
   .fjs-control-panel
     .fjs-param-header
       text-align: center

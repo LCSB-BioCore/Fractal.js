@@ -344,7 +344,7 @@
 </script>
 
 <style lang="sass" scoped>
-  @import './../../../src/assets/base.sass'
+  @import '~assets/base.sass'
 
   svg
     .fjs-loadings

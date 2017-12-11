@@ -40,7 +40,7 @@
 </script>
 
 <style lang="sass" scoped>
-  @import './../../../src/assets/base.sass'
+  @import '~assets/base.sass'
 
   .fjs-task-view
     display: flex
