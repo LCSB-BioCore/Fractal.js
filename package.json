@@ -1,7 +1,7 @@
 {
   "name": "fractalis",
   "description": "The front-end component of the Fractalis visual analytics project.",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "author": "Sascha Herzinger <sascha.herzinger@uni.lu>",
   "license": "Apache-2.0",
   "bugs": {
