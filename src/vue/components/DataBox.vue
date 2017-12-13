@@ -142,6 +142,7 @@
         flex-direction: column
         .fjs-data-entry-header
           display: flex
+          align-items: center
           justify-content: space-between
           cursor: pointer
           padding: 0.25vh 0.25vw 0.25vh 0.25vw

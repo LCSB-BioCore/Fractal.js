@@ -1,5 +1,5 @@
 <template>
-  <div class="fjs-chart" @click="focusControlPanel">
+  <div class="fjs-chart" @mousedown.capture="focusControlPanel">
     <slot></slot>
   </div>
 </template>

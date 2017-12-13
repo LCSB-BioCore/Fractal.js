@@ -15,7 +15,7 @@ if (env === 'production') {
   plugins.push(new webpack.DefinePlugin({'process.env': {NODE_ENV: '"production"'}}))
   filename = `${library}-${VERSION}.min.js`
 } else {
-  filename = `${library}-${VERSION}.js`
+  filename = `${library}.js`
 }
 
 module.exports = {

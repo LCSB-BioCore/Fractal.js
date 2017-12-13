@@ -233,6 +233,9 @@
           .on('end', () => {
             this.error = ''
             if (!d3.event.selection) {
+              if (this.selectedPoints.length === 0) {
+                return
+              }
               this.selectedPoints = []
             } else {
               const [[x0, y0], [x1, y1]] = d3.event.selection
@@ -411,7 +414,7 @@
       border: solid 1px #fff
       text-align: left
       border-radius: 3px
-      margin: 1%
+      padding: 0 0.5vw 0 0.5vw
   svg
     .fjs-lin-reg-line
       stroke: #ff5e00

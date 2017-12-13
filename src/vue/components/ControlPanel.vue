@@ -124,7 +124,8 @@
     height: 100vh
     overflow-y: auto
     flex-shrink: 0
-    font-size: 0.875em
+    font-size: calc(0.5vh + 7px) /* min 7px */
+    z-index: 9999
     .fjs-panel-header
       display: flex
       justify-content: space-between

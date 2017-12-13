@@ -488,6 +488,7 @@
         margin: 0.4vh 0 0.4vh 0
         border: solid 1px #fff
         border-radius: 3px
+        padding: 0 0.5vw 0 0.5vw
     .fjs-clustering-params
       display: flex
       flex-direction: column
@@ -495,6 +496,7 @@
       .fjs-cluster-algo-fieldset
         border: solid 1px #fff
         border-radius: 3px
+        padding: 0 0.5vw 0 0.5vw
         margin: 0.4vh 0 0.4vh 0
         div
           float: left
@@ -503,6 +505,7 @@
         flex-direction: column
         border: solid 1px #fff
         border-radius: 3px
+        padding: 0 0.5vw 0 0.5vw
         margin: 0.4vh 0 0.4vh 0
         div
           margin-top: 3px

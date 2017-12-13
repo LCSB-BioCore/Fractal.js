@@ -252,6 +252,9 @@
           .extent([[0, 0], [this.padded.width, this.padded.height]])
           .on('end', () => {
             if (!d3.event.selection) {
+              if (this.selectedPoints.length === 0) {
+                return
+              }
               this.selectedPoints = []
             } else {
               const [[x0, y0], [x1, y1]] = d3.event.selection
