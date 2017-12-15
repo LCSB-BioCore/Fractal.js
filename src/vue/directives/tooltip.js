@@ -13,7 +13,6 @@ export default {
       vnode.context._tippyInstances[uuid] = tippy(target, Object.assign({
         performance: true,
         arrow: true,
-        theme: 'light',
         dynamicTitle: true
       }, binding.value))
       el.removeEventListener('mouseover', addTooltip)

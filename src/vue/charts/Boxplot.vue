@@ -33,7 +33,7 @@
         <g class="fjs-boxplot-axis fjs-y-axis"></g>
         <g class="fjs-box"
            :transform="`translate(${scales.x(label)}, 0)`"
-           v-tooltip="{position: 'bottom'}"
+           v-tooltip="{placement: 'bottom'}"
            :title="label"
            :data-label="label"
            @click="setIDFilter(label)"
@@ -42,61 +42,61 @@
            v-for="label in labels" >
           <line class="fjs-upper-whisker"
                 :title="results.statistics[label].u_wsk"
-                v-tooltip="{position: 'right'}"
+                v-tooltip="{placement: 'right'}"
                 :x1="- boxplotWidth / 6"
-                :y1="tweened.boxes[label].u_wsk"
+                :y1="boxes[label].u_wsk"
                 :x2="boxplotWidth / 6"
-                :y2="tweened.boxes[label].u_wsk">
+                :y2="boxes[label].u_wsk">
           </line>
           <line class="fjs-lower-whisker"
                 :title="results.statistics[label].l_wsk"
-                v-tooltip="{position: 'right'}"
+                v-tooltip="{placement: 'right'}"
                 :x1="- boxplotWidth / 6"
-                :y1="tweened.boxes[label].l_wsk"
+                :y1="boxes[label].l_wsk"
                 :x2="boxplotWidth / 6"
-                :y2="tweened.boxes[label].l_wsk">
+                :y2="boxes[label].l_wsk">
           </line>
           <line class="fjs-upper-quartile"
                 :title="results.statistics[label].u_qrt"
-                v-tooltip="{position: 'left'}"
+                v-tooltip="{placement: 'left'}"
                 :x1="- boxplotWidth / 2"
-                :y1="tweened.boxes[label].u_qrt"
+                :y1="boxes[label].u_qrt"
                 :x2="boxplotWidth / 2"
-                :y2="tweened.boxes[label].u_qrt">
+                :y2="boxes[label].u_qrt">
           </line>
           <line class="fjs-lower-quartile"
                 :title="results.statistics[label].l_qrt"
-                v-tooltip="{position: 'left'}"
+                v-tooltip="{placement: 'left'}"
                 :x1="- boxplotWidth / 2"
-                :y1="tweened.boxes[label].l_qrt"
+                :y1="boxes[label].l_qrt"
                 :x2="boxplotWidth / 2"
-                :y2="tweened.boxes[label].l_qrt">
+                :y2="boxes[label].l_qrt">
           </line>
           <line class="fjs-median"
                 :title="results.statistics[label].median"
-                v-tooltip="{position: 'right'}"
+                v-tooltip="{placement: 'right'}"
                 :x1="- boxplotWidth / 2"
-                :y1="tweened.boxes[label].median"
+                :y1="boxes[label].median"
                 :x2="boxplotWidth / 2"
-                :y2="tweened.boxes[label].median">
+                :y2="boxes[label].median">
           </line>
           <line class="fjs-antenna"
                 :x1="0"
-                :y1="tweened.boxes[label].u_wsk"
+                :y1="boxes[label].u_wsk"
                 :x2="0"
-                :y2="tweened.boxes[label].l_wsk">
+                :y2="boxes[label].l_wsk">
           </line>
           <rect class="fjs-above-median-box"
                 :x="- boxplotWidth / 2"
-                :y="tweened.boxes[label].u_qrt"
+                :y="boxes[label].u_qrt"
                 :width="boxplotWidth"
-                :height="tweened.boxes[label].median - tweened.boxes[label].u_qrt">
+                :height="boxes[label].median - boxes[label].u_qrt">
           </rect>
           <rect class="fjs-below-median-box"
                 :x="- boxplotWidth / 2"
-                :y="tweened.boxes[label].median"
+                :y="boxes[label].median"
                 :width="boxplotWidth"
-                :height="tweened.boxes[label].l_qrt - tweened.boxes[label].median">
+                :height="boxes[label].l_qrt - boxes[label].median">
           </rect>
           <circle class="fjs-points"
                   :title="point.tooltip"
@@ -125,7 +125,6 @@
   import store from '../../store/store'
   import runAnalysis from '../mixins/run-analysis'
   import * as d3 from 'd3'
-  import { TimelineLite } from 'gsap'
   import deepFreeze from 'deep-freeze-strict'
   import { truncateTextUntil } from '../mixins/utils'
   import tooltip from '../directives/tooltip'
@@ -149,9 +148,6 @@
         results: {
           data: [],
           statistics: {}
-        },
-        tweened: {
-          boxes: {}
         }
       }
     },
@@ -291,20 +287,6 @@
     // statement. This helps with the integration into the Vue component lifecycle. E.g.: an animation can't be
     // applied to an element that does not exist yet.
     watch: {
-      'boxes': {
-        handler: function (newBoxes) {
-          const labels = Object.keys(newBoxes)
-          const timeline = new TimelineLite()
-          labels.forEach(label => {
-            if (typeof this.tweened.boxes[label] === 'undefined') {
-              this.$set(this.tweened.boxes, label, newBoxes[label])
-            } else {
-              timeline.to(this.tweened.boxes[label], store.getters.animation ? 0.5 : 0, newBoxes[label], 0)
-            }
-          })
-          timeline.play()
-        }
-      },
       'args': {
         handler: function () {
           if (this.validArgs && !this.hasSetFilter) {
@@ -343,10 +325,10 @@
         })
       },
       showTooltip (label) {
-        this.getTippyInstances(label).forEach(d => d.tip.show(d.tip.getPopperElement(d.el)))
+        this.getTippyInstances(label).forEach(d => d.el._tippy.show())
       },
       hideTooltip (label) {
-        this.getTippyInstances(label).forEach(d => d.tip.hide(d.tip.getPopperElement(d.el)))
+        this.getTippyInstances(label).forEach(d => d.el._tippy.hide())
       },
       update_numData (ids) {
         this.numData = ids

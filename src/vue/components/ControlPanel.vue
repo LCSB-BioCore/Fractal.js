@@ -9,10 +9,6 @@
       <i class="fjs-lock-btn material-icons" @click="toggleLock">{{ lockIcon }}</i>
     </div>
     <span class="fjs-panel-label" v-show="!shown">Control Panel</span>
-    <div>
-      <input id="fjs-animation-check" type="checkbox" @click="toggleAnimation" checked/>
-      <label for="fjs-animation-check">Animations Enabled</label>
-    </div>
     <div v-show="shown">
       <slot></slot>
       <hr class="fjs-seperator"/>
@@ -54,17 +50,12 @@
         this.locked = !this.locked
         this.propagateState()
       },
-      toggleAnimation (event) {
-        store.dispatch('setAnimation', event.target.checked)
-      },
-      show (animate) {
-        animate = typeof animate === 'undefined' ? true : animate
+      show () {
         this.expanded = true
         this.propagateState()
         this.shown = true
       },
-      hide (animate) {
-        animate = typeof animate === 'undefined' ? true : animate
+      hide () {
         this.expanded = false
         this.propagateState()
         this.shown = false

@@ -4,6 +4,5 @@ export default {
   subsets: state => state.subsets,
   requestManager: state => state.requestManager,
   controlPanels: state => state.controlPanels,
-  filter: state => name => state.filters[name],
-  animation: state => state.animation
+  filter: state => name => state.filters[name]
 }

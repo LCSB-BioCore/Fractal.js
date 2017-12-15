@@ -30,8 +30,5 @@ export default {
   },
   [types.ADD_CONTROL_PANEL] (state, {vm}) {
     state.controlPanels.push(vm)
-  },
-  [types.SET_ANIMATION] (state, {enabled}) {
-    state.animation = enabled
   }
 }

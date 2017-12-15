@@ -53,9 +53,9 @@
                  :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
                  :title="point.tooltip"
                  v-tooltip
-                 v-for="point in tweened.points">
+                 v-for="point in points">
         </polygon>
-        <g v-for="loading in tweened.loadings">
+        <g v-for="loading in loadings">
           <line class="fjs-loadings"
                 :x1="loading.x1"
                 :x2="loading.x2"
@@ -68,20 +68,20 @@
                 text-anchor="middle">
             {{ loading.feature }}
           </text>
-          <g class="fjs-pc-distribution" :transform="`translate(0, ${padded.height + margin.bottom / 2})`">
-            <line x1="0" y1="0" :x2="padded.width" y2="0"></line>
+          <g class="fjs-pc-distribution fjs-pc-x-distribution"
+             :transform="`translate(0, ${padded.height + margin.bottom / 2})`">
+            <line :x2="padded.width"></line>
             <circle :cx="point.x"
-                    cy="0"
                     :r="width / 150"
-                    v-for="point in tweened.points">
+                    v-for="point in points">
             </circle>
           </g>
-          <g class="fjs-pc-distribution" :transform="`translate(${- margin.left / 2}, 0)`">
-            <line x1="0" y1="0" x2="0" :y2="padded.height"></line>
-            <circle cx="0"
-                    :cy="point.y"
+          <g class="fjs-pc-distribution fjs-pc-y-distribution"
+             :transform="`translate(${- margin.left / 2}, 0)`">
+            <line :y2="padded.height"></line>
+            <circle :cy="point.y"
                     :r="width / 150"
-                    v-for="point in tweened.points">
+                    v-for="point in points">
             </circle>
           </g>
         </g>
@@ -95,7 +95,7 @@
   import DataBox from '../components/DataBox.vue'
   import ControlPanel from '../components/ControlPanel.vue'
   import Chart from '../components/Chart.vue'
-  import { getPolygonPointsForSubset, tweenGroup } from '../mixins/utils'
+  import { getPolygonPointsForSubset } from '../mixins/utils'
   import store from '../../store/store'
   import runAnalysis from '../mixins/run-analysis'
   import * as d3 from 'd3'
@@ -129,10 +129,6 @@
         categoryColors: d3.schemeCategory10,
         subsetColors: d3.schemeCategory10.slice().reverse(),
         selectedPoints: [],
-        tweened: {
-          points: [],
-          loadings: []
-        },
         hasSetFilter: false,
         params: {
           whiten: false
@@ -283,26 +279,6 @@
             d3.select(this.$el.querySelector('.fjs-x-axis-2')).call(newAxis.x2)
             d3.select(this.$el.querySelector('.fjs-x-axis-1')).call(newAxis.x1)
             d3.select(this.$el.querySelector('.fjs-y-axis-1')).call(newAxis.y1)
-          })
-        }
-      },
-      'points': {
-        handler: function (newPoints) {
-          tweenGroup({
-            mutation: (v) => { this.tweened.points = v },
-            model: this.tweened.points,
-            target: newPoints,
-            animationTime: 0.5
-          })
-        }
-      },
-      'loadings': {
-        handler: function (newLoadings) {
-          tweenGroup({
-            mutation: (v) => { this.tweened.loadings = v },
-            model: this.tweened.loadings,
-            target: newLoadings,
-            animationTime: 0.5
           })
         }
       },

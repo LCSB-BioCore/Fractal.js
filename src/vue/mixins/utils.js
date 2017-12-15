@@ -1,7 +1,3 @@
-import { TimelineLite } from 'gsap'
-import deepFreeze from 'deep-freeze-strict'
-import store from '../../store/store'
-
 /**
  * https://stackoverflow.com/questions/5723154/truncate-a-string-in-the-middle-with-javascript
  */
@@ -40,37 +36,11 @@ export function truncateTextUntil ({text, font, maxWidth}) {
   return text
 }
 
-export function tweenGroup ({mutation, model, target, animationTime}) {
-  const copyGroup = group => group.map(d => Object.assign({}, d))
-  animationTime = store.getters.animation ? animationTime : 0
-  if (!model.length || animationTime === 0) {
-    deepFreeze(target)
-    mutation(target)
-    return
-  }
-  model = copyGroup(model)
-  const timeline = new TimelineLite()
-  if (model.length >= target.length) {
-    model = model.slice(0, target.length)
-  } else {
-    model = model.concat(target.slice(model.length))
-  }
-  model.forEach((tweenedCell, i) => {
-    timeline.to(tweenedCell, animationTime, target[i], 0)
-  })
-  timeline.to({}, animationTime, {onUpdate: () => {
-    const currentState = copyGroup(model)
-    deepFreeze(currentState)
-    mutation(currentState)
-  }}, 0)
-  timeline.play()
-}
-
 export function getPolygonPointsForSubset ({cx, cy, size, subset}) {
   const diamond = (cx, cy, size) => `${cx},${cy - size * 0.66} ${cx + size * 0.66},${cy} ${cx},${cy + size * 0.66} ${cx - size * 0.66},${cy}`
   const square = (cx, cy, size) => `${cx - size / 2},${cy - size / 2} ${cx + size / 2},${cy - size / 2} ${cx + size / 2},${cy + size / 2} ${cx - size / 2},${cy + size / 2}`
-  const triangle = (cx, cy, size) => `${cx},${cy - size * 0.66} ${cx + size * 0.66},${cy + size * 0.66} ${cx - size * 0.66},${cy + size * 0.66}`
-  const revTriangle = (cx, cy, size) => `${cx - size * 0.66},${cy - size * 0.66} ${cx + size * 0.66},${cy - size * 0.66} ${cx},${cy + size * 0.66}`
-  const shapes = [diamond, square, triangle, revTriangle]
+  const triangle = (cx, cy, size) => `${cx},${cy - size * 0.66} ${cx + size * 0.66},${cy + size * 0.66} ${cx + size * 0.33},${cy + size * 0.66} ${cx - size * 0.66},${cy + size * 0.66}`
+  const revTriangle = (cx, cy, size) => `${cx - size * 0.66},${cy - size * 0.66} ${cx - size * 0.33},${cy - size * 0.66} ${cx + size * 0.66},${cy - size * 0.66} ${cx},${cy + size * 0.66}`
+  const shapes = [diamond, square, revTriangle, triangle]
   return shapes[subset % shapes.length](cx, cy, size)
 }

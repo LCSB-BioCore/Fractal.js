@@ -49,18 +49,30 @@
                  :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
                  :title="point.tooltip"
                  v-tooltip
-                 v-for="point in tweened.points">
+                 v-for="point in points">
         </polygon>
         <line class="fjs-lin-reg-line"
+              :x1="regLine.x1"
+              :x2="regLine.x2"
+              :y1="regLine.y1"
+              :y2="regLine.y2"
               :title="regLine.tooltip"
-              v-tooltip="{followCursor: true}"
-              :x1="tweened.regLine.x1"
-              :x2="tweened.regLine.x2"
-              :y1="tweened.regLine.y1"
-              :y2="tweened.regLine.y2">
+              v-tooltip="{followCursor: true}">
         </line>
-        <polyline class="fjs-histogram-polyline fjs-bottom" points=""></polyline>
-        <polyline class="fjs-histogram-polyline fjs-left" points=""></polyline>
+        <rect class="fjs-histogram fjs-histogram-bottom"
+              :width="bin.width"
+              :height="bin.height"
+              :x="bin.x"
+              :y="bin.y"
+              v-for="bin in histogram.bottom">
+        </rect>
+        <rect class="fjs-histogram fjs-histogram-left"
+              :width="bin.width"
+              :height="bin.height"
+              :x="bin.x"
+              :y="bin.y"
+              v-for="bin in histogram.left">
+        </rect>
       </g>
     </svg>
 
@@ -70,12 +82,11 @@
 <script>
   import DataBox from '../components/DataBox.vue'
   import ControlPanel from '../components/ControlPanel.vue'
-  import { getPolygonPointsForSubset, tweenGroup } from '../mixins/utils'
+  import { getPolygonPointsForSubset } from '../mixins/utils'
   import Chart from '../components/Chart.vue'
   import store from '../../store/store'
   import runAnalysis from '../mixins/run-analysis'
   import * as d3 from 'd3'
-  import { TweenLite } from 'gsap'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
   export default {
@@ -112,10 +123,6 @@
           data: []
         },
         selectedPoints: [],
-        tweened: {
-          regLine: {x1: 0, x2: 0, y1: 0, y2: 0},
-          points: []
-        },
         hasSetFilter: false
       }
     },
@@ -137,16 +144,16 @@
         }
       },
       margin () {
-        const left = this.width / 3
+        const left = this.width / 4
         const top = this.height / 20
         const right = this.width / 20
-        const bottom = this.height / 3
-        return { left, top, right, bottom }
+        const bottom = this.height / 4
+        return {left, top, right, bottom}
       },
       padded () {
         const width = this.width - this.margin.left - this.margin.right
         const height = this.height - this.margin.top - this.margin.bottom
-        return { width, height }
+        return {width, height}
       },
       categories () {
         return [...new Set(this.shownResults.data.map(d => d.category))]
@@ -185,7 +192,7 @@
             return [yExtent[0] - yPadding, yExtent[1] + yPadding]
           })())
           .range([this.padded.height, 0])
-        return { x, y }
+        return {x, y}
       },
       axis () {
         const x1 = d3.axisTop(this.scales.x)
@@ -196,16 +203,16 @@
         const y2 = d3.axisLeft(this.scales.y)
           .tickSizeInner(this.padded.width)
           .tickFormat('')
-        return { x1, x2, y1, y2 }
+        return {x1, x2, y1, y2}
       },
       regLine () {
         const xValues = this.tmpResults.data.map(d => d.value_x)
         const minX = d3.min(xValues)
         const maxX = d3.max(xValues)
-        let x1 = this.scales.x(minX)
-        let y1 = this.scales.y(this.tmpResults.intercept + this.tmpResults.slope * minX)
-        let x2 = this.scales.x(maxX)
-        let y2 = this.scales.y(this.tmpResults.intercept + this.tmpResults.slope * maxX)
+        let x1 = this.scales.x(minX) || 0
+        let y1 = this.scales.y(this.tmpResults.intercept + this.tmpResults.slope * minX) || 0
+        let x2 = this.scales.x(maxX) || 0
+        let y2 = this.scales.y(this.tmpResults.intercept + this.tmpResults.slope * maxX) || 0
 
         x1 = x1 < 0 ? 0 : x1
         x1 = x1 > this.width ? this.width : x1
@@ -225,7 +232,7 @@
   <p>Intercept: ${this.tmpResults.intercept}</p>
 </div>
 `
-        return { x1, x2, y1, y2, tooltip }
+        return {x1, x2, y1, y2, tooltip}
       },
       brush () {
         return d3.brush()
@@ -251,7 +258,7 @@
             this.hasSetFilter = true
           })
       },
-      histograms () {
+      histogramBins () {
         const BINS = 14
         let xBins = []
         let yBins = []
@@ -271,11 +278,11 @@
             .domain([yMin, yMax])
             .thresholds(yThresholds)(yValues)
         }
-        return { xBins, yBins }
+        return {xBins, yBins}
       },
       histogramScales () {
-        const xExtent = d3.extent(this.histograms.xBins.map(d => d.length))
-        const yExtent = d3.extent(this.histograms.yBins.map(d => d.length))
+        const xExtent = d3.extent(this.histogramBins.xBins.map(d => d.length))
+        const yExtent = d3.extent(this.histogramBins.yBins.map(d => d.length))
         // no, I didn't mix up x and y.
         const x = d3.scaleLinear()
           .domain(yExtent)
@@ -283,21 +290,25 @@
         const y = d3.scaleLinear()
           .domain(xExtent)
           .range([xExtent[0] ? 10 : 0, this.margin.bottom])
-        return { x, y }
+        return {x, y}
       },
-      histPolyPoints () {
-        const bottom = this.histograms.xBins.map(d => {
-          return `${this.scales.x(d.x0)},${this.padded.height + 1}, ` +
-            `${this.scales.x(d.x0)},${this.padded.height + this.histogramScales.y(d.length) + 1} ` +
-            `${this.scales.x(d.x1)},${this.padded.height + this.histogramScales.y(d.length) + 1} ` +
-            `${this.scales.x(d.x1)},${this.padded.height + 1}`
-        }).join(' ')
-        const left = this.histograms.yBins.map(d => {
-          return `${0},${this.scales.y(d.x0)} ` +
-            `${-this.histogramScales.x(d.length)},${this.scales.y(d.x0)} ` +
-            `${-this.histogramScales.x(d.length)},${this.scales.y(d.x1)} ` +
-            `${0},${this.scales.y(d.x1)}`
-        }).join(' ')
+      histogram () {
+        const bottom = this.histogramBins.xBins.map(d => {
+          return {
+            x: this.scales.x(d.x0),
+            y: this.padded.height,
+            width: this.scales.x(d.x1) - this.scales.x(d.x0),
+            height: this.histogramScales.y(d.length)
+          }
+        })
+        const left = this.histogramBins.yBins.map(d => {
+          return {
+            x: -this.histogramScales.x(d.length),
+            y: this.scales.y(d.x0),
+            width: this.histogramScales.x(d.length),
+            height: this.scales.y(d.x0) - this.scales.y(d.x1)
+          }
+        })
         return { bottom, left }
       }
     },
@@ -305,26 +316,6 @@
     // statement. This helps with the integration into the Vue component lifecycle. E.g.: an animation can't be
     // applied to an element that does not exist yet.
     watch: {
-      'regLine': {
-        handler: function (newRegLine) {
-          TweenLite.to(this.tweened.regLine, store.getters.animation ? 0.5 : 0, newRegLine)
-        }
-      },
-      'histPolyPoints': {
-        handler: function (newPoints) {
-          this.$nextTick(() => {
-            // we use d3 instead of TweenLite here because d3 can transition point paths
-            d3.select(this.$el.querySelector('.fjs-histogram-polyline.fjs-bottom'))
-              .transition()
-              .duration(store.getters.animation ? 500 : 0)
-              .attr('points', newPoints.bottom)
-            d3.select(this.$el.querySelector('.fjs-histogram-polyline.fjs-left'))
-              .transition()
-              .duration(store.getters.animation ? 500 : 0)
-              .attr('points', newPoints.left)
-          })
-        }
-      },
       'args': {
         handler: function (newArgs, oldArgs) {
           const init = newArgs.x !== oldArgs.x ||
@@ -351,16 +342,6 @@
         handler: function (newBrush) {
           this.$nextTick(() => {
             d3.select(this.$el.querySelector('.fjs-brush')).call(newBrush)
-          })
-        }
-      },
-      'points': {
-        handler: function (newPoints) {
-          tweenGroup({
-            mutation: (v) => { this.tweened.points = v },
-            model: this.tweened.points,
-            target: newPoints,
-            animationTime: 0.5
           })
         }
       }
@@ -421,7 +402,7 @@
       stroke-width: 0.3%
     .fjs-lin-reg-line:hover
       opacity: 0.4
-    .fjs-histogram-polyline
+    .fjs-histogram
       shape-rendering: crispEdges
       stroke: #fff
       stroke-width: 1px
