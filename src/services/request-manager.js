@@ -10,13 +10,13 @@ import store from '../store/store'
  * Instead use the provided helpers available as mixins.
  */
 export default class {
-  constructor ({handler, thisBaseURL, fractalisBaseURL, getAuth}) {
+  constructor ({handler, dataSource, fractalisNode, getAuth}) {
     this._handler = handler
-    this._thisBaseURL = thisBaseURL
+    this._dataSource = dataSource
     this._getAuth = getAuth
 
     this._axios = axios.create({
-      baseURL: fractalisBaseURL,
+      baseURL: fractalisNode,
       timeout: 30000,
       withCredentials: true
     })
@@ -34,7 +34,7 @@ export default class {
       descriptors,
       auth: this._getAuth(),
       handler: this._handler,
-      server: this._thisBaseURL
+      server: this._dataSource
     })
   }
 

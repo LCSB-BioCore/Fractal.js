@@ -29,9 +29,9 @@
       </div>
     </control-panel>
 
-    <svg :width="width"
-         :height="height">
+    <svg xmlns="http://www.w3.org/2000/svg" :width="width" :height="height">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
+        <svg-canvas class="fjs-canvas" :width="padded.width" :height="padded.height"></svg-canvas>
         <g class="fjs-brush"></g>
         <g class="fjs-axis fjs-y-axis-2" :transform="`translate(${padded.width}, 0)`"></g>
         <g class="fjs-axis fjs-x-axis-2"></g>
@@ -48,13 +48,6 @@
               v-show="results.data.id.length">
           Principal Component {{pcY}} (Variance Ratio: {{ results.variance_ratios[pcY].toFixed(2) }})
         </text>
-        <polygon class="fjs-scatterplot-point"
-                 :points="point.shape"
-                 :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
-                 :title="point.tooltip"
-                 v-tooltip
-                 v-for="point in points">
-        </polygon>
         <g v-for="loading in loadings">
           <line class="fjs-loadings"
                 :x1="loading.x1"
@@ -71,21 +64,14 @@
           <g class="fjs-pc-distribution fjs-pc-x-distribution"
              :transform="`translate(0, ${padded.height + margin.bottom / 2})`">
             <line :x2="padded.width"></line>
-            <circle :cx="point.x"
-                    :r="width / 150"
-                    v-for="point in points">
-            </circle>
+            <svg-canvas class="fjs-pc-x-dist-canvas" :width="padded.width" :height="width / 150"></svg-canvas>
           </g>
           <g class="fjs-pc-distribution fjs-pc-y-distribution"
              :transform="`translate(${- margin.left / 2}, 0)`">
             <line :y2="padded.height"></line>
-            <circle :cy="point.y"
-                    :r="width / 150"
-                    v-for="point in points">
-            </circle>
+            <svg-canvas class="fjs-pc-y-dist-canvas" :width="width / 150" :height="padded.height"></svg-canvas>
           </g>
         </g>
-
       </g>
     </svg>
   </chart>
@@ -101,6 +87,7 @@
   import * as d3 from 'd3'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
+  import SvgCanvas from '../components/SVGCanvas.vue'
   export default {
     name: 'pca-analysis',
     data () {
@@ -288,6 +275,12 @@
             d3.select(this.$el.querySelector('.fjs-brush')).call(newBrush)
           })
         }
+      },
+      'points': {
+        handler: function (newPoints) {
+          this.$nextTick(() => this.drawScatterPoints(newPoints))
+          this.$nextTick(() => this.drawDistPoints(newPoints))
+        }
       }
     },
     methods: {
@@ -299,6 +292,34 @@
             this.results = results
           })
           .catch(error => console.error(error))
+      },
+      drawScatterPoints (points) {
+        const canvas = this.$el.querySelector('.fjs-canvas canvas')
+        const ctx = canvas.getContext('2d')
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        points.forEach(d => {
+          ctx.beginPath()
+          ctx.fillStyle = this.categoryColors[this.categories.indexOf(d.category) % this.categoryColors.length]
+          ctx.moveTo(d.shape[0], d.shape[1])
+          for (let i = 2; i < d.shape.length - 1; i += 2) {
+            ctx.lineTo(d.shape[i], d.shape[i + 1])
+          }
+          ctx.closePath()
+          ctx.fill()
+        })
+      },
+      drawDistPoints (points) {
+        const xCanvas = this.$el.querySelector('.fjs-pc-x-dist-canvas canvas')
+        const yCanvas = this.$el.querySelector('.fjs-pc-x-dist-canvas canvas')
+        const xctx = xCanvas.getContext('2d')
+        const yctx = yCanvas.getContext('2d')
+        const rectSize = this.width / 150
+        points.forEach(d => {
+          xctx.beginPath()
+          yctx.beginPath()
+          xctx.fillRect(d.x - rectSize / 2, rectSize / 2, rectSize, rectSize)
+          yctx.fillRect(rectSize / 2, d.y - rectSize / 2, rectSize, rectSize)
+        })
       },
       resize ({height, width}) {
         this.height = height
@@ -312,6 +333,7 @@
       }
     },
     components: {
+      SvgCanvas,
       ControlPanel,
       DataBox,
       Chart

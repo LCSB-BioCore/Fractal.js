@@ -25,8 +25,7 @@
       </div>
     </control-panel>
 
-    <svg :width="width"
-         :height="height">
+    <svg xmlns="http://www.w3.org/2000/svg" :width="width" :height="height">
       <rect x="0" y="0" :height="height" :width="width" style="opacity: 0;" @click="resetFilter"></rect>
       <g :transform="`translate(${margin.left}, ${margin.top})`">
         <g class="fjs-boxplot-axis fjs-x-axis" :transform="`translate(0, ${padded.height})`"></g>
@@ -98,15 +97,7 @@
                 :width="boxplotWidth"
                 :height="boxes[label].l_qrt - boxes[label].median">
           </rect>
-          <circle class="fjs-points"
-                  :title="point.tooltip"
-                  v-tooltip="{arrow: true, theme: 'light'}"
-                  :cx="point.jitter"
-                  :cy="scales.y(point.value)"
-                  r="0.4%"
-                  v-for="point in points[label]"
-                  v-if="params.showData">
-          </circle>
+          <svg-canvas :z-index="1" :height="padded.height" :width="boxplotWidth / 2"></svg-canvas>
           <polyline class="fjs-kde"
                     :points="kdePolyPoints[label]"
                     v-if="params.showKDE">
@@ -128,6 +119,7 @@
   import deepFreeze from 'deep-freeze-strict'
   import { truncateTextUntil } from '../mixins/utils'
   import tooltip from '../directives/tooltip'
+  import SvgCanvas from '../components/SVGCanvas.vue'
   export default {
     name: 'boxplot',
     data () {
@@ -163,6 +155,9 @@
           subsets: store.getters.subsets
         }
       },
+      pointSize () {
+        return this.width / 150
+      },
       validArgs () {
         return this.numData.length > 0
       },
@@ -195,18 +190,9 @@
               return {
                 id: d.id,
                 value: d.value,
-                jitter: this.params.jitter ? Math.random() * this.boxplotWidth / 2 : this.boxplotWidth / 2,
+                jitter: Math.max(this.pointSize / 2, (this.params.jitter ? Math.random() * this.boxplotWidth / 2 : this.boxplotWidth / 2) - this.pointSize / 2),
                 subset: d.subset,
-                category: d.category,
-                get tooltip () {
-                  return `
-<div>
-  <p>${d.feature}: ${this.value}</p>
-  <p>Category: ${this.category}</p>
-  <p>Subset: ${this.subset + 1}</p>
-</div>
-`
-                }
+                category: d.category
               }
             })
         })
@@ -306,10 +292,21 @@
               .call(newAxis.y)
           })
         }
+      },
+      'params.showData': {
+        handler: function () {
+          this.drawPoints()
+        }
+      },
+      'params.jitter': {
+        handler: function () {
+          this.drawPoints()
+        }
       }
     },
     methods: {
       getTippyInstances (label) {
+        // prepare mouseover event to populare tippy instances (s. tooltip.js)
         const event = document.createEvent('Event')
         event.initEvent('mouseover', true, true)
         return [
@@ -319,16 +316,15 @@
           this.$el.querySelector(`.fjs-box[data-label="${label}"] .fjs-lower-quartile`),
           this.$el.querySelector(`.fjs-box[data-label="${label}"] .fjs-median`)
         ].map(el => {
-          el.dispatchEvent(event)  // populate tooltips
-          const uuid = el.getAttribute('data-uuid')
-          return { el, tip: this._tippyInstances[uuid] }
+          el.dispatchEvent(event)
+          return el._tippy
         })
       },
       showTooltip (label) {
-        this.getTippyInstances(label).forEach(d => d.el._tippy.show())
+        this.getTippyInstances(label).forEach(d => d.show())
       },
       hideTooltip (label) {
-        this.getTippyInstances(label).forEach(d => d.el._tippy.hide())
+        this.getTippyInstances(label).forEach(d => d.hide())
       },
       update_numData (ids) {
         this.numData = ids
@@ -343,6 +339,25 @@
       resetFilter () {
         store.dispatch('setFilter', {filter: 'ids', value: []})
         this.hasSetFilter = true
+      },
+      drawPoints () {
+        Object.keys(this.points).forEach(label => {
+          const canvas = this.$el.querySelector(`.fjs-box[data-label="${label}"] canvas`)
+          const ctx = canvas.getContext('2d')
+          ctx.clearRect(0, 0, canvas.width, canvas.height)
+          if (this.params.showData) {
+            this.points[label].forEach(point => {
+              ctx.beginPath()
+              ctx.fillStyle = 'black'
+              ctx.fillRect(
+                point.jitter - this.pointSize / 2,
+                this.scales.y(point.value) - this.pointSize / 2,
+                this.pointSize,
+                this.pointSize
+              )
+            })
+          }
+        })
       },
       resize ({height, width}) {
         this.height = height
@@ -360,6 +375,7 @@
       }
     },
     components: {
+      SvgCanvas,
       ControlPanel,
       DataBox,
       Chart
@@ -389,11 +405,6 @@
         stroke: none
         fill: rgb(180, 221, 253)
         shape-rendering: crispEdges
-    .fjs-points
-      stroke: white
-      stroke-width: 1px
-    .fjs-points:hover
-      opacity: 0.4
     .fjs-kde
       fill: none
       stroke: black

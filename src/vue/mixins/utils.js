@@ -37,10 +37,10 @@ export function truncateTextUntil ({text, font, maxWidth}) {
 }
 
 export function getPolygonPointsForSubset ({cx, cy, size, subset}) {
-  const diamond = (cx, cy, size) => `${cx},${cy - size * 0.66} ${cx + size * 0.66},${cy} ${cx},${cy + size * 0.66} ${cx - size * 0.66},${cy}`
-  const square = (cx, cy, size) => `${cx - size / 2},${cy - size / 2} ${cx + size / 2},${cy - size / 2} ${cx + size / 2},${cy + size / 2} ${cx - size / 2},${cy + size / 2}`
-  const triangle = (cx, cy, size) => `${cx},${cy - size * 0.66} ${cx + size * 0.66},${cy + size * 0.66} ${cx + size * 0.33},${cy + size * 0.66} ${cx - size * 0.66},${cy + size * 0.66}`
-  const revTriangle = (cx, cy, size) => `${cx - size * 0.66},${cy - size * 0.66} ${cx - size * 0.33},${cy - size * 0.66} ${cx + size * 0.66},${cy - size * 0.66} ${cx},${cy + size * 0.66}`
+  const diamond = (cx, cy, size) => [cx, cy - size * 0.66, cx + size * 0.66, cy, cx, cy + size * 0.66, cx - size * 0.66, cy]
+  const square = (cx, cy, size) => [cx - size / 2, cy - size / 2, cx + size / 2, cy - size / 2, cx + size / 2, cy + size / 2, cx - size / 2, cy + size / 2]
+  const triangle = (cx, cy, size) => [cx, cy - size * 0.66, cx + size * 0.66, cy + size * 0.66, cx + size * 0.33, cy + size * 0.66, cx - size * 0.66, cy + size * 0.66]
+  const revTriangle = (cx, cy, size) => [cx - size * 0.66, cy - size * 0.66, cx - size * 0.33, cy - size * 0.66, cx + size * 0.66, cy - size * 0.66, cx, cy + size * 0.66]
   const shapes = [diamond, square, revTriangle, triangle]
   return shapes[subset % shapes.length](cx, cy, size)
 }

@@ -4,8 +4,8 @@ import RequestManager from './services/request-manager'
 import ChartManager from './services/chart-manager'
 
 class FractalJS {
-  constructor (handler, thisBaseURL, fractalisBaseURL, getAuth) {
-    const requestManager = new RequestManager({handler, thisBaseURL, fractalisBaseURL, getAuth})
+  constructor (handler, dataSource, fractalisNode, getAuth) {
+    const requestManager = new RequestManager({handler, dataSource, fractalisNode, getAuth})
     store.dispatch('setRequestManager', requestManager)
     store.dispatch('updateData')
     this._chartManager = new ChartManager()
@@ -51,24 +51,24 @@ class FractalJS {
  * Initialize FractalJS and return an instance that contains all basic methods necessary to use this library.
  *
  * @param handler: The service in which this library is used. Example: 'ada', 'tranSMART', 'variantDB'
- * @param thisBaseURL: The base URL of the service in which this library is used. Example: 'https://my.service.org/'
- * @param fractalisBaseURL: The base URL of the fractalis back end that you want to use. 'http://fractalis.uni.lu/'
+ * @param dataSource: The base URL of the service in which this library is used. Example: 'https://my.service.org/'
+ * @param fractalisNode: The base URL of the fractalis back end that you want to use. 'http://fractalis.uni.lu/'
  * @param getAuth: This MUST be a function that can be called at any time to retrieve credentials to authenticate with
- * the API of the service specified in thisBaseURL.
+ * the API of the service specified in dataSource.
  * @returns {FractalJS}: An instance of FractalJS.
  */
-export function init ({handler, thisBaseURL, fractalisBaseURL, getAuth}) {
+export function init ({handler, dataSource, fractalisNode, getAuth}) {
   if (!handler) {
     throw new Error(`handler property must not be ${handler}`)
   }
-  if (!thisBaseURL) {
-    throw new Error(`handler property must not be ${thisBaseURL}`)
+  if (!dataSource) {
+    throw new Error(`handler property must not be ${dataSource}`)
   }
-  if (!fractalisBaseURL) {
-    throw new Error(`handler property must not be ${fractalisBaseURL}`)
+  if (!fractalisNode) {
+    throw new Error(`handler property must not be ${fractalisNode}`)
   }
   if (!getAuth) {
     throw new Error(`handler property must not be ${getAuth}`)
   }
-  return new FractalJS(handler, thisBaseURL, fractalisBaseURL, getAuth)
+  return new FractalJS(handler, dataSource, fractalisNode, getAuth)
 }

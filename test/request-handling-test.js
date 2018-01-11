@@ -5,7 +5,7 @@ import store from '../src/store/store'
 describe('runAnalysis method', () => {
   beforeEach(() => {
     const requestManager = new RequestManager(
-      {handler: '', thisBaseURL: '', fractalisBaseURL: '', getAuth: () => {}})
+      {handler: '', dataSource: '', fractalisNode: '', getAuth: () => {}})
     store.dispatch('setRequestManager', requestManager)
   })
 

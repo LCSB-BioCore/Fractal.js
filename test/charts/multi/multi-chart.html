@@ -33,8 +33,8 @@
 
   const fjs = fractal.init({
     handler: 'test',
-    thisBaseURL: 'http://127.0.0.1:5000',
-    fractalisBaseURL: 'http://127.0.0.1:5000',
+    dataSource: 'http://localhost',
+    fractalisNode: 'http://localhost:5000',
     getAuth () {
       return {user: '', passwd: ''}
     }

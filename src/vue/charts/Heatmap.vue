@@ -129,13 +129,8 @@
 
 
     <svg xmlns="http://www.w3.org/2000/svg" :height="height" :width="width">
-      <foreignObject :x="margin.left" :y="margin.top"
-                     :width="this.padded.width" :height="this.padded.height">
-        <body xmlns="http://www.w3.org/1999/xhtml" style="margin: 0">
-          <canvas :width="this.padded.width" :height="this.padded.height"></canvas>
-        </body>
-      </foreignObject>
       <g :transform="`translate(${margin.left}, ${margin.top})`">
+        <svg-canvas class="fjs-canvas" :width="padded.width" :height="padded.height"></svg-canvas>
         <rect class="fjs-sig-bar"
               :x="bar.x"
               :y="bar.y"
@@ -160,6 +155,7 @@
   import * as d3 from 'd3'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
+  import SvgCanvas from '../components/SVGCanvas.vue'
   export default {
     name: 'heatmap',
     data () {
@@ -426,7 +422,7 @@
         this.numericArrayDataIds = ids
       },
       drawCells (cells) {
-        const canvas = this.$el.querySelector('canvas')
+        const canvas = this.$el.querySelector('.fjs-canvas canvas')
         const ctx = canvas.getContext('2d')
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         cells.forEach(d => {
@@ -459,6 +455,7 @@
       }
     },
     components: {
+      SvgCanvas,
       ControlPanel,
       DataBox,
       Chart

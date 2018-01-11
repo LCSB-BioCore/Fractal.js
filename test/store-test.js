@@ -27,8 +27,8 @@ describe('store', () => {
     it('should correctly set store values', () => {
       const requestManager = new RequestManager({
         handler: 'ada',
-        thisBaseURL: 'https://localhost:1234',
-        fractalisBaseURL: 'https://localhost:4321',
+        dataSource: 'https://localhost:1234',
+        fractalisNode: 'https://localhost:4321',
         getAuth: () => ({token: '1234567890'})
       })
       store.dispatch('setRequestManager', requestManager)

@@ -26,8 +26,9 @@
       </fieldset>
     </control-panel>
 
-    <svg :height="height" :width="width">
+    <svg xmlns="http://www.w3.org/2000/svg" :height="height" :width="width">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
+        <svg-canvas class="fjs-canvas" :width="padded.width" :height="padded.height"></svg-canvas>
         <g class="fjs-corr-axis fjs-y-axis-2" :transform="`translate(${padded.width}, 0)`"></g>
         <g class="fjs-corr-axis fjs-x-axis-2"></g>
         <g class="fjs-corr-axis fjs-x-axis-1" :transform="`translate(0, ${padded.height})`"></g>
@@ -44,13 +45,6 @@
               :transform="`translate(${padded.width + margin.right / 2},${padded.height / 2})rotate(90)`">
           {{ shownResults.y_label }}
         </text>
-        <polygon class="fjs-scatterplot-point"
-                 :points="point.shape"
-                 :fill="categoryColors[categories.indexOf(point.category) % categoryColors.length]"
-                 :title="point.tooltip"
-                 v-tooltip
-                 v-for="point in points">
-        </polygon>
         <line class="fjs-lin-reg-line"
               :x1="regLine.x1"
               :x2="regLine.x2"
@@ -89,6 +83,7 @@
   import * as d3 from 'd3'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
+  import SvgCanvas from '../components/SVGCanvas.vue'
   export default {
     name: 'correlation-analysis',
     data () {
@@ -344,9 +339,15 @@
             d3.select(this.$el.querySelector('.fjs-brush')).call(newBrush)
           })
         }
+      },
+      'points': {
+        handler: function (newPoints) {
+          this.$nextTick(() => this.drawPoints(newPoints))
+        }
       }
     },
     components: {
+      SvgCanvas,
       ControlPanel,
       DataBox,
       Chart
@@ -370,6 +371,21 @@
             }
           })
           .catch(error => console.error(error))
+      },
+      drawPoints (points) {
+        const canvas = this.$el.querySelector('.fjs-canvas canvas')
+        const ctx = canvas.getContext('2d')
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        points.forEach(d => {
+          ctx.beginPath()
+          ctx.fillStyle = this.categoryColors[this.categories.indexOf(d.category) % this.categoryColors.length]
+          ctx.moveTo(d.shape[0], d.shape[1])
+          for (let i = 2; i < d.shape.length - 1; i += 2) {
+            ctx.lineTo(d.shape[i], d.shape[i + 1])
+          }
+          ctx.closePath()
+          ctx.fill()
+        })
       },
       resize ({height, width}) {
         this.height = height
