@@ -64,12 +64,12 @@
           <g class="fjs-pc-distribution fjs-pc-x-distribution"
              :transform="`translate(0, ${padded.height + margin.bottom / 2})`">
             <line :x2="padded.width"></line>
-            <svg-canvas class="fjs-pc-x-dist-canvas" :width="padded.width" :height="width / 150"></svg-canvas>
+            <svg-canvas :yOffset="-pointSize / 2" :width="padded.width" :height="pointSize"></svg-canvas>
           </g>
           <g class="fjs-pc-distribution fjs-pc-y-distribution"
              :transform="`translate(${- margin.left / 2}, 0)`">
             <line :y2="padded.height"></line>
-            <svg-canvas class="fjs-pc-y-dist-canvas" :width="width / 150" :height="padded.height"></svg-canvas>
+            <svg-canvas :xOffset="-pointSize / 2" :width="pointSize" :height="padded.height"></svg-canvas>
           </g>
         </g>
       </g>
@@ -149,6 +149,9 @@
         const width = this.width - this.margin.left - this.margin.right
         const height = this.height - this.margin.top - this.margin.bottom
         return { width, height }
+      },
+      pointSize () {
+        return this.width / 75
       },
       scales () {
         const x = d3.scaleLinear()
@@ -309,16 +312,19 @@
         })
       },
       drawDistPoints (points) {
-        const xCanvas = this.$el.querySelector('.fjs-pc-x-dist-canvas canvas')
-        const yCanvas = this.$el.querySelector('.fjs-pc-x-dist-canvas canvas')
+        const xCanvas = this.$el.querySelector('.fjs-pc-x-distribution canvas')
+        const yCanvas = this.$el.querySelector('.fjs-pc-y-distribution canvas')
         const xctx = xCanvas.getContext('2d')
         const yctx = yCanvas.getContext('2d')
-        const rectSize = this.width / 150
-        points.forEach(d => {
+        xctx.clearRect(0, 0, xCanvas.width, xCanvas.height)
+        yctx.clearRect(0, 0, yCanvas.width, yCanvas.height)
+        xctx.globalAlpha = 0.05
+        yctx.globalAlpha = 0.05
+        points.forEach(point => {
           xctx.beginPath()
           yctx.beginPath()
-          xctx.fillRect(d.x - rectSize / 2, rectSize / 2, rectSize, rectSize)
-          yctx.fillRect(rectSize / 2, d.y - rectSize / 2, rectSize, rectSize)
+          xctx.fillRect(point.x - this.pointSize / 2, -this.pointSize, this.pointSize, this.pointSize)
+          yctx.fillRect(0, point.y - this.pointSize / 2, this.pointSize, this.pointSize)
         })
       },
       resize ({height, width}) {
@@ -356,8 +362,6 @@
         stroke: #000
         stroke-width: 1px
         shape-rendering: crispEdges
-      circle
-        opacity: 0.05
   .fjs-control-panel
     select
       margin: 0 0 0.5vh 0

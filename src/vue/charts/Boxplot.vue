@@ -294,14 +294,13 @@
         }
       },
       'params.showData': {
-        handler: function () {
-          this.drawPoints()
-        }
+        handler: function () { this.$nextTick(() => this.drawPoints()) }
       },
       'params.jitter': {
-        handler: function () {
-          this.drawPoints()
-        }
+        handler: function () { this.$nextTick(() => this.drawPoints()) }
+      },
+      'points': {
+        handler: function () { this.$nextTick(() => this.drawPoints()) }
       }
     },
     methods: {
