@@ -1,5 +1,5 @@
 <template>
-    <foreignObject :x="x" :y="y" :width="width" :height="height">
+    <foreignObject :x="computedX" :y="computedY" :width="width" :height="height">
         <body xmlns="http://www.w3.org/1999/xhtml"
               style="margin: 0; position: relative;"
               :style="{'z-index': zIndex}">
@@ -13,8 +13,8 @@
     name: 'svg-canvas',
     data () {
       return {
-        x: 0,
-        y: 0
+        computedX: 0,
+        computedY: 0
       }
     },
     props: {
@@ -31,12 +31,12 @@
         default: -1,
         required: false
       },
-      xOffset: {
+      x: {
         type: Number,
         default: 0,
         required: false
       },
-      yOffset: {
+      y: {
         type: Number,
         default: 0,
         required: false
@@ -63,8 +63,8 @@
       // this entire method is only here because browsers are buggy and do not render foreignObject correctly
       computeOffset () {
         const isFirefox = typeof InstallTrigger !== 'undefined'  // detect browser via feature detection
-        let xOffset = this.xOffset
-        let yOffset = this.yOffset
+        let x = this.x
+        let y = this.y
         if (!isFirefox) {
           // Firefox does not need the code below because it works correct
           let currentNode = this.$el.parentElement
@@ -72,15 +72,15 @@
             if (currentNode.hasAttribute('transform')) {
               const attr = currentNode.getAttribute('transform')
               if (attr) {
-                xOffset += parseFloat(attr.replace(/ /g, '').match(/\((.+),/)[1].trim())
-                yOffset += parseFloat(attr.replace(/ /g, '').match(/,(.+)\)/)[1].trim())
+                x += parseFloat(attr.replace(/ /g, '').match(/\((.+),/)[1].trim())
+                y += parseFloat(attr.replace(/ /g, '').match(/,(.+)\)/)[1].trim())
               }
             }
             currentNode = currentNode.parentElement
           }
         }
-        this.x = xOffset
-        this.y = yOffset
+        this.computedX = x
+        this.computedY = y
       }
     }
   }

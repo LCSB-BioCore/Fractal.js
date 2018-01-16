@@ -64,12 +64,12 @@
           <g class="fjs-pc-distribution fjs-pc-x-distribution"
              :transform="`translate(0, ${padded.height + margin.bottom / 2})`">
             <line :x2="padded.width"></line>
-            <svg-canvas :yOffset="-pointSize / 2" :width="padded.width" :height="pointSize"></svg-canvas>
+            <svg-canvas :y="-pointSize / 2" :width="padded.width" :height="pointSize"></svg-canvas>
           </g>
           <g class="fjs-pc-distribution fjs-pc-y-distribution"
              :transform="`translate(${- margin.left / 2}, 0)`">
             <line :y2="padded.height"></line>
-            <svg-canvas :xOffset="-pointSize / 2" :width="pointSize" :height="padded.height"></svg-canvas>
+            <svg-canvas :x="-pointSize / 2" :width="pointSize" :height="padded.height"></svg-canvas>
           </g>
         </g>
       </g>
@@ -323,7 +323,7 @@
         points.forEach(point => {
           xctx.beginPath()
           yctx.beginPath()
-          xctx.fillRect(point.x - this.pointSize / 2, -this.pointSize, this.pointSize, this.pointSize)
+          xctx.fillRect(point.x - this.pointSize / 2, 0, this.pointSize, this.pointSize)
           yctx.fillRect(0, point.y - this.pointSize / 2, this.pointSize, this.pointSize)
         })
       },
