@@ -1,7 +1,7 @@
 <template>
     <foreignObject :x="x" :y="y" :width="width" :height="height">
         <body xmlns="http://www.w3.org/1999/xhtml"
-              style="margin: 0; padding: 0; position: relative;"
+              style="margin: 0; position: relative;"
               :style="{'z-index': zIndex}">
             <canvas :width="width" :height="height"></canvas>
         </body>
@@ -72,8 +72,8 @@
             if (currentNode.hasAttribute('transform')) {
               const attr = currentNode.getAttribute('transform')
               if (attr) {
-                xOffset += parseFloat(attr.match(/\((.+),/)[1].trim())
-                yOffset += parseFloat(attr.match(/,(.+)\)/)[1].trim())
+                xOffset += parseFloat(attr.replace(/ /g, '').match(/\((.+),/)[1].trim())
+                yOffset += parseFloat(attr.replace(/ /g, '').match(/,(.+)\)/)[1].trim())
               }
             }
             currentNode = currentNode.parentElement
@@ -87,5 +87,4 @@
 </script>
 
 <style scoped>
-
 </style>
