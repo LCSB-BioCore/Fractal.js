@@ -5,25 +5,14 @@
 </template>
 
 <script>
-  import $ from 'jquery'
   export default {
     name: 'chart',
-    data () {
-      return {
-        updateInterval: null
-      }
-    },
     mounted () {
-      // this interval code fixes a rendering issue in several browsers by forcing a redraw every 250ms
-      this.updateInterval = window.setInterval(() => {
-        $(this.$el).hide().show(0)
-      }, 250)
       window.addEventListener('resize', this.resize)
       window.addEventListener('load', this.resize)
       this.resize()
     },
     beforeDestroy () {
-      window.clearInterval(this.updateInterval)
       window.removeEventListener('resize', this.resize)
       window.removeEventListener('load', this.resize)
     },

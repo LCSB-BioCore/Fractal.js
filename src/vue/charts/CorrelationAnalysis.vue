@@ -26,7 +26,7 @@
       </fieldset>
     </control-panel>
 
-    <svg xmlns="http://www.w3.org/2000/svg" :height="height" :width="width">
+    <svg :height="height" :width="width">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
         <svg-canvas class="fjs-canvas" :width="padded.width" :height="padded.height"></svg-canvas>
         <g class="fjs-corr-axis fjs-y-axis-2" :transform="`translate(${padded.width}, 0)`"></g>

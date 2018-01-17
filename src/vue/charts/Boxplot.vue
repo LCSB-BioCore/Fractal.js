@@ -25,7 +25,7 @@
       </div>
     </control-panel>
 
-    <svg xmlns="http://www.w3.org/2000/svg" :width="width" :height="height">
+    <svg :width="width" :height="height">
       <rect x="0" y="0" :height="height" :width="width" style="opacity: 0;" @click="resetFilter"></rect>
       <g :transform="`translate(${margin.left}, ${margin.top})`">
         <g class="fjs-boxplot-axis fjs-x-axis" :transform="`translate(0, ${padded.height})`"></g>

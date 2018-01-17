@@ -29,7 +29,7 @@
       </div>
     </control-panel>
 
-    <svg xmlns="http://www.w3.org/2000/svg" :width="width" :height="height">
+    <svg :width="width" :height="height">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
         <svg-canvas class="fjs-canvas" :width="padded.width" :height="padded.height"></svg-canvas>
         <g class="fjs-brush"></g>
