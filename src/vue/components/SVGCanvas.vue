@@ -1,8 +1,8 @@
 <template>
     <g>
         <foreignObject class="fjs-foreign-object"
-                       :x="x"
-                       :y="y"
+                       :x="computedX"
+                       :y="computedY"
                        :width="width"
                        :height="height"
                        :style="{'z-index': zIndex}">
@@ -18,6 +18,12 @@
 <script>
   export default {
     name: 'svg-canvas',
+    data () {
+      return {
+        computedX: 0,
+        computedY: 0
+      }
+    },
     props: {
       x: {
         type: Number,
@@ -51,7 +57,10 @@
     watch: {
       'attrChangeIndicator': {
         handler: function () {
-          this.$nextTick(this.makeHighDPICanvas)
+          this.$nextTick(() => {
+            this.makeHighDPICanvas()
+            this.computeOffset()
+          })
         }
       }
     },
@@ -63,10 +72,24 @@
         canvas.style.width = this.width + 'px'
         canvas.style.height = this.height + 'px'
         canvas.getContext('2d').setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0)
+      },
+      computeOffset () {
+        this.computedX = this.x
+        this.computedY = this.y
+        // we need this scrolling fix only on Chrome
+        if (typeof window.chrome !== 'undefined') {
+          this.computedX -= window.scrollX
+          this.computedY -= window.scrollY
+        }
       }
     },
     mounted () {
       this.makeHighDPICanvas()
+      this.computeOffset()
+      window.addEventListener('scroll', this.computeOffset)
+    },
+    destroyed () {
+      window.removeEventListener('scroll', this.computeOffset)
     }
   }
 </script>
