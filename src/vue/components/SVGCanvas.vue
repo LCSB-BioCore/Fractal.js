@@ -9,7 +9,7 @@
             <body xmlns="http://www.w3.org/1999/xhtml"
                   class="fjs-canvas-body"
                   :style="{'z-index': zIndex}">
-                <canvas :width="width" :height="height"></canvas>
+            <canvas class="fjs-canvas" :width="width" :height="height"></canvas>
             </body>
         </foreignObject>
     </g>
@@ -42,6 +42,31 @@
         default: -1,
         required: false
       }
+    },
+    computed: {
+      attrChangeIndicator () {
+        return [this.height, this.width, this.x, this.y].join(' ')
+      }
+    },
+    watch: {
+      'attrChangeIndicator': {
+        handler: function () {
+          this.$nextTick(this.makeHighDPICanvas)
+        }
+      }
+    },
+    methods: {
+      makeHighDPICanvas () {
+        const canvas = this.$el.querySelector('.fjs-canvas')
+        canvas.width = this.width * window.devicePixelRatio
+        canvas.height = this.height * window.devicePixelRatio
+        canvas.style.width = this.width + 'px'
+        canvas.style.height = this.height + 'px'
+        canvas.getContext('2d').setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0)
+      }
+    },
+    mounted () {
+      this.makeHighDPICanvas()
     }
   }
 </script>
@@ -52,6 +77,6 @@
         position: fixed
         top: 0
         left: 0
-    .fjs-foreign-object
-        position: relative
+        .fjs-foreign-object
+            position: relative
 </style>
