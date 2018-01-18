@@ -88,11 +88,17 @@
 </script>
 
 <style lang="sass" scoped>
+    .fjs-foreign-object
+        position: relative
     .fjs-canvas-body
         margin: 0
         position: fixed
         top: 0
         left: 0
-    .fjs-foreign-object
-        position: relative
+        width: 100%
+        height: 100%
+    .fjs-canvas
+        display: block
+        width: 100%
+        height: 100%
 </style>
