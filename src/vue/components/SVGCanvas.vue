@@ -60,11 +60,14 @@
     methods: {
       makeHighDPICanvas () {
         const canvas = this.$el.querySelector('.fjs-canvas')
+        const ctx = canvas.getContext('2d')
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
         canvas.width = this.width * window.devicePixelRatio
         canvas.height = this.height * window.devicePixelRatio
         canvas.style.width = this.width + 'px'
         canvas.style.height = this.height + 'px'
-        canvas.getContext('2d').setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0)
+        ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0)
+        ctx.putImageData(imgData, 0, 0, 0, 0, canvas.width, canvas.height)
       },
       scrollCorrection () {
         // we need this scrolling fix only on Chrome
@@ -77,8 +80,12 @@
         }
       }
     },
+    updated () {
+      this.makeHighDPICanvas()
+    },
     mounted () {
       this.$nextTick(this.makeHighDPICanvas)
+      this.$nextTick(this.scrollCorrection)
       window.addEventListener('scroll', this.scrollCorrection)
     },
     destroyed () {
