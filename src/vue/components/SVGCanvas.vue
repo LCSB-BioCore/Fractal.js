@@ -9,7 +9,7 @@
             <body xmlns="http://www.w3.org/1999/xhtml"
                   class="fjs-canvas-body"
                   :style="{'z-index': zIndex}">
-            <canvas class="fjs-canvas" :width="width" :height="height"></canvas>
+            <canvas class="fjs-canvas"></canvas>
             </body>
         </foreignObject>
     </g>
@@ -20,8 +20,8 @@
     name: 'svg-canvas',
     data () {
       return {
-        computedX: 0,
-        computedY: 0
+        scrollX: 0,
+        scrollY: 0
       }
     },
     props: {
@@ -50,18 +50,11 @@
       }
     },
     computed: {
-      attrChangeIndicator () {
-        return [this.height, this.width, this.x, this.y].join(' ')
-      }
-    },
-    watch: {
-      'attrChangeIndicator': {
-        handler: function () {
-          this.$nextTick(() => {
-            this.makeHighDPICanvas()
-            this.computeOffset()
-          })
-        }
+      computedX () {
+        return this.x - this.scrollX
+      },
+      computedY () {
+        return this.y - this.scrollY
       }
     },
     methods: {
@@ -73,23 +66,23 @@
         canvas.style.height = this.height + 'px'
         canvas.getContext('2d').setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0)
       },
-      computeOffset () {
-        this.computedX = this.x
-        this.computedY = this.y
+      scrollCorrection () {
         // we need this scrolling fix only on Chrome
         if (typeof window.chrome !== 'undefined') {
-          this.computedX -= window.scrollX
-          this.computedY -= window.scrollY
+          this.scrollX = window.scrollX
+          this.scrollY = window.scrollY
+        } else {
+          this.scrollX = 0
+          this.scrollY = 0
         }
       }
     },
     mounted () {
-      this.makeHighDPICanvas()
-      this.computeOffset()
-      window.addEventListener('scroll', this.computeOffset)
+      this.$nextTick(this.makeHighDPICanvas)
+      window.addEventListener('scroll', this.scrollCorrection)
     },
     destroyed () {
-      window.removeEventListener('scroll', this.computeOffset)
+      window.removeEventListener('scroll', this.scrollCorrection)
     }
   }
 </script>
