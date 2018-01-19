@@ -31,7 +31,7 @@
 
     <svg :width="width" :height="height">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
-        <svg-canvas class="fjs-canvas" :width="padded.width" :height="padded.height"></svg-canvas>
+        <svg-canvas name="fjs-canvas" :width="padded.width" :height="padded.height"></svg-canvas>
         <g class="fjs-brush"></g>
         <g class="fjs-axis fjs-y-axis-2" :transform="`translate(${padded.width}, 0)`"></g>
         <g class="fjs-axis fjs-x-axis-2"></g>
@@ -64,12 +64,20 @@
           <g class="fjs-pc-distribution fjs-pc-x-distribution"
              :transform="`translate(0, ${padded.height + margin.bottom / 2})`">
             <line :x2="padded.width"></line>
-            <svg-canvas :y="-pointSize / 2" :width="padded.width" :height="pointSize"></svg-canvas>
+            <svg-canvas name="fjs-pc-x-distribution-canvas"
+                        :y="-pointSize / 2"
+                        :width="padded.width"
+                        :height="pointSize">
+            </svg-canvas>
           </g>
           <g class="fjs-pc-distribution fjs-pc-y-distribution"
              :transform="`translate(${- margin.left / 2}, 0)`">
             <line :y2="padded.height"></line>
-            <svg-canvas :x="-pointSize / 2" :width="pointSize" :height="padded.height"></svg-canvas>
+            <svg-canvas name="fjs-pc-y-distribution-canvas"
+                        :x="-pointSize / 2"
+                        :width="pointSize"
+                        :height="padded.height">
+            </svg-canvas>
           </g>
         </g>
       </g>
@@ -297,7 +305,7 @@
           .catch(error => console.error(error))
       },
       drawScatterPoints (points) {
-        const canvas = this.$el.querySelector('.fjs-canvas canvas')
+        const canvas = this.$el.querySelector('.fjs-canvas')
         const ctx = canvas.getContext('2d')
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         points.forEach(d => {
@@ -312,8 +320,8 @@
         })
       },
       drawDistPoints (points) {
-        const xCanvas = this.$el.querySelector('.fjs-pc-x-distribution canvas')
-        const yCanvas = this.$el.querySelector('.fjs-pc-y-distribution canvas')
+        const xCanvas = this.$el.querySelector('.fjs-pc-x-distribution-canvas')
+        const yCanvas = this.$el.querySelector('.fjs-pc-y-distribution-canvas')
         const xctx = xCanvas.getContext('2d')
         const yctx = yCanvas.getContext('2d')
         xctx.clearRect(0, 0, xCanvas.width, xCanvas.height)

@@ -1,16 +1,13 @@
 <template>
     <g>
-        <foreignObject class="fjs-foreign-object"
-                       :x="computedX"
-                       :y="computedY"
-                       :width="width"
-                       :height="height"
-                       :style="{'z-index': zIndex}">
-            <body xmlns="http://www.w3.org/1999/xhtml"
-                  class="fjs-canvas-body"
-                  :style="{'z-index': zIndex}">
-            <canvas class="fjs-canvas"></canvas>
-            </body>
+        <!--FF does not position empty g. foreignObject does not count hence the 1x1 rect with 0 opacity.-->
+        <rect width="1" height="1" style="opacity: 0"></rect>
+        <foreignObject>
+            <canvas :class="name"
+                    :style="{'z-index': zIndex}"
+                    v-bind="$attrs"
+                    :width="width"
+                    :height="height"></canvas>
         </foreignObject>
     </g>
 </template>
@@ -20,8 +17,7 @@
     name: 'svg-canvas',
     data () {
       return {
-        scrollX: 0,
-        scrollY: 0
+        canvas: null
       }
     },
     props: {
@@ -43,6 +39,10 @@
         type: Number,
         required: true
       },
+      name: {
+        type: String,
+        required: true
+      },
       zIndex: {
         type: Number,
         default: -1,
@@ -50,62 +50,61 @@
       }
     },
     computed: {
-      computedX () {
-        return this.x - this.scrollX
+      sizeChangeIndicator () {
+        return [this.width, this.height].join(' ')
       },
-      computedY () {
-        return this.y - this.scrollY
+      positionChangeIndicator () {
+        return [this.x, this.y].join(' ')
+      }
+    },
+    watch: {
+      'sizeChangeIndicator': {
+        handler: function () {
+          this.setCanvasPosition()
+        }
+      },
+      'positionChangeIndicator': {
+        handler: function () {
+          this.setCanvasPosition()
+        }
       }
     },
     methods: {
       makeHighDPICanvas () {
+        const scaleRatio = window.devicePixelRatio * 2
         const canvas = this.$el.querySelector('.fjs-canvas')
         const ctx = canvas.getContext('2d')
         const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-        canvas.width = this.width * window.devicePixelRatio
-        canvas.height = this.height * window.devicePixelRatio
+        canvas.width = this.width * scaleRatio
+        canvas.height = this.height * scaleRatio
         canvas.style.width = this.width + 'px'
         canvas.style.height = this.height + 'px'
-        ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0)
+        ctx.setTransform(scaleRatio, 0, 0, scaleRatio, 0, 0)
         ctx.putImageData(imgData, 0, 0, 0, 0, canvas.width, canvas.height)
       },
-      scrollCorrection () {
-        // we need this scrolling fix only on Chrome
-        if (typeof window.chrome !== 'undefined') {
-          this.scrollX = window.scrollX
-          this.scrollY = window.scrollY
-        } else {
-          this.scrollX = 0
-          this.scrollY = 0
-        }
+      setCanvasPosition () {
+        this.canvas.style.top = this.$el.getBoundingClientRect().y + this.y + 'px'
+        this.canvas.style.left = this.$el.getBoundingClientRect().x + this.x + 'px'
       }
     },
-    updated () {
-      this.makeHighDPICanvas()
-    },
     mounted () {
-      this.$nextTick(this.makeHighDPICanvas)
-      this.$nextTick(this.scrollCorrection)
-      window.addEventListener('scroll', this.scrollCorrection)
+      this.canvas = this.$el.querySelector('canvas')
+      let vm = this.$parent
+      while (vm.$options.name !== 'chart') {
+        vm = vm.$parent
+      }
+      vm.$el.appendChild(this.canvas)
+      this.$nextTick(this.setCanvasPosition)
+      window.addEventListener('scroll', this.setCanvasPosition)
     },
     destroyed () {
-      window.removeEventListener('scroll', this.scrollCorrection)
+      this.canvas.remove()
+      window.removeEventListener('scroll', this.setCanvasPosition)
     }
   }
 </script>
 
 <style lang="sass" scoped>
-    .fjs-foreign-object
-        position: relative
-    .fjs-canvas-body
-        margin: 0
+    canvas
         position: fixed
-        top: 0
-        left: 0
-        width: 100%
-        height: 100%
-    .fjs-canvas
-        display: block
-        width: 100%
-        height: 100%
 </style>

@@ -97,7 +97,12 @@
                 :width="boxplotWidth"
                 :height="boxes[label].l_qrt - boxes[label].median">
           </rect>
-          <svg-canvas :z-index="1" :height="padded.height" :width="boxplotWidth / 2"></svg-canvas>
+          <svg-canvas name="fjs-canvas"
+                      :z-index="1"
+                      :data-label="label"
+                      :height="padded.height"
+                      :width="boxplotWidth / 2">
+          </svg-canvas>
           <polyline class="fjs-kde"
                     :points="kdePolyPoints[label]"
                     v-if="params.showKDE">
@@ -341,7 +346,7 @@
       },
       drawPoints () {
         Object.keys(this.points).forEach(label => {
-          const canvas = this.$el.querySelector(`.fjs-box[data-label="${label}"] canvas`)
+          const canvas = this.$el.querySelector(`.fjs-canvas[data-label="${label}"]`)
           const ctx = canvas.getContext('2d')
           ctx.clearRect(0, 0, canvas.width, canvas.height)
           if (this.params.showData) {
@@ -387,7 +392,6 @@
 
 <style lang="sass" scoped>
   @import '~assets/base.sass'
-
   svg
     .fjs-box
       .fjs-median, .fjs-lower-quartile, .fjs-upper-quartile

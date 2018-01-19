@@ -28,7 +28,7 @@
 
     <svg :height="height" :width="width">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
-        <svg-canvas class="fjs-canvas" :width="padded.width" :height="padded.height"></svg-canvas>
+        <svg-canvas name="fjs-canvas" :width="padded.width" :height="padded.height"></svg-canvas>
         <g class="fjs-corr-axis fjs-y-axis-2" :transform="`translate(${padded.width}, 0)`"></g>
         <g class="fjs-corr-axis fjs-x-axis-2"></g>
         <g class="fjs-corr-axis fjs-x-axis-1" :transform="`translate(0, ${padded.height})`"></g>
@@ -373,7 +373,7 @@
           .catch(error => console.error(error))
       },
       drawPoints (points) {
-        const canvas = this.$el.querySelector('.fjs-canvas canvas')
+        const canvas = this.$el.querySelector('.fjs-canvas')
         const ctx = canvas.getContext('2d')
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         points.forEach(d => {

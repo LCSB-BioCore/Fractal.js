@@ -130,7 +130,7 @@
 
     <svg :height="height" :width="width">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
-        <svg-canvas class="fjs-canvas" :width="padded.width" :height="padded.height"></svg-canvas>
+        <svg-canvas name="fjs-canvas" :width="padded.width" :height="padded.height"></svg-canvas>
         <rect class="fjs-sig-bar"
               :x="bar.x"
               :y="bar.y"
@@ -422,7 +422,7 @@
         this.numericArrayDataIds = ids
       },
       drawCells (cells) {
-        const canvas = this.$el.querySelector('.fjs-canvas canvas')
+        const canvas = this.$el.querySelector('.fjs-canvas')
         const ctx = canvas.getContext('2d')
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         cells.forEach(d => {
