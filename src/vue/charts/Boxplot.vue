@@ -394,6 +394,7 @@
   @import '~assets/base.sass'
   svg
     .fjs-box
+      cursor: pointer
       .fjs-median, .fjs-lower-quartile, .fjs-upper-quartile
         opacity: 1
       .fjs-lower-whisker, .fjs-upper-whisker, .fjs-antenna
