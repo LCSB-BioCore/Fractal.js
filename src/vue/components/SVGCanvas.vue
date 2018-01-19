@@ -3,11 +3,7 @@
         <!--FF does not position empty g. foreignObject does not count hence the 1x1 rect with 0 opacity.-->
         <rect width="1" height="1" style="opacity: 0"></rect>
         <foreignObject>
-            <canvas :class="name"
-                    :style="{'z-index': zIndex}"
-                    v-bind="$attrs"
-                    :width="width"
-                    :height="height"></canvas>
+            <canvas :class="name" :style="{'z-index': zIndex}" v-bind="$attrs"></canvas>
         </foreignObject>
     </g>
 </template>
@@ -61,6 +57,7 @@
       'sizeChangeIndicator': {
         handler: function () {
           this.setCanvasPosition()
+          this.makeHighDPICanvas()
         }
       },
       'positionChangeIndicator': {
@@ -71,16 +68,15 @@
     },
     methods: {
       makeHighDPICanvas () {
-        const scaleRatio = window.devicePixelRatio * 2
-        const canvas = this.$el.querySelector('.fjs-canvas')
-        const ctx = canvas.getContext('2d')
-        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-        canvas.width = this.width * scaleRatio
-        canvas.height = this.height * scaleRatio
-        canvas.style.width = this.width + 'px'
-        canvas.style.height = this.height + 'px'
+        const scaleRatio = window.devicePixelRatio * 4
+        const ctx = this.canvas.getContext('2d')
+        // const imgData = ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
+        this.canvas.width = this.width * scaleRatio
+        this.canvas.height = this.height * scaleRatio
+        this.canvas.style.width = this.width + 'px'
+        this.canvas.style.height = this.height + 'px'
         ctx.setTransform(scaleRatio, 0, 0, scaleRatio, 0, 0)
-        ctx.putImageData(imgData, 0, 0, 0, 0, canvas.width, canvas.height)
+        // ctx.putImageData(imgData, 0, 0, 0, 0, this.canvas.width, this.canvas.height)
       },
       setCanvasPosition () {
         this.canvas.style.top = this.$el.getBoundingClientRect().y + this.y + 'px'
@@ -94,7 +90,8 @@
         vm = vm.$parent
       }
       vm.$el.appendChild(this.canvas)
-      this.$nextTick(this.setCanvasPosition)
+      this.setCanvasPosition()
+      this.makeHighDPICanvas()
       window.addEventListener('scroll', this.setCanvasPosition)
     },
     destroyed () {
