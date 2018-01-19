@@ -68,7 +68,7 @@
     },
     methods: {
       makeHighDPICanvas () {
-        const scaleRatio = window.devicePixelRatio * 4
+        const scaleRatio = window.devicePixelRatio
         const ctx = this.canvas.getContext('2d')
         // const imgData = ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
         this.canvas.width = this.width * scaleRatio
