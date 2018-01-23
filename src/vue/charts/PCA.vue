@@ -32,6 +32,7 @@
     <svg :width="width" :height="height">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
         <svg-canvas name="fjs-canvas" :width="padded.width" :height="padded.height"></svg-canvas>
+        <crosshair :width="padded.width" :height="padded.height"></crosshair>
         <g class="fjs-brush"></g>
         <g class="fjs-axis fjs-y-axis-2" :transform="`translate(${padded.width}, 0)`"></g>
         <g class="fjs-axis fjs-x-axis-2"></g>
@@ -96,6 +97,7 @@
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
   import SvgCanvas from '../components/SVGCanvas.vue'
+  import Crosshair from '../components/Crosshair.vue'
   export default {
     name: 'pca-analysis',
     data () {
@@ -350,7 +352,8 @@
       SvgCanvas,
       ControlPanel,
       DataBox,
-      Chart
+      Chart,
+      Crosshair
     },
     directives: {
       tooltip
