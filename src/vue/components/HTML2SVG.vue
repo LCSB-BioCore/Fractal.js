@@ -59,7 +59,7 @@
         vm = vm.$parent
       }
       vm.$el.appendChild(this.$refs.htmlContent)
-      this.setPosition()
+      this.$nextTick(this.setPosition)
       window.addEventListener('scroll', this.setPosition)
     },
     beforeDestroy () {
@@ -72,5 +72,5 @@
 <style lang="sass" scoped>
     .fjs-html-content
         position: fixed
-        transform: translateZ(0)
+        transform: translateZ(0) /*This is a redraw fix for FF*/
 </style>
