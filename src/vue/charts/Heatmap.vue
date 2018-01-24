@@ -130,7 +130,7 @@
 
     <svg :height="height" :width="width">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
-        <svg-canvas name="fjs-canvas" :width="padded.width" :height="padded.height"></svg-canvas>
+        <svg-canvas name="fjs-canvas" :width="padded.width" :height="padded.height"/>
         <rect class="fjs-sig-bar"
               :x="bar.x"
               :y="bar.y"

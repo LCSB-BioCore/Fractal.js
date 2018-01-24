@@ -1,6 +1,6 @@
 <template>
   <div class="fjs-control-panel"
-       :style="{width: shown ? '15vw' : '1vw'}"
+       :style="{width: shown ? '15vw' : '1vw', left: left, right: right}"
        v-show="focused"
        @mouseover="locked ? noop() : show()"
        @mouseout="locked ? noop() : hide()">
@@ -10,9 +10,9 @@
     </div>
     <span class="fjs-panel-label" v-show="!shown">Control Panel</span>
     <div v-show="shown">
-      <slot></slot>
+      <slot/>
       <hr class="fjs-seperator"/>
-      <task-view></task-view>
+      <task-view/>
     </div>
   </div>
 </template>
@@ -28,12 +28,7 @@
         focused: true,
         locked: false,
         expanded: false,
-        shown: true,
-        tweened: {
-          position: {
-            left: 0
-          }
-        }
+        shown: true
       }
     },
     computed: {
@@ -42,6 +37,12 @@
       },
       chartName () {
         return this.$parent.$parent.$options.name
+      },
+      left () {
+        return store.getters.options.controlPanelPosition === 'left' ? 0 : ''
+      },
+      right () {
+        return store.getters.options.controlPanelPosition === 'right' ? 0 : ''
       }
     },
     methods: {
@@ -110,7 +111,6 @@
     flex-direction: column
     justify-content: flex-start
     top: 0
-    left: 0
     padding: 1vh
     height: 100vh
     overflow-y: auto

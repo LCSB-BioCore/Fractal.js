@@ -30,5 +30,8 @@ export default {
   },
   [types.ADD_CONTROL_PANEL] (state, {vm}) {
     state.controlPanels.push(vm)
+  },
+  [types.SET_OPTIONS] (state, options) {
+    Object.assign(state.options, options)
   }
 }

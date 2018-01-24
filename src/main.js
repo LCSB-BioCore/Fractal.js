@@ -4,10 +4,11 @@ import RequestManager from './services/request-manager'
 import ChartManager from './services/chart-manager'
 
 class FractalJS {
-  constructor (handler, dataSource, fractalisNode, getAuth) {
+  constructor (handler, dataSource, fractalisNode, getAuth, options) {
     const requestManager = new RequestManager({handler, dataSource, fractalisNode, getAuth})
     store.dispatch('setRequestManager', requestManager)
     store.dispatch('updateData')
+    store.dispatch('setOptions', options)
     this._chartManager = new ChartManager()
     this._versionCheck()
   }
@@ -57,18 +58,6 @@ class FractalJS {
  * the API of the service specified in dataSource.
  * @returns {FractalJS}: An instance of FractalJS.
  */
-export function init ({handler, dataSource, fractalisNode, getAuth}) {
-  if (!handler) {
-    throw new Error(`handler property must not be ${handler}`)
-  }
-  if (!dataSource) {
-    throw new Error(`handler property must not be ${dataSource}`)
-  }
-  if (!fractalisNode) {
-    throw new Error(`handler property must not be ${fractalisNode}`)
-  }
-  if (!getAuth) {
-    throw new Error(`handler property must not be ${getAuth}`)
-  }
-  return new FractalJS(handler, dataSource, fractalisNode, getAuth)
+export function init ({handler, dataSource, fractalisNode, getAuth, options}) {
+  return new FractalJS(handler, dataSource, fractalisNode, getAuth, options)
 }

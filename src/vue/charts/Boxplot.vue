@@ -101,8 +101,7 @@
                       :z-index="1"
                       :data-label="label"
                       :height="padded.height"
-                      :width="boxplotWidth / 2">
-          </svg-canvas>
+                      :width="boxplotWidth / 2"/>
           <polyline class="fjs-kde"
                     :points="kdePolyPoints[label]"
                     v-if="params.showKDE">

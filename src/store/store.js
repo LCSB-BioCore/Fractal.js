@@ -14,6 +14,9 @@ const state = {
   subsets: [],
   filters: {
     ids: []
+  },
+  options: {
+    controlPanelPosition: 'left'
   }
 }
 

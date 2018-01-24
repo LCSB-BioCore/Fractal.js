@@ -84,5 +84,12 @@ export default {
    */
   addControlPanel: (context, vm) => {
     context.commit(types.ADD_CONTROL_PANEL, {vm})
+  },
+  setOptions: (context, options) => {
+    if (typeof options === 'object') {
+      context.commit(types.SET_OPTIONS, options)
+    } else if (typeof options !== 'undefined') {
+      throw new Error('The "options" parameter must be of type "object"!')
+    }
   }
 }

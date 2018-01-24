@@ -31,8 +31,8 @@
 
     <svg :width="width" :height="height">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
-        <svg-canvas name="fjs-canvas" :width="padded.width" :height="padded.height"></svg-canvas>
-        <crosshair :width="padded.width" :height="padded.height"></crosshair>
+        <svg-canvas name="fjs-canvas" :width="padded.width" :height="padded.height"/>
+        <crosshair :width="padded.width" :height="padded.height"/>
         <g class="fjs-brush"></g>
         <g class="fjs-axis fjs-y-axis-2" :transform="`translate(${padded.width}, 0)`"></g>
         <g class="fjs-axis fjs-x-axis-2"></g>
