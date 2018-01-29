@@ -30,10 +30,12 @@
       <g :transform="`translate(${margin.left}, ${margin.top})`">
         <svg-canvas name="fjs-canvas" :width="padded.width" :height="padded.height"/>
         <html2svg>
-          <div class="fjs-legend">
-            <span>Correlation Coefficient: {{ tmpResults.coef }}</span>
-            <span>p-value: {{ tmpResults.p_value }}</span>
-          </div>
+          <draggable>
+            <div class="fjs-legend">
+              <span>Correlation Coefficient: {{ tmpResults.coef }}</span>
+              <span>p-value: {{ tmpResults.p_value }}</span>
+            </div>
+          </draggable>
         </html2svg>
         <crosshair :width="padded.width" :height="padded.height"/>
         <g class="fjs-corr-axis fjs-y-axis-2" :transform="`translate(${padded.width}, 0)`"></g>
@@ -93,6 +95,7 @@
   import SvgCanvas from '../components/SVGCanvas.vue'
   import Crosshair from '../components/Crosshair.vue'
   import Html2svg from '../components/HTML2SVG.vue'
+  import Draggable from '../components/Draggable.vue'
   export default {
     name: 'correlation-analysis',
     data () {
@@ -356,6 +359,7 @@
       }
     },
     components: {
+      Draggable,
       Html2svg,
       SvgCanvas,
       ControlPanel,
