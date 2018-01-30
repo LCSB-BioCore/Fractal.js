@@ -28,6 +28,10 @@
     <svg :width="width" :height="height">
       <rect x="0" y="0" :height="height" :width="width" style="opacity: 0;" @click="resetFilter"></rect>
       <g :transform="`translate(${margin.left}, ${margin.top})`">
+        <text :x="this.padded.width / 2" class="fjs-anova-results">
+          ANOVA -- F-value: {{ this.results.anova.f_value.toFixed(4) }}
+          &nbsp p-value: {{ this.results.anova.p_value.toFixed(4) }}
+        </text>
         <g class="fjs-boxplot-axis fjs-x-axis" :transform="`translate(0, ${padded.height})`"></g>
         <g class="fjs-boxplot-axis fjs-y-axis"></g>
         <g class="fjs-box"
@@ -143,7 +147,8 @@
         },
         results: {
           data: [],
-          statistics: {}
+          statistics: {},
+          anova: {}
         }
       }
     },
@@ -167,9 +172,9 @@
       },
       margin () {
         const left = 10
-        const top = 10
+        const top = this.height / 20
         const right = this.width / 20
-        const bottom = this.height * 0.3
+        const bottom = this.height / 3
         return { left, top, right, bottom }
       },
       padded () {
@@ -412,6 +417,8 @@
       fill: none
       stroke: black
       stroke-width: 0.2%
+    .fjs-anova-results
+      text-anchor: middle
 </style>
 
 
