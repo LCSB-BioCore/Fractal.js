@@ -41,8 +41,7 @@
                 <span>S{{ i + 1 }}</span>
               </div>
               <div class="fjs-legend-category" v-for="color, i in legendCategoryColors">
-                <div :style="{background: color}">
-                </div>
+                <div :style="{background: color}"></div>
                 <span>&nbsp{{ categories[i] }}</span>
               </div>
             </div>
@@ -485,9 +484,14 @@
     polygon
       fill: #7b7b7b
     .fjs-legend-category
-      div
-        width: 15%
       display: flex
+      div
+        flex: 1
+      span
+        flex: 8
+        overflow: hidden
+        white-space: nowrap
+        text-overflow: ellipsis
 </style>
 
 <!--CSS for dynamically created components-->

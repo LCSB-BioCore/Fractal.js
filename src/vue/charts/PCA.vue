@@ -32,6 +32,22 @@
     <svg :width="width" :height="height">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
         <svg-canvas name="fjs-canvas" :width="padded.width" :height="padded.height"/>
+        <html2svg :right="padded.width">
+          <draggable>
+            <div class="fjs-legend">
+              <div v-for="point, i in legendSubsetPoints">
+                <svg :width="pointSize * 2" :height="pointSize * 2">
+                  <polygon :points="point"></polygon>
+                </svg>
+                <span>S{{ i + 1 }}</span>
+              </div>
+              <div class="fjs-legend-category" v-for="color, i in legendCategoryColors">
+                <div :style="{background: color}"></div>
+                <span>&nbsp{{ categories[i] }}</span>
+              </div>
+            </div>
+          </draggable>
+        </html2svg>
         <crosshair :width="padded.width" :height="padded.height"/>
         <g class="fjs-brush"></g>
         <g class="fjs-axis fjs-y-axis-2" :transform="`translate(${padded.width}, 0)`"></g>
@@ -98,6 +114,8 @@
   import deepFreeze from 'deep-freeze-strict'
   import SvgCanvas from '../components/SVGCanvas.vue'
   import Crosshair from '../components/Crosshair.vue'
+  import Html2svg from '../components/HTML2SVG.vue'
+  import Draggable from '../components/Draggable.vue'
   export default {
     name: 'pca-analysis',
     data () {
@@ -161,7 +179,7 @@
         return { width, height }
       },
       pointSize () {
-        return this.width / 75
+        return this.padded.width / 125
       },
       scales () {
         const x = d3.scaleLinear()
@@ -201,7 +219,7 @@
               {
                 cx: this.scales.x(this.results.data[this.pcX][i]),
                 cy: this.scales.y(this.results.data[this.pcY][i]),
-                size: this.width / 150,
+                size: this.pointSize,
                 subset: this.results.data.subset[i]
               }
             ),
@@ -229,8 +247,26 @@
       components () {
         return Object.keys(this.results.loadings).filter(d => d !== 'feature')
       },
+      subsets () {
+        return [...new Set(this.results.data.subset)]
+      },
       categories () {
         return [...new Set(this.results.data.category)]
+      },
+      legendSubsetPoints () {
+        return this.subsets.map(subset => {
+          return getPolygonPointsForSubset({
+            cx: this.pointSize,
+            cy: this.pointSize,
+            size: this.pointSize,
+            subset: subset
+          })
+        })
+      },
+      legendCategoryColors () {
+        return this.categories.map(category => {
+          return this.categoryColors[this.categories.indexOf(category) % this.categoryColors.length]
+        })
       },
       axis () {
         const x1 = d3.axisTop(this.scales.x)
@@ -353,7 +389,9 @@
       ControlPanel,
       DataBox,
       Chart,
-      Crosshair
+      Crosshair,
+      Html2svg,
+      Draggable
     },
     directives: {
       tooltip
@@ -376,6 +414,23 @@
   .fjs-control-panel
     select
       margin: 0 0 0.5vh 0
+  .fjs-legend
+    display: flex
+    flex-direction: column
+    resize: both
+    overflow: auto
+    transform: translateZ(0)
+    polygon
+      fill: #7b7b7b
+    .fjs-legend-category
+      display: flex
+      div
+        flex: 1
+      span
+        flex: 8
+        overflow: hidden
+        white-space: nowrap
+        text-overflow: ellipsis
 </style>
 
 <!--CSS for dynamically created components-->
