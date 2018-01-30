@@ -29,11 +29,22 @@
     <svg :height="height" :width="width">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
         <svg-canvas name="fjs-canvas" :width="padded.width" :height="padded.height"/>
-        <html2svg>
+        <html2svg :right="padded.width">
           <draggable>
             <div class="fjs-legend">
-              <span>Correlation Coefficient: {{ tmpResults.coef }}</span>
-              <span>p-value: {{ tmpResults.p_value }}</span>
+              <span>Corr. Coef.: {{ tmpResults.coef.toFixed(4) }}</span>
+              <span>p-value: {{ tmpResults.p_value.toFixed(4) }}</span>
+              <div v-for="point, i in legendSubsetPoints">
+                <svg :width="pointSize * 2" :height="pointSize * 2">
+                  <polygon :points="point"></polygon>
+                </svg>
+                <span>S{{ i + 1 }}</span>
+              </div>
+              <div class="fjs-legend-category" v-for="color, i in legendCategoryColors">
+                <div :style="{background: color}">
+                </div>
+                <span>&nbsp{{ categories[i] }}</span>
+              </div>
             </div>
           </draggable>
         </html2svg>
@@ -140,6 +151,9 @@
       validArgs () {
         return this.xyData.length === 2
       },
+      pointSize () {
+        return this.padded.width / 100
+      },
       args () {
         return {
           x: this.xyData[0],
@@ -165,13 +179,16 @@
       categories () {
         return [...new Set(this.shownResults.data.map(d => d.category))]
       },
+      subsets () {
+        return [...new Set(this.shownResults.data.map(d => d.subset))]
+      },
       points () {
         return this.shownResults.data.map(d => {
           const x = this.scales.x(d.value_x)
           const y = this.scales.y(d.value_y)
           const id = d.id
           const subset = d.subset
-          const shape = getPolygonPointsForSubset({cx: x, cy: y, size: this.width / 150, subset: subset})
+          const shape = getPolygonPointsForSubset({cx: x, cy: y, size: this.pointSize, subset: subset})
           const category = d.category
           let tooltip = `
 <div>
@@ -211,6 +228,21 @@
           .tickSizeInner(this.padded.width)
           .tickFormat('')
         return {x1, x2, y1, y2}
+      },
+      legendSubsetPoints () {
+        return this.subsets.map(subset => {
+          return getPolygonPointsForSubset({
+            cx: this.pointSize,
+            cy: this.pointSize,
+            size: this.pointSize,
+            subset: subset
+          })
+        })
+      },
+      legendCategoryColors () {
+        return this.categories.map(category => {
+          return this.categoryColors[this.categories.indexOf(category) % this.categoryColors.length]
+        })
       },
       regLine () {
         const xValues = this.tmpResults.data.map(d => d.value_x)
@@ -447,6 +479,15 @@
   .fjs-legend
     display: flex
     flex-direction: column
+    resize: both
+    overflow: auto
+    transform: translateZ(0)
+    polygon
+      fill: #7b7b7b
+    .fjs-legend-category
+      div
+        width: 15%
+      display: flex
 </style>
 
 <!--CSS for dynamically created components-->

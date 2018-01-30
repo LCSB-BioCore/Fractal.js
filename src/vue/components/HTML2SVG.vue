@@ -6,7 +6,7 @@
             <div class="fjs-html-content"
                  ref="htmlContent"
                  v-bind="$attrs"
-                 :style="{left: computedX + 'px', top: computedY + 'px', 'z-index': zIndex}">
+                 :style="{left: computedLeft, top: computedTop, 'z-index': zIndex}">
                 <slot/>
             </div>
         </foreignObject>
@@ -19,16 +19,28 @@
     data () {
       return {
         posX: 0,
-        posY: 0
+        posY: 0,
+        width: 0,
+        height: 0
       }
     },
     props: {
-      x: {
+      left: {
         type: Number,
         default: 0,
         required: false
       },
-      y: {
+      top: {
+        type: Number,
+        default: 0,
+        required: false
+      },
+      right: {
+        type: Number,
+        default: 0,
+        required: false
+      },
+      bottom: {
         type: Number,
         default: 0,
         required: false
@@ -40,11 +52,19 @@
       }
     },
     computed: {
-      computedX () {
-        return this.posX + this.x
+      computedLeft () {
+        if (typeof this.$options.propsData.right === 'undefined') {
+          return this.posX + this.left + 'px'
+        } else {
+          return this.posX + this.right - this.width + 'px'
+        }
       },
-      computedY () {
-        return this.posY + this.y
+      computedTop () {
+        if (typeof this.$options.propsData.bottom === 'undefined') {
+          return this.posY + this.top + 'px'
+        } else {
+          return this.posY + this.bottom - this.height + 'px'
+        }
       }
     },
     methods: {
@@ -52,6 +72,10 @@
         this.posX = this.$el.getBoundingClientRect().x
         this.posY = this.$el.getBoundingClientRect().y
       }
+    },
+    updated () {
+      this.width = this.$refs.htmlContent ? this.$refs.htmlContent.children[0].offsetWidth : 0
+      this.height = this.$refs.htmlContent ? this.$refs.htmlContent.children[0].offsetHeight : 0
     },
     mounted () {
       let vm = this.$parent

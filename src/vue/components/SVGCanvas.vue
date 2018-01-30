@@ -1,5 +1,5 @@
 <template>
-    <html2svg ref="html2svg" :x="x" :y="y" :z-index="zIndex">
+    <html2svg ref="html2svg" :left="x" :top="y" :z-index="zIndex">
         <canvas ref="canvas" :class="name" v-bind="$attrs"></canvas>
     </html2svg>
 </template>

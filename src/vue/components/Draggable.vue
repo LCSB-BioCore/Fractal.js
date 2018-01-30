@@ -25,7 +25,7 @@
         this.offsetY = event.clientY - this.$el.offsetTop
         window.addEventListener('mousemove', this.moveDiv, true)
       },
-      mouseUp (event) {
+      mouseUp () {
         window.removeEventListener('mousemove', this.moveDiv, true)
       }
     },
