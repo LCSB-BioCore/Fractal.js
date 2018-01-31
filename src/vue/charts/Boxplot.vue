@@ -14,21 +14,29 @@
       </data-box>
       <hr class="fjs-seperator"/>
       <div class="fjs-parameter-container">
-        <input id="fjs-show-data-check" type="checkbox" v-model="params.showData"/>
-        <label for="fjs-show-data-check">Show Points</label>
+        <label>
+          <input type="checkbox" v-model="SAVE_STATE.params.showData"/>
+          Show Points
+        </label>
         <br/>
-        <input id="fjs-jitter-data-check" type="checkbox" v-model="params.jitter"/>
-        <label for="fjs-jitter-data-check">Jitter Data</label>
+        <label>
+          <input type="checkbox" v-model="SAVE_STATE.params.jitter"/>
+          Jitter Data
+        </label>
         <br/>
-        <input id="fjs-show-kde-check" type="checkbox" v-model="params.showKDE"/>
-        <label for="fjs-show-kde-check">Show Density Est.</label>
+        <label>
+          <input type="checkbox" v-model="SAVE_STATE.params.showKDE"/>
+          Show Density Est.
+        </label>
       </div>
     </control-panel>
 
     <svg :width="width" :height="height">
       <rect x="0" y="0" :height="height" :width="width" style="opacity: 0;" @click="resetFilter"></rect>
       <g :transform="`translate(${margin.left}, ${margin.top})`">
-        <text :x="this.padded.width / 2" class="fjs-anova-results">
+        <text :x="this.padded.width / 2"
+              class="fjs-anova-results"
+              v-if="Object.keys(this.results.anova).length">
           ANOVA -- F-value: {{ this.results.anova.f_value.toFixed(4) }}
           &nbsp p-value: {{ this.results.anova.p_value.toFixed(4) }}
         </text>
@@ -108,7 +116,7 @@
                       :width="boxplotWidth / 2"/>
           <polyline class="fjs-kde"
                     :points="kdePolyPoints[label]"
-                    v-if="params.showKDE">
+                    v-if="SAVE_STATE.params.showKDE">
           </polyline>
         </g>
       </g>
@@ -132,18 +140,20 @@
     name: 'boxplot',
     data () {
       return {
+        SAVE_STATE: {
+          numData: [],
+          catData: [],
+          params: {
+            showData: false,
+            jitter: false,
+            showKDE: false
+          }
+        },
         width: 0,
         height: 0,
-        numData: [],
-        catData: [],
         hasSetFilter: false,
         tooltips: {
           boxes: {}
-        },
-        params: {
-          showData: false,
-          jitter: false,
-          showKDE: false
         },
         results: {
           data: [],
@@ -158,8 +168,8 @@
       },
       args () {
         return {
-          features: this.numData,
-          categories: this.catData,
+          features: this.SAVE_STATE.numData,
+          categories: this.SAVE_STATE.catData,
           id_filter: this.idFilter,
           subsets: store.getters.subsets
         }
@@ -168,7 +178,7 @@
         return this.width / 150
       },
       validArgs () {
-        return this.numData.length > 0
+        return this.SAVE_STATE.numData.length > 0
       },
       margin () {
         const left = 10
@@ -199,7 +209,7 @@
               return {
                 id: d.id,
                 value: d.value,
-                jitter: Math.max(this.pointSize / 2, (this.params.jitter ? Math.random() * this.boxplotWidth / 2 : this.boxplotWidth / 2) - this.pointSize / 2),
+                jitter: Math.max(this.pointSize / 2, (this.SAVE_STATE.params.jitter ? Math.random() * this.boxplotWidth / 2 : this.boxplotWidth / 2) - this.pointSize / 2),
                 subset: d.subset,
                 category: d.category
               }
@@ -302,10 +312,10 @@
           })
         }
       },
-      'params.showData': {
+      'SAVE_STATE.params.showData': {
         handler: function () { this.$nextTick(() => this.drawPoints()) }
       },
-      'params.jitter': {
+      'SAVE_STATE.params.jitter': {
         handler: function () { this.$nextTick(() => this.drawPoints()) }
       },
       'points': {
@@ -335,10 +345,10 @@
         this.getTippyInstances(label).forEach(d => d.hide())
       },
       update_numData (ids) {
-        this.numData = ids
+        this.SAVE_STATE.numData = ids
       },
       update_catData (ids) {
-        this.catData = ids
+        this.SAVE_STATE.catData = ids
       },
       setIDFilter (label) {
         store.dispatch('setFilter', {filter: 'ids', value: this.points[label].map(d => d.id)})
@@ -353,7 +363,7 @@
           const canvas = this.$el.querySelector(`.fjs-canvas[data-label="${label}"]`)
           const ctx = canvas.getContext('2d')
           ctx.clearRect(0, 0, canvas.width, canvas.height)
-          if (this.params.showData) {
+          if (this.SAVE_STATE.params.showData) {
             this.points[label].forEach(point => {
               ctx.beginPath()
               ctx.fillStyle = 'black'
