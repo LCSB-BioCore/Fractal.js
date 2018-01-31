@@ -30,7 +30,7 @@
       this.$el.parentNode.addEventListener('mouseenter', () => { this.mouseWithin = true })
       this.$el.parentNode.addEventListener('mouseleave', () => { this.mouseWithin = false })
     },
-    destroyed () {
+    beforeDestroy () {
       this.$el.parentNode.removeEventListener('mousemove', this.setMousePos)
       this.$el.parentNode.removeEventListener('mouseenter', () => { this.mouseWithin = true })
       this.$el.parentNode.removeEventListener('mouseleave', () => { this.mouseWithin = false })
