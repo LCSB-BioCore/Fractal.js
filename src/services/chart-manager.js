@@ -21,6 +21,7 @@ export default class {
     const Chart = Vue.extend(this.AVAILABLE_CHARTS[chart])
     const vm = new Chart()
     vm.$mount(selector)
+    return vm
   }
 
   removeChart ({selector}) {

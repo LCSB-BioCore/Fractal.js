@@ -2,6 +2,7 @@ import {version} from '../package.json'
 import store from './store/store'
 import RequestManager from './services/request-manager'
 import ChartManager from './services/chart-manager'
+import StateManager from './services/state-manager'
 
 class FractalJS {
   constructor (handler, dataSource, fractalisNode, getAuth, options) {
@@ -10,9 +11,11 @@ class FractalJS {
     store.dispatch('updateData')
     store.dispatch('setOptions', options)
     this._chartManager = new ChartManager()
+    this._stateManager = new StateManager()
     this._versionCheck()
   }
 
+  // noinspection JSMethodCanBeStatic
   async _versionCheck () {
     const rv = await store.state.requestManager.getVersion()
     const backendVersion = rv.data.version
@@ -28,7 +31,7 @@ class FractalJS {
   }
 
   setChart ({chart, selector}) {
-    this._chartManager.setChart({chart, selector})
+    return this._chartManager.setChart({chart, selector})
   }
 
   // noinspection JSMethodCanBeStatic
@@ -44,6 +47,16 @@ class FractalJS {
   // noinspection JSMethodCanBeStatic
   deleteSubsets () {
     store.dispatch('setSubsets', [])
+  }
+
+  // noinspection JSMethodCanBeStatic
+  chart2uri (selector) {
+    return this._stateManager.chart2uri(selector)
+  }
+
+  // noinspection JSMethodCanBeStatic
+  uri2chart (selector, uri) {
+    return this._stateManager.uri2chart(selector, uri)
   }
 }
 
