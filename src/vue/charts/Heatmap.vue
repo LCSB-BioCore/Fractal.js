@@ -13,46 +13,64 @@
         <fieldset>
           <legend>Expression Level</legend>
           <div>
-            <label for="fjs-level-1">Mean</label>
-            <input type="radio" id="fjs-level-1" value="mean" v-model="rankingMethod">
+            <input type="radio" value="mean" v-model="rankingMethod">
+            <label>
+              Mean
+            </label>
           </div>
           <div>
-            <label for="fjs-level-2">Median</label>
-            <input type="radio" id="fjs-level-2" value="median" v-model="rankingMethod">
+            <input type="radio" value="median" v-model="rankingMethod">
+            <label>
+              Median
+            </label>
           </div>
         </fieldset>
         <fieldset>
           <legend>Expression Variability</legend>
           <div>
-            <label for="fjs-var-1">Variance</label>
-            <input type="radio" id="fjs-var-1" value="variance" v-model="rankingMethod">
+            <input type="radio" value="variance" v-model="rankingMethod">
+            <label>
+              Variance
+            </label>
           </div>
         </fieldset>
         <fieldset>
           <legend>Differential Expression</legend>
           <div>
-            <label for="fjs-dgea-1">logFC</label>
-            <input type="radio" id="fjs-dgea-1" value="logFC" v-model="rankingMethod">
+            <input type="radio" value="logFC" v-model="rankingMethod">
+            <label>
+              logFC
+            </label>
           </div>
           <div>
-            <label for="fjs-dgea-2">t</label>
-            <input type="radio" id="fjs-dgea-2" value="t" v-model="rankingMethod">
+            <input type="radio" value="t" v-model="rankingMethod">
+            <label>
+              t
+            </label>
           </div>
           <div>
-            <label for="fjs-dgea-3">F</label>
-            <input type="radio" id="fjs-dgea-3" value="F" v-model="rankingMethod">
+            <input type="radio" value="F" v-model="rankingMethod">
+            <label>
+              F
+            </label>
           </div>
           <div>
-            <label for="fjs-dgea-4">B</label>
-            <input type="radio" id="fjs-dgea-4" value="B" v-model="rankingMethod">
+            <input type="radio" value="B" v-model="rankingMethod">
+            <label>
+              B
+            </label>
           </div>
           <div>
-            <label for="fjs-dgea-5">P.Value</label>
-            <input type="radio" id="fjs-dgea-5" value="P.Val" v-model="rankingMethod">
+            <input type="radio" value="P.Val" v-model="rankingMethod">
+            <label>
+              P.Value
+            </label>
           </div>
           <div>
-            <label for="fjs-dgea-6">adj.P.Value</label>
-            <input type="radio" id="fjs-dgea-6" value="adj.P.Val" v-model="rankingMethod">
+            <input type="radio" value="adj.P.Val" v-model="rankingMethod">
+            <label>
+              adj.P.Value
+            </label>
           </div>
         </fieldset>
       </div>
@@ -62,12 +80,16 @@
         <fieldset class="fjs-cluster-algo-fieldset">
           <legend>Algorithm</legend>
           <div>
-            <label for="fjs-hclust-radio">Hierarch.</label>
-            <input type="radio" id="fjs-hclust-radio" value="hclust" v-model="cluster.algorithm"/>
+            <label>
+              <input type="radio" value="hclust" v-model="cluster.algorithm"/>
+              Hierarch.
+            </label>
           </div>
           <div>
-            <label for="fjs-kmeans-radio">KMeans</label>
-            <input type="radio" id="fjs-kmeans-radio" value="kmeans" v-model="cluster.algorithm"/>
+            <label>
+              <input type="radio" value="kmeans" v-model="cluster.algorithm"/>
+              KMeans
+            </label>
           </div>
         </fieldset>
 
@@ -92,41 +114,44 @@
             </select>
           </div>
           <div class="fjs-cluster-ranges">
-            <label for="fjs-n-row-clusters">{{ cluster.options.n_row_clusters }} Row Clusters</label>
-            <input id="fjs-n-row-clusters"
-                   type="range"
-                   min="1" max="20"
-                   v-model="cluster.options.n_row_clusters"/>
+            <label>
+              <input type="range"
+                     min="1" max="20"
+                     v-model="cluster.options.n_row_clusters"/>
+              {{ cluster.options.n_row_clusters }} Row Clusters
+            </label>
           </div>
           <div class="fjs-cluster-ranges">
-            <label for="fjs-n-col-clusters">{{ cluster.options.n_col_clusters }} Col Clusters</label>
-            <input id="fjs-n-col-clusters"
-                   type="range"
-                   min="1" max="20"
-                   v-model="cluster.options.n_col_clusters"/>
+            <label>
+              <input type="range"
+                     min="1" max="20"
+                     v-model="cluster.options.n_col_clusters"/>
+              {{ cluster.options.n_col_clusters }} Col Clusters
+            </label>
           </div>
         </fieldset>
 
         <fieldset class="fjs-cluster-option-fieldset" v-if="cluster.algorithm == 'kmeans'">
           <legend>Options</legend>
           <div class="fjs-cluster-ranges">
-            <label for="fjs-n-row-centroids">{{ cluster.options.n_row_centroids }} Row Centroids</label>
-            <input id="fjs-n-row-centroids"
-                   type="range"
+            <label>
+            <input type="range"
                    min="1" max="20"
                    v-model="cluster.options.n_row_centroids"/>
+              {{ cluster.options.n_row_centroids }} Row Centroids
+            </label>
           </div>
           <div class="fjs-cluster-ranges">
-            <label for="fjs-n-col-centroids">{{ cluster.options.n_col_centroids }} Col Centroids</label>
-            <input id="fjs-n-col-centroids"
-                   type="range"
+            <label>
+            <input type="range"
                    min="1" max="20"
                    v-model="cluster.options.n_col_centroids"/>
+              {{ cluster.options.n_col_centroids }} Col Centroids
+            </label>
           </div>
         </fieldset>
       </div>
     </control-panel>
-
 
     <svg :height="height" :width="width">
       <g :transform="`translate(${margin.left}, ${margin.top})`">

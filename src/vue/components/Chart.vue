@@ -25,7 +25,7 @@
         this.$emit('resize', {height: chartHeight, width: chartWidth})
       },
       focusControlPanel () {
-        const controlPanel = this.$children.filter(d => d.$options.name === 'control-panel')[0]
+        const controlPanel = this.$children.find(d => d.$options.name === 'control-panel')
         controlPanel.focus()
       }
     }

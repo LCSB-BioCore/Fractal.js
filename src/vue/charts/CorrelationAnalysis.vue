@@ -15,14 +15,20 @@
       <hr class="fjs-seperator"/>
       <fieldset class="fjs-correlation-method">
         <legend>Correlation Method</legend>
-        <input type="radio" id="fjs-param-method-1" value="pearson" v-model="params.method">
-        <label for="fjs-param-method-1">Pearson</label>
+        <label>
+          <input type="radio" value="pearson" v-model="params.method">
+          Pearson
+        </label>
         <br/>
-        <input type="radio" id="fjs-param-method-2" value="spearman" v-model="params.method">
-        <label for="fjs-param-method-2">Spearman</label>
+        <label>
+          <input type="radio" value="spearman" v-model="params.method">
+          Spearman
+        </label>
         <br/>
-        <input type="radio" id="fjs-param-method-3" value="kendall" v-model="params.method">
-        <label for="fjs-param-method-3">Kendall</label>
+        <label>
+          <input type="radio" value="kendall" v-model="params.method">
+          Kendall
+        </label>
       </fieldset>
     </control-panel>
 

@@ -14,18 +14,25 @@
       </data-box>
       <hr class="fjs-seperator"/>
       <div>
-        <label for="fjs-pc-x-select">X-Axis</label>
-        <select id="fjs-pc-x-select" v-model="pcX">
-          <option :value="i" v-for="i in components">Principal Component {{i}}</option>
-        </select><br/>
-        <label for="fjs-pc-y-select">Y-Axis</label>
-        <select id="fjs-pc-y-select" v-model="pcY">
-          <option :value="i" v-for="i in components">Principal Component {{i}}</option>
-        </select>
+        <label>
+          <select v-model="pcX">
+            <option :value="i" v-for="i in components">Principal Component {{i}}</option>
+          </select>
+          X-Axis
+        </label>
+        <br/>
+        <label>
+          <select v-model="pcY">
+            <option :value="i" v-for="i in components">Principal Component {{i}}</option>
+          </select>
+          Y-Axis
+        </label>
       </div>
       <div>
-        <input id="fjs-whiten-check" type="checkbox" v-model="params.whiten"/>
-        <label for="fjs-whiten-check">Whiten Output</label>
+        <label>
+          <input type="checkbox" v-model="params.whiten"/>
+          Whiten Output
+        </label>
       </div>
     </control-panel>
 
