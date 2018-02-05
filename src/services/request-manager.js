@@ -121,4 +121,17 @@ export default class {
   getVersion () {
     return this._axios.get('/misc/version')
   }
+  saveState (state) {
+    return this._axios.post('/state', state)
+  }
+  requestStateAccess (stateID) {
+    return this._axios.post(`/state/${stateID}`, {
+      auth: this._getAuth(),
+      handler: this._handler,
+      server: this._dataSource
+    })
+  }
+  getState (stateID) {
+    return this._axios.get(`/state/${stateID}`)
+  }
 }

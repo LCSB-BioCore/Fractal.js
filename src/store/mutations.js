@@ -11,6 +11,12 @@ export default {
   [types.SET_REQUEST_MANAGER] (state, manager) {
     state.requestManager = manager
   },
+  [types.SET_CHART_MANAGER] (state, manager) {
+    state.chartManager = manager
+  },
+  [types.SET_STATE_MANAGER] (state, manager) {
+    state.stateManager = manager
+  },
   [types.SET_SUBSETS] (state, subsets) {
     state.subsets = subsets
   },

@@ -7,17 +7,19 @@ import StateManager from './services/state-manager'
 class FractalJS {
   constructor (handler, dataSource, fractalisNode, getAuth, options) {
     const requestManager = new RequestManager({handler, dataSource, fractalisNode, getAuth})
+    const chartManager = new ChartManager()
+    const stateManager = new StateManager()
     store.dispatch('setRequestManager', requestManager)
+    store.dispatch('setChartManager', chartManager)
+    store.dispatch('setStateManager', stateManager)
     store.dispatch('updateData')
     store.dispatch('setOptions', options)
-    this._chartManager = new ChartManager()
-    this._stateManager = new StateManager()
     this._versionCheck()
   }
 
   // noinspection JSMethodCanBeStatic
   async _versionCheck () {
-    const rv = await store.state.requestManager.getVersion()
+    const rv = await store.getters.requestManager.getVersion()
     const backendVersion = rv.data.version
     if (backendVersion !== version) {
       console.warn(`WARNING: The Fractalis backend is version ${backendVersion},
@@ -27,16 +29,17 @@ class FractalJS {
 
   // noinspection JSMethodCanBeStatic
   loadData (descriptors) {
-    return store.state.requestManager.createData({descriptors})
+    return store.getters.requestManager.createData({descriptors})
   }
 
+  // noinspection JSMethodCanBeStatic
   setChart ({chart, selector}) {
-    return this._chartManager.setChart({chart, selector})
+    return store.getters.chartManager.setChart({chart, selector})
   }
 
   // noinspection JSMethodCanBeStatic
   clearCache () {
-    return store.state.requestManager.deleteAllData()
+    return store.getters.requestManager.deleteAllData()
   }
 
   // noinspection JSMethodCanBeStatic
@@ -50,13 +53,13 @@ class FractalJS {
   }
 
   // noinspection JSMethodCanBeStatic
-  chart2uri (selector) {
-    return this._stateManager.chart2uri(selector)
+  chart2id (selector, callback) {
+    return store.getters.stateManager.chart2id(selector, callback)
   }
 
   // noinspection JSMethodCanBeStatic
-  uri2chart (selector, uri) {
-    return this._stateManager.uri2chart(selector, uri)
+  id2chart (selector, id) {
+    return store.getters.stateManager.id2chart(selector, id)
   }
 }
 
@@ -68,6 +71,7 @@ class FractalJS {
  * @param dataSource: The base URL of the service in which this library is used. Example: 'https://my.service.org/'
  * @param fractalisNode: The base URL of the fractalis back end that you want to use. 'http://fractalis.uni.lu/'
  * @param getAuth: This MUST be a function that can be called at any time to retrieve credentials to authenticate with
+ * @param options: Optional object to configure fractal.js within the target UI.
  * the API of the service specified in dataSource.
  * @returns {FractalJS}: An instance of FractalJS.
  */

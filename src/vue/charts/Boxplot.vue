@@ -15,17 +15,17 @@
       <hr class="fjs-seperator"/>
       <div class="fjs-parameter-container">
         <label>
-          <input type="checkbox" v-model="SAVE_STATE.params.showData"/>
+          <input type="checkbox" v-model="params.showData"/>
           Show Points
         </label>
         <br/>
         <label>
-          <input type="checkbox" v-model="SAVE_STATE.params.jitter"/>
+          <input type="checkbox" v-model="params.jitter"/>
           Jitter Data
         </label>
         <br/>
         <label>
-          <input type="checkbox" v-model="SAVE_STATE.params.showKDE"/>
+          <input type="checkbox" v-model="params.showKDE"/>
           Show Density Est.
         </label>
       </div>
@@ -116,7 +116,7 @@
                       :width="boxplotWidth / 2"/>
           <polyline class="fjs-kde"
                     :points="kdePolyPoints[label]"
-                    v-if="SAVE_STATE.params.showKDE">
+                    v-if="params.showKDE">
           </polyline>
         </g>
       </g>
@@ -136,18 +136,17 @@
   import { truncateTextUntil } from '../mixins/utils'
   import tooltip from '../directives/tooltip'
   import SvgCanvas from '../components/SVGCanvas.vue'
+  import StateSaver from '../mixins/state-saver'
   export default {
     name: 'boxplot',
     data () {
       return {
-        SAVE_STATE: {
-          numData: [],
-          catData: [],
-          params: {
-            showData: false,
-            jitter: false,
-            showKDE: false
-          }
+        numData: [],
+        catData: [],
+        params: {
+          showData: false,
+          jitter: false,
+          showKDE: false
         },
         width: 0,
         height: 0,
@@ -168,8 +167,8 @@
       },
       args () {
         return {
-          features: this.SAVE_STATE.numData,
-          categories: this.SAVE_STATE.catData,
+          features: this.numData,
+          categories: this.catData,
           id_filter: this.idFilter,
           subsets: store.getters.subsets
         }
@@ -178,7 +177,7 @@
         return this.width / 150
       },
       validArgs () {
-        return this.SAVE_STATE.numData.length > 0
+        return this.numData.length > 0
       },
       margin () {
         const left = 10
@@ -209,7 +208,7 @@
               return {
                 id: d.id,
                 value: d.value,
-                jitter: Math.max(this.pointSize / 2, (this.SAVE_STATE.params.jitter ? Math.random() * this.boxplotWidth / 2 : this.boxplotWidth / 2) - this.pointSize / 2),
+                jitter: Math.max(this.pointSize / 2, (this.params.jitter ? Math.random() * this.boxplotWidth / 2 : this.boxplotWidth / 2) - this.pointSize / 2),
                 subset: d.subset,
                 category: d.category
               }
@@ -312,10 +311,10 @@
           })
         }
       },
-      'SAVE_STATE.params.showData': {
+      'params.showData': {
         handler: function () { this.$nextTick(() => this.drawPoints()) }
       },
-      'SAVE_STATE.params.jitter': {
+      'params.jitter': {
         handler: function () { this.$nextTick(() => this.drawPoints()) }
       },
       'points': {
@@ -345,10 +344,10 @@
         this.getTippyInstances(label).forEach(d => d.hide())
       },
       update_numData (ids) {
-        this.SAVE_STATE.numData = ids
+        this.numData = ids
       },
       update_catData (ids) {
-        this.SAVE_STATE.catData = ids
+        this.catData = ids
       },
       setIDFilter (label) {
         store.dispatch('setFilter', {filter: 'ids', value: this.points[label].map(d => d.id)})
@@ -363,7 +362,7 @@
           const canvas = this.$el.querySelector(`.fjs-canvas[data-label="${label}"]`)
           const ctx = canvas.getContext('2d')
           ctx.clearRect(0, 0, canvas.width, canvas.height)
-          if (this.SAVE_STATE.params.showData) {
+          if (this.params.showData) {
             this.points[label].forEach(point => {
               ctx.beginPath()
               ctx.fillStyle = 'black'
@@ -398,8 +397,16 @@
       DataBox,
       Chart
     },
+    mixins: [
+      StateSaver
+    ],
     directives: {
       tooltip
+    },
+    mounted () {
+      this.registerDataToSave([
+        'catData', 'numData', 'params'
+      ])
     }
   }
 </script>

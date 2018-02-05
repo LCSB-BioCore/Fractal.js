@@ -1,5 +1,7 @@
 import types from './mutation-types'
 import RequestManager from '../services/request-manager'
+import ChartManager from '../services/chart-manager'
+import StateManager from '../services/state-manager'
 
 export default {
   /**
@@ -14,6 +16,20 @@ export default {
       throw new Error('The dispatched value must be an instance of RequestManager.')
     }
   },
+  setChartManager: (context, manager) => {
+    if (manager instanceof ChartManager) {
+      context.commit(types.SET_CHART_MANAGER, manager)
+    } else {
+      throw new Error('The dispatched value must be an instance of ChartManager.')
+    }
+  },
+  setStateManager: (context, manager) => {
+    if (manager instanceof StateManager) {
+      context.commit(types.SET_STATE_MANAGER, manager)
+    } else {
+      throw new Error('The dispatched value must be an instance of StateManager.')
+    }
+  },
   /**
    * Commits subsets mutation that will overwrite the old value.
    * @param context The context of the action.
@@ -21,8 +37,8 @@ export default {
    */
   setSubsets: (context, subsets) => {
     if (subsets instanceof Array &&
-        ((subsets.length > 0 && subsets[0] instanceof Array) || !subsets.length) &&
-        subsets.every(d => Array.isArray(d))) {
+      ((subsets.length > 0 && subsets[0] instanceof Array) || !subsets.length) &&
+      subsets.every(d => Array.isArray(d))) {
       context.commit(types.SET_SUBSETS, subsets)
     } else {
       throw new Error('The dispatched value must be an Array containing Arrays (unless empty).')
@@ -63,7 +79,7 @@ export default {
    * @param context The context of the action.
    * @param taskID The id of the task.
    * @param taskName The name of the task.
-   * @param taskState The current state of the task. (PENDING, SUBMITTED, SUCCESS, FAILURE)
+   * @param taskState The current state of the task. (SUBMITTED, SUCCESS, FAILURE, PENDING (not existing))
    * @param taskMessage A message in case the task failed.
    */
   setTask: (context, {taskID, taskName, taskState, taskMessage}) => {
