@@ -83,15 +83,15 @@ export default {
    * @param taskMessage A message in case the task failed.
    */
   setTask: (context, {taskID, taskName, taskState, taskMessage}) => {
-    context.commit(types.SET_TASK, { taskID, taskName, taskState, taskMessage })
+    context.commit(types.SET_TASK, {taskID, taskName, taskState, taskMessage})
   },
   /**
    * Commits a tasks mutation that will remove the task for the given taskID.
    * @param context The context of the action.
    * @param taskID The id of the task to remove.
    */
-  unsetTask: (context, {taskID}) => {
-    context.commit(types.UNSET_TASK, {taskID})
+  unsetTask: (context, taskID) => {
+    context.commit(types.UNSET_TASK, taskID)
   },
   /**
    * Commits a control panel vm for keeping track of all such instances.
@@ -99,7 +99,7 @@ export default {
    * @param vm  The vm of the contr
    */
   addControlPanel: (context, vm) => {
-    context.commit(types.ADD_CONTROL_PANEL, {vm})
+    context.commit(types.ADD_CONTROL_PANEL, vm)
   },
   setOptions: (context, options) => {
     if (typeof options === 'object') {

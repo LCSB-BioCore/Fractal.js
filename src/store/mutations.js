@@ -31,10 +31,10 @@ export default {
       Vue.set(state.tasks, taskID, {taskID, taskName, taskState, taskMessage})
     }
   },
-  [types.UNSET_TASK] (state, {taskID}) {
+  [types.UNSET_TASK] (state, taskID) {
     Vue.delete(state.tasks, taskID)
   },
-  [types.ADD_CONTROL_PANEL] (state, {vm}) {
+  [types.ADD_CONTROL_PANEL] (state, vm) {
     state.controlPanels.push(vm)
   },
   [types.SET_OPTIONS] (state, options) {

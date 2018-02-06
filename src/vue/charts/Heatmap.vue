@@ -423,7 +423,7 @@
     },
     methods: {
       computeHeatmap (args) {
-        runAnalysis({task_name: 'compute-heatmap', args})
+        runAnalysis('compute-heatmap', args)
           .then(response => {
             const results = JSON.parse(response)
             deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
@@ -431,7 +431,7 @@
           })
       },
       computeCluster (args) {
-        runAnalysis({task_name: 'compute-cluster', args})
+        runAnalysis('compute-cluster', args)
           .then(response => {
             const results = JSON.parse(response)
             deepFreeze(results)

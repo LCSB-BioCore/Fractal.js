@@ -6,7 +6,7 @@ import StateManager from './services/state-manager'
 
 class FractalJS {
   constructor (handler, dataSource, fractalisNode, getAuth, options) {
-    const requestManager = new RequestManager({handler, dataSource, fractalisNode, getAuth})
+    const requestManager = new RequestManager(handler, dataSource, fractalisNode, getAuth)
     const chartManager = new ChartManager()
     const stateManager = new StateManager()
     store.dispatch('setRequestManager', requestManager)
@@ -28,13 +28,13 @@ class FractalJS {
   }
 
   // noinspection JSMethodCanBeStatic
-  loadData (descriptors) {
-    return store.getters.requestManager.createData({descriptors})
+  loadData ({descriptors}) {
+    return store.getters.requestManager.createData(descriptors)
   }
 
   // noinspection JSMethodCanBeStatic
   setChart ({chart, selector}) {
-    return store.getters.chartManager.setChart({chart, selector})
+    return store.getters.chartManager.setChart(chart, selector)
   }
 
   // noinspection JSMethodCanBeStatic
@@ -43,7 +43,7 @@ class FractalJS {
   }
 
   // noinspection JSMethodCanBeStatic
-  setSubsets (subsets) {
+  setSubsets ({subsets}) {
     store.dispatch('setSubsets', subsets)
   }
 
@@ -53,13 +53,13 @@ class FractalJS {
   }
 
   // noinspection JSMethodCanBeStatic
-  chart2id (selector, callback) {
+  chart2id ({selector, callback}) {
     return store.getters.stateManager.chart2id(selector, callback)
   }
 
   // noinspection JSMethodCanBeStatic
-  id2chart (selector, id) {
-    return store.getters.stateManager.id2chart(selector, id)
+  id2chart ({selector, stateID}) {
+    return store.getters.stateManager.id2chart(selector, stateID)
   }
 }
 

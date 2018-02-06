@@ -1,7 +1,7 @@
 <template>
   <div class="fjs-task-view">
     <div class="fjs-state-container" v-for="task in incompleteTasks">
-      <loader class="fjs-loader" :style="{opacity: task.taskState === 'SUBMITTED' ? 1 : 0}"></loader>
+      <loader class="fjs-loader" :style="{opacity: task.taskState === 'SUBMITTED' ? 1 : 0}"/>
       <span class="fjs-submitted" v-if="task.taskState === 'SUBMITTED'">{{ task.taskName }}</span>
       <span class="fjs-failed" v-else>{{ task.taskMessage }}</span>
       <span class="fjs-cancel-btn" @click="cancelTask(task.taskID)">&#215;</span>
@@ -33,7 +33,7 @@
     },
     methods: {
       cancelTask (taskID) {
-        store.getters.requestManager.cancelAnalysis({taskID})
+        store.getters.requestManager.cancelAnalysis(taskID)
       }
     }
   }

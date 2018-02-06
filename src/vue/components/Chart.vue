@@ -1,6 +1,6 @@
 <template>
   <div class="fjs-chart" @mousedown.capture="focusControlPanel">
-    <slot></slot>
+    <slot/>
   </div>
 </template>
 

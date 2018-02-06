@@ -99,7 +99,7 @@
       },
       featureGetter (taskID) {
         return async () => {
-          const metaData = await store.getters.requestManager.getMetaData({taskID})
+          const metaData = await store.getters.requestManager.getMetaData(taskID)
           return metaData.data.meta['features'] || []
         }
       },
@@ -108,10 +108,10 @@
         $body.slideToggle(500)
       },
       reloadData (taskID) {
-        store.getters.requestManager.reloadData({taskID})
+        store.getters.requestManager.reloadData(taskID)
       },
       deleteData (taskID) {
-        store.getters.requestManager.deleteData({taskID})
+        store.getters.requestManager.deleteData(taskID)
       },
       updateFilter (filter, taskID) {
         this.featureFilter[taskID] = filter

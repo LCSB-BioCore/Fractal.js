@@ -367,7 +367,7 @@
             JSON.stringify(newArgs.categories) !== JSON.stringify(oldArgs.categories) ||
             !this.hasSetFilter
           if (this.validArgs) {
-            this.runAnalysisWrapper({init, args: newArgs})
+            this.runAnalysisWrapper(init, newArgs)
           }
           this.hasSetFilter = false
         }
@@ -408,9 +408,9 @@
       tooltip
     },
     methods: {
-      runAnalysisWrapper ({init, args}) {
+      runAnalysisWrapper (init, args) {
         // function made available via requestHandling mixin
-        runAnalysis({task_name: 'compute-correlation', args})
+        runAnalysis('compute-correlation', args)
           .then(response => {
             const results = JSON.parse(response)
             results.data = JSON.parse(results.data)
@@ -439,7 +439,7 @@
           ctx.fill()
         })
       },
-      resize ({height, width}) {
+      resize (height, width) {
         this.height = height
         this.width = width
       },

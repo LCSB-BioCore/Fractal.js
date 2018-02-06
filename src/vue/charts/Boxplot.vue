@@ -381,7 +381,7 @@
         this.width = width
       },
       runAnalysisWrapper (args) {
-        runAnalysis({task_name: 'compute-boxplot', args})
+        runAnalysis('compute-boxplot', args)
           .then(response => {
             const results = JSON.parse(response)
             results.data = JSON.parse(results.data)

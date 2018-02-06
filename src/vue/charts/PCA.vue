@@ -341,7 +341,7 @@
     },
     methods: {
       runAnalysisWrapper (args) {
-        runAnalysis({task_name: 'compute-pca', args})
+        runAnalysis('compute-pca', args)
           .then(response => {
             const results = JSON.parse(response)
             deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change

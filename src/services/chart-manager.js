@@ -14,7 +14,7 @@ export default class {
     }
   }
 
-  setChart ({chart, selector}) {
+  setChart (chart, selector) {
     if (!this.AVAILABLE_CHARTS.hasOwnProperty(chart)) {
       throw new Error(`Chart '${chart} is not available. Must be one of: ${this.AVAILABLE_CHARTS}`)
     }
@@ -22,9 +22,5 @@ export default class {
     const vm = new Chart()
     vm.$mount(selector)
     return vm
-  }
-
-  removeChart ({selector}) {
-    // TODO: Implement
   }
 }

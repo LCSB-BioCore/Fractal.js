@@ -4,7 +4,7 @@ import store from '../../store/store'
  * A helper method to submit an analysis.
  * This method returns a promise that resolves into the statistic results of the task once it is finished.
  * Please pay special attention to the `args` syntax.
- * @param task_name The name to execute. For instance `compute-correlation`
+ * @param taskName The name to execute. For instance `compute-correlation`
  * @param args An object containing all parameters for the task. Strings wrapped in '$' characters are treated as
  * data ids. The backend will attempt to replace them with a Python Pandas DataFrame.
  * Example args = {method: 'sum', x: '$1234-5678-12345678$'} will replace x with a DataFrame, if available. This
@@ -12,16 +12,16 @@ import store from '../../store/store'
  * selected data ids. Note that Arrays of '$' wrapped strings are also valid.
  * @returns {Promise.<void>} An ES6 promise. Resolves into the result of the analysis.
  */
-async function runAnalysis ({task_name, args}) {
+async function runAnalysis (taskName, args) {
   function timeout (ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
 
-  const rv = await store.getters.requestManager.createAnalysis({task_name, args})
+  const rv = await store.getters.requestManager.createAnalysis(taskName, args)
   const taskID = rv.data.task_id
   store.dispatch('setTask', {
     taskID,
-    taskName: task_name,
+    taskName,
     taskState: 'SUBMITTED'
   })
 
@@ -32,19 +32,19 @@ async function runAnalysis ({task_name, args}) {
     timeWaited += delay
     delay += 100
     delay = delay > 3000 ? 3000 : delay
-    const rv2 = await store.getters.requestManager.getAnalysisStatus({taskID})
+    const rv2 = await store.getters.requestManager.getAnalysisStatus(taskID)
     const taskInfo = rv2.data
     if (taskInfo.state === 'SUCCESS') {
       store.dispatch('setTask', {
         taskID,
-        taskName: task_name,
+        taskName,
         taskState: taskInfo.state
       })
       return taskInfo.result
     } else if (taskInfo.state === 'FAILURE') {
       store.dispatch('setTask', {
         taskID,
-        taskName: task_name,
+        taskName,
         taskState: taskInfo.state,
         taskMessage: taskInfo.result
       })
@@ -52,7 +52,7 @@ async function runAnalysis ({task_name, args}) {
     } else if (taskInfo.state === 'SUBMITTED') {
       store.dispatch('setTask', {
         taskID,
-        taskName: task_name,
+        taskName,
         taskState: taskInfo.state})
     } else {
       throw new Error(`Analysis Task has unhandled state: ${taskInfo.state}`)
@@ -61,7 +61,7 @@ async function runAnalysis ({task_name, args}) {
   const error = 'Analysis took too long. Stopped listener.'
   store.dispatch('setTask', {
     taskID,
-    taskName: task_name,
+    taskName,
     taskState: 'FAILURE',
     taskMessage: error
   })
