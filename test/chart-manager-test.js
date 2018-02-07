@@ -16,11 +16,15 @@ describe('Chart manager', () => {
 
   it('fails to set non existing charts', () => {
     const f = () => cm.setChart('foo', '.placeholder')
-    expect(f).toThrow()
+    expect(f).toThrowError(/.+not available.+/)
   })
 
   it('sets chart if it exists', () => {
     cm.setChart('correlation-analysis', '.placeholder')
-    expect(document.querySelector('.fjs-correlation-analysis')).toBeDefined()
+    expect(document.querySelector('.fjs-chart')).toBeDefined()
+  })
+
+  afterAll(() => {
+    document.body.innerHTML = ''
   })
 })

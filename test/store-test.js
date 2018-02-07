@@ -54,8 +54,12 @@ describe('store', () => {
     it('should have working unsetTask action', () => {
       const task = {taskID: 'A', taskName: 'foo', taskState: 'SUBMITTED'}
       store.dispatch('setTask', task)
-      store.dispatch('unsetTask', {taskID: 'A'})
+      store.dispatch('unsetTask', 'A')
       expect(store.getters.tasks['A']).not.toBeDefined()
     })
+  })
+
+  afterAll(() => {
+    document.body.innerHTML = ''
   })
 })

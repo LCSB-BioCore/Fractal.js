@@ -9,22 +9,15 @@
 <body>
 <input type="button" onclick="loadData()" value="load data"/>
 <input type="button" onclick="deleteData()" value="delete data"/>
-<div class="container">
-  <div>
-    <div class="placeholder" id="placeholder1"></div>
-  </div>
-
-  <div>
-    <div class="placeholder" id="placeholder2"></div>
-  </div>
-
-  <div>
-    <div class="placeholder" id="placeholder3"></div>
-  </div>
-
-  <div>
-    <div class="placeholder" id="placeholder4"></div>
-  </div>
+<input type="button" onclick="saveState()" value="save state"/>
+<input type="text" class="save-id">
+<input type="button" onclick="loadState()" value="load state"/>
+<input type="text" class="load-id">
+<div class="containers">
+  <div class="container container-1"></div>
+  <div class="container container-2"></div>
+  <div class="container container-3"></div>
+  <div class="container container-4"></div>
 </div>
 </body>
 
@@ -86,15 +79,23 @@
     fjs.clearCache()
   }
 
+  function saveState () {
+    fjs.chart2id('.fjs-chart', id => { document.querySelector('.save-id').value = id })
+  }
+
+  function loadState () {
+    fjs.id2chart('#placeholder4', document.querySelector('.load-id').value)
+  }
+
   function setCharts () {
-    fjs.setChart({chart: 'correlation-analysis', selector: '#placeholder1'})
-    fjs.setChart({chart: 'boxplot', selector: '#placeholder2'})
-    fjs.setChart({chart: 'heatmap', selector: '#placeholder3'})
-    fjs.setChart({chart: 'pca-analysis', selector: '#placeholder4'})
+    // fjs.setChart('correlation-analysis', '.container-1')
+    fjs.setChart('boxplot', '.container-2')
+    // fjs.setChart('heatmap', '.container-3')
+    // fjs.setChart('pca-analysis', '.container-4')
   }
 
   function resize () {
-    const container = document.querySelector('.container')
+    const container = document.querySelector('.containers')
     container.style.height = document.documentElement.clientHeight + 'px'
     container.style.width = document.documentElement.clientWidth + 'px'
   }
@@ -107,12 +108,12 @@
 </script>
 
 <style>
-  .container {
+  .containers {
     width: 1000px;
     height: 1000px;
   }
 
-  .container > div {
+  .container {
     width: 48%;
     height: 48%;
     float: left;

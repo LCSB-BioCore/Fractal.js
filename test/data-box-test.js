@@ -47,4 +47,8 @@ describe('DataBox', () => {
     expect(vm.$el.querySelector('.fjs-data-entry-header input[data-id="A"]').checked).toBeTruthy()
     expect(vm.$el.querySelector('.fjs-data-entry-header input[data-id="B"]').checked).toBeFalsy()
   })
+
+  afterAll(() => {
+    document.body.innerHTML = ''
+  })
 })

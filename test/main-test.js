@@ -22,4 +22,8 @@ describe('initializer', () => {
     const fjs = init({handler: 'ada', dataSource: 'foo', fractalisNode: 'foo', getAuth: () => {}})
     expect(fjs.constructor.name).toBe('FractalJS')
   })
+
+  afterAll(() => {
+    document.body.innerHTML = ''
+  })
 })

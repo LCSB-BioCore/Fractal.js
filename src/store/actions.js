@@ -96,11 +96,16 @@ export default {
   /**
    * Commits a control panel vm for keeping track of all such instances.
    * @param context The context of the action.
-   * @param vm  The vm of the contr
+   * @param vm  The vm of the control panel.
    */
   addControlPanel: (context, vm) => {
     context.commit(types.ADD_CONTROL_PANEL, vm)
   },
+  /**
+   * Commits an option object if it is defined that all components can access for configuration.
+   * @param context The context of the action.
+   * @param options The object that contains configuration options.
+   */
   setOptions: (context, options) => {
     if (typeof options === 'object') {
       context.commit(types.SET_OPTIONS, options)

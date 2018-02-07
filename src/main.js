@@ -28,12 +28,12 @@ class FractalJS {
   }
 
   // noinspection JSMethodCanBeStatic
-  loadData ({descriptors}) {
+  loadData (descriptors) {
     return store.getters.requestManager.createData(descriptors)
   }
 
   // noinspection JSMethodCanBeStatic
-  setChart ({chart, selector}) {
+  setChart (chart, selector) {
     return store.getters.chartManager.setChart(chart, selector)
   }
 
@@ -43,7 +43,7 @@ class FractalJS {
   }
 
   // noinspection JSMethodCanBeStatic
-  setSubsets ({subsets}) {
+  setSubsets (subsets) {
     store.dispatch('setSubsets', subsets)
   }
 
@@ -53,12 +53,12 @@ class FractalJS {
   }
 
   // noinspection JSMethodCanBeStatic
-  chart2id ({selector, callback}) {
+  chart2id (selector, callback) {
     return store.getters.stateManager.chart2id(selector, callback)
   }
 
   // noinspection JSMethodCanBeStatic
-  id2chart ({selector, stateID}) {
+  id2chart (selector, stateID) {
     return store.getters.stateManager.id2chart(selector, stateID)
   }
 }
