@@ -1,4 +1,8 @@
 /**
+ * Utility functions that you might or might not want to use within your chart.
+ */
+
+/**
  * https://stackoverflow.com/questions/5723154/truncate-a-string-in-the-middle-with-javascript
  */
 export function truncate ({text, strLen, separator}) {

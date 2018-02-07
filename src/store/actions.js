@@ -16,6 +16,11 @@ export default {
       throw new Error('The dispatched value must be an instance of RequestManager.')
     }
   },
+  /**
+   * Commits ChartManager mutation that will overwrite the old value.
+   * @param context The context of the action.
+   * @param manager Instance of ChartManager
+   */
   setChartManager: (context, manager) => {
     if (manager instanceof ChartManager) {
       context.commit(types.SET_CHART_MANAGER, manager)
@@ -23,6 +28,11 @@ export default {
       throw new Error('The dispatched value must be an instance of ChartManager.')
     }
   },
+  /**
+   * Commits StateManager mutation that will overwrite the old value.
+   * @param context The context of the action.
+   * @param manager Instance of StateManager
+   */
   setStateManager: (context, manager) => {
     if (manager instanceof StateManager) {
       context.commit(types.SET_STATE_MANAGER, manager)

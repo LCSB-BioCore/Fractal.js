@@ -14,6 +14,12 @@ export default class {
     }
   }
 
+  /**
+   * Attempts to set a chart based on a given name as a child of the given selector.
+   * @param chart: The name of the chart. Must be a name of a vue component within AVAILABLE_CHARTS.
+   * @param selector: A unique selector which will be the parent of the chart.
+   * @returns {Vue} The mounted vue component.
+   */
   setChart (chart, selector) {
     if (!this.AVAILABLE_CHARTS.hasOwnProperty(chart)) {
       throw new Error(`Chart '${chart} is not available. Must be one of: ${this.AVAILABLE_CHARTS}`)

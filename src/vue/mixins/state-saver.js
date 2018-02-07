@@ -1,3 +1,9 @@
+/**
+ * Provide a mixin that allows the component to register certain parts of their state to be saved.
+ * The only "public" method is registerDataToSave which takes a list strings (paths) representing
+ * paths in the component data.
+ */
+
 import objectPath from 'object-path'
 
 export default {
