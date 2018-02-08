@@ -4,24 +4,14 @@ export default class {
   /**
    * For a given selector call back the given callback with the stateID whenever the state changes.
    * In short, this can be used to get a unique identifier for the current state of a chart and to restore it later on.
-   * @param selector: Must identify a unique fjs-chart element.
+   * @param vm: Must be the vm returned by chartManager.setChart()
    * @param callback: An arbitrary callback with one argument (the state ID).
    */
-  chart2id (selector, callback) {
-    let chartElement = document.querySelectorAll(selector)
-    if (chartElement.length !== 1) {
-      throw new Error('The given selector must point to exactly one element. ' +
-        '#Elements for this selector: ' + chartElement.length)
-    }
-    chartElement = chartElement[0]
-    if (typeof chartElement.__vue__ === 'undefined' || chartElement.__vue__.$options.name !== 'chart') {
-      throw new Error('The given selector must point to a div element with class "fjs-chart". ' +
-        'This is the div that replaced the placeholder when creating the chart initially.')
-    }
-    if (typeof chartElement.__vue__.$parent._setStateChangedCallback === 'undefined') {
+  chart2id (vm, callback) {
+    if (vm._setStateChangedCallback === 'undefined') {
       throw new Error('Cannot generate an id for this chart. It does not permit state saving.')
     }
-    chartElement.__vue__.$parent._setStateChangedCallback(async function (name, state) {
+    vm._setStateChangedCallback(async function (name, state) {
       const rv = await store.getters.requestManager.saveState({chartName: name, chartState: state})
       const stateID = rv.data.state_id
       callback(stateID)

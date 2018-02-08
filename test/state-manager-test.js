@@ -37,32 +37,11 @@ describe('state manager', () => {
   })
 
   describe('chart2id', () => {
-    it('throws if selector matches more or less than 1 element', () => {
-      const el1 = document.createElement('div')
-      el1.className = 'bar'
-      const el2 = document.createElement('div')
-      el2.className = 'bar'
-      document.body.appendChild(el1)
-      document.body.appendChild(el2)
-      let f = () => stateManager.chart2id('#foo', _ => {})
-      expect(f).toThrowError(/.+must point to exactly one.+/)
-      let g = () => stateManager.chart2id('.bar', _ => {})
-      expect(g).toThrowError(/.+must point to exactly one.+/)
-    })
-
-    it('throws if selector is no chart component', () => {
-      const el = document.createElement('div')
-      el.id = 'foo'
-      document.body.appendChild(el)
-      let f = () => stateManager.chart2id('#foo', _ => {})
-      expect(f).toThrowError(/.+must point to a div element with class "fjs-chart".+/)
-    })
-
     it('makes save state request and calls callback with returned id when called back', done => {
       spyOn(store.getters.requestManager, 'saveState').and.returnValue({data: {state_id: 456}})
       const spy = jasmine.createSpy('spy')
       const callback = id => spy(id)
-      stateManager.chart2id('.fjs-chart', callback)
+      stateManager.chart2id(vm, callback)
       vm.$data._callback('foo', 123).then(() => {
         expect(store.getters.requestManager.saveState).toHaveBeenCalledWith({chartName: 'foo', chartState: 123})
         expect(spy).toHaveBeenCalledWith(456)

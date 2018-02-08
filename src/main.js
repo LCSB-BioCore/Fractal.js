@@ -53,8 +53,8 @@ class FractalJS {
   }
 
   // noinspection JSMethodCanBeStatic
-  chart2id (selector, callback) {
-    return store.getters.stateManager.chart2id(selector, callback)
+  chart2id (vm, callback) {
+    return store.getters.stateManager.chart2id(vm, callback)
   }
 
   // noinspection JSMethodCanBeStatic
