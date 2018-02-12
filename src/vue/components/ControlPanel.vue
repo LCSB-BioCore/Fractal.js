@@ -1,15 +1,15 @@
 <template>
   <div class="fjs-control-panel"
-       :style="{width: shown ? '15vw' : '1vw', left: left, right: right}"
+       :style="{width: width, left: left, right: right}"
        v-show="focused"
-       @mouseover="locked ? noop() : show()"
-       @mouseout="locked ? noop() : hide()">
+       @mouseover="show()"
+       @mouseout="hide()">
+    <span class="fjs-panel-label" v-show="!expanded">Control Panel</span>
     <div class="fjs-panel-header">
-      <span v-show="shown">{{ chartName }}</span>
+      <span v-show="expanded">{{ name }}</span>
       <i class="fjs-lock-btn material-icons" @click="toggleLock">{{ lockIcon }}</i>
     </div>
-    <span class="fjs-panel-label" v-show="!shown">Control Panel</span>
-    <div v-show="shown">
+    <div v-show="expanded">
       <slot/>
       <hr class="fjs-seperator"/>
       <task-view/>
@@ -22,75 +22,68 @@
   import store from '../../store/store'
   export default {
     name: 'control-panel',
-    props: {},
     data () {
       return {
-        focused: true,
-        locked: false,
-        expanded: false,
-        shown: true
+        focused: true
+      }
+    },
+    props: {
+      name: {
+        type: String,
+        required: true
       }
     },
     computed: {
+      locked () {
+        return store.getters.controlPanel.locked
+      },
+      expanded () {
+        return store.getters.controlPanel.expanded
+      },
       lockIcon () {
         return this.locked ? 'lock' : 'lock_open'
-      },
-      chartName () {
-        return this.$parent.$parent.$options.name
       },
       left () {
         return store.getters.options.controlPanelPosition === 'left' ? 0 : ''
       },
       right () {
         return store.getters.options.controlPanelPosition === 'right' ? 0 : ''
+      },
+      width () {
+        return this.expanded ? '15vw' : '1vw'
       }
     },
     methods: {
-      noop () {},
       toggleLock () {
-        this.locked = !this.locked
-        this.propagateState()
+        store.dispatch('setControlPanel', {locked: !store.getters.controlPanel.locked})
       },
       show () {
-        this.expanded = true
-        this.propagateState()
-        this.shown = true
+        if (!this.locked) {
+          store.dispatch('setControlPanel', {expanded: true})
+        }
       },
       hide () {
-        this.expanded = false
-        this.propagateState()
-        this.shown = false
+        if (!this.locked) {
+          store.dispatch('setControlPanel', {expanded: false})
+        }
       },
       focus () {
         this.unfocusAll()
         this.focused = true
         this.$nextTick(() => {
-          this.expanded ? this.show(false) : this.hide(false)
+          this.expanded ? this.show() : this.hide()
         })
       },
       unFocus () {
         this.focused = false
       },
       unfocusAll () {
-        store.getters.controlPanels.forEach(panel => {
-          panel.unFocus()
-        })
-      },
-      propagateState () {
-        store.getters.controlPanels.forEach(panel => {
-          panel.locked = this.locked
-          panel.expanded = this.expanded
+        Array.prototype.forEach.call(document.querySelectorAll('.fjs-control-panel'), panel => {
+          panel.__vue__.unFocus()
         })
       }
     },
     mounted () {
-      window.addEventListener('resize', () => {
-        this.expanded ? this.show(false) : this.hide(false)
-      })
-      this.hide()
-    },
-    created () {
-      store.dispatch('addControlPanel', this)
       this.unfocusAll()
       this.focused = true
     },

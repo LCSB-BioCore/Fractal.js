@@ -5,7 +5,7 @@ export default {
   requestManager: state => state.requestManager,
   chartManager: state => state.chartManager,
   stateManager: state => state.stateManager,
-  controlPanels: state => state.controlPanels,
+  controlPanel: state => state.controlPanel,
   filter: state => name => state.filters[name],
   options: state => state.options
 }

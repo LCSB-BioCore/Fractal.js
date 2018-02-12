@@ -104,12 +104,12 @@ export default {
     context.commit(types.UNSET_TASK, taskID)
   },
   /**
-   * Commits a control panel vm for keeping track of all such instances.
-   * @param context The context of the action.
-   * @param vm  The vm of the control panel.
+   * Commits panel states to control them on a global level.
+   * @param context: The context of the action.
+   * @param options: An object that contains options for a control panel.
    */
-  addControlPanel: (context, vm) => {
-    context.commit(types.ADD_CONTROL_PANEL, vm)
+  setControlPanel: (context, options) => {
+    context.commit(types.SET_CONTROL_PANEL, options)
   },
   /**
    * Commits an option object if it is defined that all components can access for configuration.

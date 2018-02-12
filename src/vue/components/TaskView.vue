@@ -1,6 +1,8 @@
 <template>
   <div class="fjs-task-view">
-    <div class="fjs-state-container" v-for="task in incompleteTasks">
+    <div class="fjs-state-container"
+         v-for="task in tasks"
+         v-if="task.taskState === 'SUBMITTED' || task.taskState === 'FAILED'">
       <loader class="fjs-loader" :style="{opacity: task.taskState === 'SUBMITTED' ? 1 : 0}"/>
       <span class="fjs-submitted" v-if="task.taskState === 'SUBMITTED'">{{ task.taskName }}</span>
       <span class="fjs-failed" v-else>{{ task.taskMessage }}</span>
@@ -17,18 +19,9 @@
     components: {
       Loader
     },
-    data () {
-      return {
-      }
-    },
     computed: {
       tasks () {
         return store.getters.tasks
-      },
-      incompleteTasks () {
-        return Object.keys(this.tasks)
-          .filter(key => { return this.tasks[key].taskState !== 'SUCCESS' })
-          .map(key => this.tasks[key])
       }
     },
     methods: {

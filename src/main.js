@@ -1,4 +1,4 @@
-import {version} from '../package.json'
+import { version } from '../package.json'
 import store from './store/store'
 import RequestManager from './services/request-manager'
 import ChartManager from './services/chart-manager'

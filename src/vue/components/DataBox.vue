@@ -65,7 +65,8 @@
     },
     computed: {
       items () {
-        return store.getters.data.filter(item => ~this.dataType.split(',').map(s => s.trim()).indexOf(item.data_type))
+        return store.getters.data
+          .filter(item => ~this.dataType.split(',').map(s => s.trim()).indexOf(item.data_type))
       },
       transformedIDs () {
         return this.selectedIDs.map(id => `$${JSON.stringify({id, filters: { feature: this.featureFilter[id] }})}$`)

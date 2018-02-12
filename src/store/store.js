@@ -12,7 +12,10 @@ const state = {
   requestManager: null,
   chartManager: null,
   stateManager: null,
-  controlPanels: [],
+  controlPanel: {
+    locked: false,
+    expanded: false
+  },
   subsets: [],
   filters: {
     ids: []
@@ -22,9 +25,17 @@ const state = {
   }
 }
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   state,
   getters,
   actions,
   mutations
 })
+
+const initialState = JSON.parse(JSON.stringify(store.state))
+
+export function resetState () {
+  store.replaceState(JSON.parse(JSON.stringify(initialState)))
+}
+
+export default store

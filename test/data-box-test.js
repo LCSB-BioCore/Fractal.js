@@ -1,10 +1,10 @@
 import Vue from 'vue'
 import DataBox from '../src/vue/components/DataBox.vue'
-import store from '../src/store/store'
+import store, { resetState } from '../src/store/store'
 
 describe('DataBox', () => {
   afterEach(() => {
-    store.state.data = []
+    resetState()
   })
 
   it('has correct name', () => {

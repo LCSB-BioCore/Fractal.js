@@ -34,8 +34,8 @@ export default {
   [types.UNSET_TASK] (state, taskID) {
     Vue.delete(state.tasks, taskID)
   },
-  [types.ADD_CONTROL_PANEL] (state, vm) {
-    state.controlPanels.push(vm)
+  [types.SET_CONTROL_PANEL] (state, options) {
+    Object.assign(state.controlPanel, options)
   },
   [types.SET_OPTIONS] (state, options) {
     Object.assign(state.options, options)

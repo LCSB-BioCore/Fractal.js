@@ -3,22 +3,20 @@ import RequestManager from '../src/services/request-manager'
 import ChartManager from '../src/services/chart-manager'
 import Vue from 'vue'
 import stateSaver from '../src/vue/mixins/state-saver'
-import store from '../src/store/store'
+import store, { resetState } from '../src/store/store'
 import Chart from '../src/vue/components/Chart.vue'
 
 describe('state manager', () => {
   let stateManager
-  beforeAll(() => {
+  let vm
+  beforeEach(() => {
+    resetState()
     stateManager = new StateManager()
     const chartManager = new ChartManager()
     const requestManager = new RequestManager(
       {handler: '', dataSource: '', fractalisNode: '', getAuth: () => {}})
     store.dispatch('setRequestManager', requestManager)
     store.dispatch('setChartManager', chartManager)
-  })
-
-  let vm
-  beforeEach(() => {
     const container = document.createElement('div')
     const el = document.createElement('div')
     el.id = 'chart'
