@@ -34,7 +34,6 @@
 
     <svg :height="height" :width="width">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
-        <svg-canvas name="fjs-canvas" :width="padded.width" :height="padded.height"/>
         <html2svg :right="padded.width">
           <draggable>
             <div class="fjs-legend">
@@ -53,11 +52,12 @@
             </div>
           </draggable>
         </html2svg>
-        <crosshair :width="padded.width" :height="padded.height"/>
         <g class="fjs-corr-axis fjs-y-axis-2" :transform="`translate(${padded.width}, 0)`"></g>
         <g class="fjs-corr-axis fjs-x-axis-2"></g>
         <g class="fjs-corr-axis fjs-x-axis-1" :transform="`translate(0, ${padded.height})`"></g>
         <g class="fjs-corr-axis fjs-y-axis-1"></g>
+        <crosshair :width="padded.width" :height="padded.height"/>
+        <image :href="dataUrl" :width="padded.width" :height="padded.height"></image>
         <g class="fjs-brush"></g>
         <text class="fjs-axis-label"
               :x="padded.width / 2"
@@ -108,10 +108,10 @@
   import * as d3 from 'd3'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
-  import SvgCanvas from '../components/SVGCanvas.vue'
   import Crosshair from '../components/Crosshair.vue'
   import Html2svg from '../components/HTML2SVG.vue'
   import Draggable from '../components/Draggable.vue'
+  import getHDPICanvas from '../mixins/high-dpi-canvas'
   export default {
     name: 'correlation-analysis',
     data () {
@@ -146,7 +146,8 @@
           data: []
         },
         selectedPoints: [],
-        hasSetFilter: false
+        hasSetFilter: false,
+        dataUrl: ''
       }
     },
     computed: {
@@ -180,6 +181,9 @@
         const width = this.width - this.margin.left - this.margin.right
         const height = this.height - this.margin.top - this.margin.bottom
         return {width, height}
+      },
+      canvas () {
+        return getHDPICanvas(this.padded.width, this.padded.height)
       },
       categories () {
         return [...new Set(this.shownResults.data.map(d => d.category))]
@@ -398,7 +402,6 @@
     components: {
       Draggable,
       Html2svg,
-      SvgCanvas,
       ControlPanel,
       DataBox,
       Chart,
@@ -425,9 +428,7 @@
           .catch(error => console.error(error))
       },
       drawPoints (points) {
-        const canvas = this.$el.querySelector('.fjs-canvas')
-        const ctx = canvas.getContext('2d')
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        const ctx = this.canvas.getContext('2d')
         points.forEach(d => {
           ctx.beginPath()
           ctx.fillStyle = this.categoryColors[this.categories.indexOf(d.category) % this.categoryColors.length]
@@ -438,6 +439,7 @@
           ctx.closePath()
           ctx.fill()
         })
+        this.dataUrl = this.canvas.toDataURL('image/png')
       },
       resize ({width, height}) {
         this.width = width

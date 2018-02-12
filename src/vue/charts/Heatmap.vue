@@ -1,6 +1,6 @@
 <template>
   <chart v-on:resize="resize">
-    <control-panel class="fjs-control-panel" name="Heat">
+    <control-panel class="fjs-control-panel" name="Heatmap Panel">
       <data-box class="fjs-data-box"
                 header="Numerical Variables"
                 dataType="numerical_array"
@@ -13,14 +13,14 @@
         <fieldset>
           <legend>Expression Level</legend>
           <div>
-            <input type="radio" value="mean" v-model="rankingMethod">
             <label>
+              <input type="radio" value="mean" v-model="rankingMethod">
               Mean
             </label>
           </div>
           <div>
-            <input type="radio" value="median" v-model="rankingMethod">
             <label>
+              <input type="radio" value="median" v-model="rankingMethod">
               Median
             </label>
           </div>
@@ -28,8 +28,8 @@
         <fieldset>
           <legend>Expression Variability</legend>
           <div>
-            <input type="radio" value="variance" v-model="rankingMethod">
             <label>
+              <input type="radio" value="variance" v-model="rankingMethod">
               Variance
             </label>
           </div>
@@ -37,38 +37,38 @@
         <fieldset>
           <legend>Differential Expression</legend>
           <div>
-            <input type="radio" value="logFC" v-model="rankingMethod">
             <label>
+              <input type="radio" value="logFC" v-model="rankingMethod">
               logFC
             </label>
           </div>
           <div>
-            <input type="radio" value="t" v-model="rankingMethod">
             <label>
+              <input type="radio" value="t" v-model="rankingMethod">
               t
             </label>
           </div>
           <div>
-            <input type="radio" value="F" v-model="rankingMethod">
             <label>
+              <input type="radio" value="F" v-model="rankingMethod">
               F
             </label>
           </div>
           <div>
-            <input type="radio" value="B" v-model="rankingMethod">
             <label>
+              <input type="radio" value="B" v-model="rankingMethod">
               B
             </label>
           </div>
           <div>
-            <input type="radio" value="P.Val" v-model="rankingMethod">
             <label>
+              <input type="radio" value="P.Val" v-model="rankingMethod">
               P.Value
             </label>
           </div>
           <div>
-            <input type="radio" value="adj.P.Val" v-model="rankingMethod">
             <label>
+              <input type="radio" value="adj.P.Val" v-model="rankingMethod">
               adj.P.Value
             </label>
           </div>
@@ -93,7 +93,7 @@
           </div>
         </fieldset>
 
-        <fieldset class="fjs-cluster-option-fieldset" v-if="cluster.algorithm == 'hclust'">
+        <fieldset class="fjs-cluster-option-fieldset" v-if="cluster.algorithm === 'hclust'">
           <legend>Options</legend>
           <div class="fjs-hclust-selects">
             <select v-model="cluster.options.method">
@@ -131,7 +131,7 @@
           </div>
         </fieldset>
 
-        <fieldset class="fjs-cluster-option-fieldset" v-if="cluster.algorithm == 'kmeans'">
+        <fieldset class="fjs-cluster-option-fieldset" v-if="cluster.algorithm === 'kmeans'">
           <legend>Options</legend>
           <div class="fjs-cluster-ranges">
             <label>
@@ -155,7 +155,7 @@
 
     <svg :height="height" :width="width">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
-        <svg-canvas name="fjs-canvas" :width="padded.width" :height="padded.height"/>
+        <image :href="dataUrl" :width="padded.width" :height="padded.height"></image>
         <rect class="fjs-sig-bar"
               :x="bar.x"
               :y="bar.y"
@@ -180,7 +180,7 @@
   import * as d3 from 'd3'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
-  import SvgCanvas from '../components/SVGCanvas.vue'
+  import getHDPICanvas from '../mixins/high-dpi-canvas'
   export default {
     name: 'heatmap',
     data () {
@@ -211,7 +211,8 @@
         results: {
           data: {id: [], feature: [], value: [], zscore: []},
           stats: {feature: []}
-        }
+        },
+        dataUrl: ''
       }
     },
     computed: {
@@ -263,6 +264,9 @@
         width = width < 0 ? 0 : width
         height = height < 0 ? 0 : height
         return { width, height }
+      },
+      canvas () {
+        return getHDPICanvas(this.padded.width, this.padded.height)
       },
       cols () {
         let cols = []
@@ -447,14 +451,14 @@
         this.numericArrayDataIds = ids
       },
       drawCells (cells) {
-        const canvas = this.$el.querySelector('.fjs-canvas')
-        const ctx = canvas.getContext('2d')
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        const ctx = this.canvas.getContext('2d')
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
         cells.forEach(d => {
           ctx.beginPath()
           ctx.fillStyle = d.fill
           ctx.fillRect(d.x, d.y, d.width, d.height)
         })
+        this.dataUrl = this.canvas.toDataURL()
       }
     },
     watch: {
@@ -480,7 +484,6 @@
       }
     },
     components: {
-      SvgCanvas,
       ControlPanel,
       DataBox,
       Chart

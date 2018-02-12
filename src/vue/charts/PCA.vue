@@ -1,7 +1,7 @@
 <template>
   <chart v-on:resize="resize">
 
-    <control-panel class="fjs-control-panel">
+    <control-panel class="fjs-control-panel" name="PCA Panel">
       <data-box class="fjs-data-box"
                 header="Numerical Variables"
                 dataType="numerical,numerical_array"
@@ -38,7 +38,6 @@
 
     <svg :width="width" :height="height">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
-        <svg-canvas name="fjs-canvas" :width="padded.width" :height="padded.height"/>
         <html2svg :right="padded.width">
           <draggable>
             <div class="fjs-legend">
@@ -55,12 +54,13 @@
             </div>
           </draggable>
         </html2svg>
-        <crosshair :width="padded.width" :height="padded.height"/>
-        <g class="fjs-brush"></g>
         <g class="fjs-axis fjs-y-axis-2" :transform="`translate(${padded.width}, 0)`"></g>
         <g class="fjs-axis fjs-x-axis-2"></g>
         <g class="fjs-axis fjs-x-axis-1" :transform="`translate(0, ${padded.height})`"></g>
         <g class="fjs-axis fjs-y-axis-1"></g>
+        <crosshair :width="padded.width" :height="padded.height"/>
+        <image :href="dataUrls.main" :width="padded.width" :height="padded.height"></image>
+        <g class="fjs-brush"></g>
         <text :x="padded.width / 2"
               :y="- margin.top / 2"
               text-anchor="middle"
@@ -88,20 +88,20 @@
           <g class="fjs-pc-distribution fjs-pc-x-distribution"
              :transform="`translate(0, ${padded.height + margin.bottom / 2})`">
             <line :x2="padded.width"></line>
-            <svg-canvas name="fjs-pc-x-distribution-canvas"
-                        :y="-pointSize / 2"
-                        :width="padded.width"
-                        :height="pointSize">
-            </svg-canvas>
+            <image :href="dataUrls.xDist"
+                   :y="-pointSize / 2"
+                   :width="padded.width"
+                   :height="pointSize">
+            </image>
           </g>
           <g class="fjs-pc-distribution fjs-pc-y-distribution"
              :transform="`translate(${- margin.left / 2}, 0)`">
             <line :y2="padded.height"></line>
-            <svg-canvas name="fjs-pc-y-distribution-canvas"
-                        :x="-pointSize / 2"
-                        :width="pointSize"
-                        :height="padded.height">
-            </svg-canvas>
+            <image :href="dataUrls.yDist"
+                   :x="-pointSize / 2"
+                   :width="pointSize"
+                   :height="padded.height">
+            </image>
           </g>
         </g>
       </g>
@@ -119,10 +119,10 @@
   import * as d3 from 'd3'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
-  import SvgCanvas from '../components/SVGCanvas.vue'
   import Crosshair from '../components/Crosshair.vue'
   import Html2svg from '../components/HTML2SVG.vue'
   import Draggable from '../components/Draggable.vue'
+  import getHDPICanvas from '../mixins/high-dpi-canvas'
   export default {
     name: 'pca-analysis',
     data () {
@@ -154,6 +154,11 @@
         hasSetFilter: false,
         params: {
           whiten: false
+        },
+        dataUrls: {
+          main: '',
+          xDist: '',
+          yDist: ''
         }
       }
     },
@@ -187,6 +192,13 @@
       },
       pointSize () {
         return this.padded.width / 125
+      },
+      canvas () {
+        return {
+          main: getHDPICanvas(this.padded.width, this.padded.height),
+          xDist: getHDPICanvas(this.padded.width, this.pointSize),
+          yDist: getHDPICanvas(this.pointSize, this.padded.height)
+        }
       },
       scales () {
         const x = d3.scaleLinear()
@@ -350,7 +362,7 @@
           .catch(error => console.error(error))
       },
       drawScatterPoints (points) {
-        const canvas = this.$el.querySelector('.fjs-canvas')
+        const canvas = this.canvas.main
         const ctx = canvas.getContext('2d')
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         points.forEach(d => {
@@ -363,10 +375,11 @@
           ctx.closePath()
           ctx.fill()
         })
+        this.dataUrls.main = canvas.toDataURL()
       },
       drawDistPoints (points) {
-        const xCanvas = this.$el.querySelector('.fjs-pc-x-distribution-canvas')
-        const yCanvas = this.$el.querySelector('.fjs-pc-y-distribution-canvas')
+        const xCanvas = this.canvas.xDist
+        const yCanvas = this.canvas.yDist
         const xctx = xCanvas.getContext('2d')
         const yctx = yCanvas.getContext('2d')
         xctx.clearRect(0, 0, xCanvas.width, xCanvas.height)
@@ -379,6 +392,8 @@
           xctx.fillRect(point.x - this.pointSize / 2, 0, this.pointSize, this.pointSize)
           yctx.fillRect(0, point.y - this.pointSize / 2, this.pointSize, this.pointSize)
         })
+        this.dataUrls.xDist = xCanvas.toDataURL()
+        this.dataUrls.yDist = yCanvas.toDataURL()
       },
       resize ({height, width}) {
         this.height = height
@@ -392,7 +407,6 @@
       }
     },
     components: {
-      SvgCanvas,
       ControlPanel,
       DataBox,
       Chart,

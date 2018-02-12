@@ -1,7 +1,7 @@
 <template>
   <chart v-on:resize="resize">
 
-    <control-panel class="fjs-control-panel">
+    <control-panel class="fjs-control-panel" name="Boxplot Panel">
       <data-box class="fjs-data-box"
                 header="Numerical Variables"
                 dataType="numerical"
@@ -109,11 +109,11 @@
                 :width="boxplotWidth"
                 :height="boxes[label].l_qrt - boxes[label].median">
           </rect>
-          <svg-canvas name="fjs-canvas"
-                      :z-index="1"
-                      :data-label="label"
-                      :height="padded.height"
-                      :width="boxplotWidth / 2"/>
+          <image :href="dataUrls[label]"
+                 :data-label="label"
+                 :height="padded.height"
+                 :width="boxplotWidth / 2">
+          </image>
           <polyline class="fjs-kde"
                     :points="kdePolyPoints[label]"
                     v-if="params.showKDE">
@@ -135,8 +135,8 @@
   import deepFreeze from 'deep-freeze-strict'
   import { truncateTextUntil } from '../mixins/utils'
   import tooltip from '../directives/tooltip'
-  import SvgCanvas from '../components/SVGCanvas.vue'
   import StateSaver from '../mixins/state-saver'
+  import getHDPICanvas from '../mixins/high-dpi-canvas'
   export default {
     name: 'boxplot',
     data () {
@@ -158,7 +158,8 @@
           data: [],
           statistics: {},
           anova: {}
-        }
+        },
+        dataUrls: {}
       }
     },
     computed: {
@@ -193,6 +194,13 @@
       },
       labels () {
         return Object.keys(this.results.statistics).sort()
+      },
+      canvas () {
+        const canvas = {}
+        this.labels.forEach(label => {
+          canvas[label] = getHDPICanvas(this.boxplotWidth / 2, this.padded.height)
+        })
+        return canvas
       },
       points () {
         const points = {}
@@ -358,8 +366,8 @@
         this.hasSetFilter = true
       },
       drawPoints () {
-        Object.keys(this.points).forEach(label => {
-          const canvas = this.$el.querySelector(`.fjs-canvas[data-label="${label}"]`)
+        this.labels.forEach(label => {
+          const canvas = this.canvas[label]
           const ctx = canvas.getContext('2d')
           ctx.clearRect(0, 0, canvas.width, canvas.height)
           if (this.params.showData) {
@@ -374,6 +382,8 @@
               )
             })
           }
+          // we create new properties. We need to tell Vue that they are reactive
+          this.$set(this.dataUrls, label, canvas.toDataURL())
         })
       },
       resize ({height, width}) {
@@ -392,7 +402,6 @@
       }
     },
     components: {
-      SvgCanvas,
       ControlPanel,
       DataBox,
       Chart
