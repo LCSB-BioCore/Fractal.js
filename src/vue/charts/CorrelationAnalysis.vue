@@ -439,9 +439,9 @@
           ctx.fill()
         })
       },
-      resize (height, width) {
-        this.height = height
+      resize ({width, height}) {
         this.width = width
+        this.height = height
       },
       update_xyData (ids) {
         this.xyData = ids

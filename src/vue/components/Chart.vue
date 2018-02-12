@@ -18,11 +18,11 @@
     },
     methods: {
       resize () {
-        const chartWidth = this.$parent.$el.parentNode.getBoundingClientRect().width
-        const chartHeight = this.$parent.$el.parentNode.getBoundingClientRect().height
-        const fontSize = Math.ceil((chartHeight < chartWidth ? chartHeight : chartWidth) / 50)
+        const width = this.$parent.$el.parentNode.getBoundingClientRect().width
+        const height = this.$parent.$el.parentNode.getBoundingClientRect().height
+        const fontSize = Math.ceil((height < width ? height : width) / 50)
         this.$el.style['font-size'] = fontSize + 'pt'
-        this.$emit('resize', {height: chartHeight, width: chartWidth})
+        this.$emit('resize', {width, height})
       },
       focusControlPanel () {
         const controlPanel = this.$children.find(d => d.$options.name === 'control-panel')

@@ -1,6 +1,6 @@
 <template>
   <chart v-on:resize="resize">
-    <control-panel class="fjs-control-panel" name="Heatmap Panel">
+    <control-panel class="fjs-control-panel" name="Heat">
       <data-box class="fjs-data-box"
                 header="Numerical Variables"
                 dataType="numerical_array"
