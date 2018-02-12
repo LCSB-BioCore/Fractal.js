@@ -429,6 +429,7 @@
       },
       drawPoints (points) {
         const ctx = this.canvas.getContext('2d')
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
         points.forEach(d => {
           ctx.beginPath()
           ctx.fillStyle = this.categoryColors[this.categories.indexOf(d.category) % this.categoryColors.length]
