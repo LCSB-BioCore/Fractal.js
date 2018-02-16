@@ -54,13 +54,13 @@
             </div>
           </draggable>
         </html2svg>
-        <g class="fjs-axis fjs-y-axis-2" :transform="`translate(${padded.width}, 0)`"></g>
-        <g class="fjs-axis fjs-x-axis-2"></g>
-        <g class="fjs-axis fjs-x-axis-1" :transform="`translate(0, ${padded.height})`"></g>
-        <g class="fjs-axis fjs-y-axis-1"></g>
+        <g class="fjs-axis" ref="yAxis2" :transform="`translate(${padded.width}, 0)`"></g>
+        <g class="fjs-axis" ref="xAxis2"></g>
+        <g class="fjs-axis" ref="xAxis1" :transform="`translate(0, ${padded.height})`"></g>
+        <g class="fjs-axis" ref="yAxis1"></g>
         <crosshair :width="padded.width" :height="padded.height"/>
         <image :href="dataUrls.main" :width="padded.width" :height="padded.height"></image>
-        <g class="fjs-brush"></g>
+        <g class="fjs-brush" ref="brush"></g>
         <text :x="padded.width / 2"
               :y="- margin.top / 2"
               text-anchor="middle"
@@ -330,17 +330,17 @@
       'axis': {
         handler: function (newAxis) {
           this.$nextTick(() => {
-            d3.select(this.$el.querySelector('.fjs-y-axis-2')).call(newAxis.y2)
-            d3.select(this.$el.querySelector('.fjs-x-axis-2')).call(newAxis.x2)
-            d3.select(this.$el.querySelector('.fjs-x-axis-1')).call(newAxis.x1)
-            d3.select(this.$el.querySelector('.fjs-y-axis-1')).call(newAxis.y1)
+            d3.select(this.$refs.yAxis2).call(newAxis.y2)
+            d3.select(this.$refs.xAxis2).call(newAxis.x2)
+            d3.select(this.$refs.xAxis1).call(newAxis.x1)
+            d3.select(this.$refs.yAxis1).call(newAxis.y1)
           })
         }
       },
       'brush': {
         handler: function (newBrush) {
           this.$nextTick(() => {
-            d3.select(this.$el.querySelector('.fjs-brush')).call(newBrush)
+            d3.select(this.$refs.brush).call(newBrush)
           })
         }
       },
@@ -395,9 +395,9 @@
         this.dataUrls.xDist = xCanvas.toDataURL()
         this.dataUrls.yDist = yCanvas.toDataURL()
       },
-      resize ({height, width}) {
-        this.height = height
+      resize (width, height) {
         this.width = width
+        this.height = height
       },
       update_featureData (ids) {
         this.featureData = ids

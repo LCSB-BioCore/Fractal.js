@@ -5,24 +5,31 @@
 </template>
 
 <script>
+  import ResizeObserver from 'resize-observer-polyfill'
   export default {
     name: 'chart',
+    data () {
+      return {
+        observer: null
+      }
+    },
     mounted () {
-      window.addEventListener('resize', this.resize)
+      this.observer = new ResizeObserver(this.resize)
+      this.observer.observe(this.$el)
       window.addEventListener('load', this.resize)
       this.resize()
     },
     beforeDestroy () {
-      window.removeEventListener('resize', this.resize)
+      this.observer.disconnect()
       window.removeEventListener('load', this.resize)
     },
     methods: {
       resize () {
-        const width = this.$parent.$el.parentNode.getBoundingClientRect().width
-        const height = this.$parent.$el.parentNode.getBoundingClientRect().height
+        const width = this.$el.getBoundingClientRect().width
+        const height = this.$el.getBoundingClientRect().height
         const fontSize = Math.ceil((height < width ? height : width) / 50)
         this.$el.style['font-size'] = fontSize + 'pt'
-        this.$emit('resize', {width, height})
+        this.$emit('resize', width, height)
       },
       focusControlPanel () {
         const controlPanel = this.$children.find(d => d.$options.name === 'control-panel')

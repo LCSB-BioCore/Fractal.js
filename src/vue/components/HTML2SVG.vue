@@ -84,11 +84,11 @@
       }
       vm.$el.appendChild(this.$refs.htmlContent)
       this.$nextTick(this.setPosition)
-      window.addEventListener('scroll', this.setPosition)
+      window.addEventListener('scroll', this.setPosition, true)
     },
     beforeDestroy () {
       this.$refs.htmlContent.remove()
-      window.removeEventListener('scroll', this.setPosition)
+      window.removeEventListener('scroll', this.setPosition, true)
     }
   }
 </script>

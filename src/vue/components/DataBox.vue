@@ -18,7 +18,10 @@
           <span class="fjs-options" @click="toggleDataEntryBody(item.task_id)">&#9776;</span>
         </div>
 
-        <div class="fjs-data-entry-body" :data-state="item.etl_state" :data-id="item.task_id">
+        <div class="fjs-data-entry-body"
+             ref="${item.task_id}-data-entry-body"
+             :data-state="item.etl_state"
+             :data-id="item.task_id">
           <div class="fjs-action-btns">
             <span class="fjs-reload-btn" @click="reloadData(item.task_id)">&#8635;</span>
             <span class="fjs-delete-btn" @click="deleteData(item.task_id)">&#215;</span>
@@ -105,7 +108,7 @@
         }
       },
       toggleDataEntryBody (taskID) {
-        const $body = $(this.$el.querySelector(`.fjs-data-entry-body[data-id="${taskID}"]`))
+        const $body = $(this.$refs[`${taskID}-data-entry-body`])
         $body.slideToggle(500)
       },
       reloadData (taskID) {

@@ -52,13 +52,13 @@
             </div>
           </draggable>
         </html2svg>
-        <g class="fjs-corr-axis fjs-y-axis-2" :transform="`translate(${padded.width}, 0)`"></g>
-        <g class="fjs-corr-axis fjs-x-axis-2"></g>
-        <g class="fjs-corr-axis fjs-x-axis-1" :transform="`translate(0, ${padded.height})`"></g>
-        <g class="fjs-corr-axis fjs-y-axis-1"></g>
+        <g class="fjs-corr-axis" ref="yAxis2" :transform="`translate(${padded.width}, 0)`"></g>
+        <g class="fjs-corr-axis" ref="xAxis2"></g>
+        <g class="fjs-corr-axis" ref="xAxis1" :transform="`translate(0, ${padded.height})`"></g>
+        <g class="fjs-corr-axis" ref="yAxis1"></g>
         <crosshair :width="padded.width" :height="padded.height"/>
         <image :href="dataUrl" :width="padded.width" :height="padded.height"></image>
-        <g class="fjs-brush"></g>
+        <g class="fjs-brush" ref="brush"></g>
         <text class="fjs-axis-label"
               :x="padded.width / 2"
               :y="-margin.top / 2"
@@ -125,7 +125,7 @@
         params: {
           method: 'pearson'
         },
-        shownResults: {  // initially computed
+        shownResults: { // initially computed
           coef: 0,
           p_value: 0,
           slope: 0,
@@ -135,7 +135,7 @@
           y_label: '',
           data: []
         },
-        tmpResults: {  // on-the-fly computed
+        tmpResults: { // on-the-fly computed
           coef: 0,
           p_value: 0,
           slope: 0,
@@ -379,17 +379,17 @@
       'axis': {
         handler: function (newAxis) {
           this.$nextTick(() => {
-            d3.select(this.$el.querySelector('.fjs-y-axis-2')).call(newAxis.y2)
-            d3.select(this.$el.querySelector('.fjs-x-axis-2')).call(newAxis.x2)
-            d3.select(this.$el.querySelector('.fjs-x-axis-1')).call(newAxis.x1)
-            d3.select(this.$el.querySelector('.fjs-y-axis-1')).call(newAxis.y1)
+            d3.select(this.$refs.yAxis2).call(newAxis.y2)
+            d3.select(this.$refs.xAxis2).call(newAxis.x2)
+            d3.select(this.$refs.xAxis1).call(newAxis.x1)
+            d3.select(this.$refs.yAxis1).call(newAxis.y1)
           })
         }
       },
       'brush': {
         handler: function (newBrush) {
           this.$nextTick(() => {
-            d3.select(this.$el.querySelector('.fjs-brush')).call(newBrush)
+            d3.select(this.$refs.brush).call(newBrush)
           })
         }
       },
@@ -442,7 +442,7 @@
         })
         this.dataUrl = this.canvas.toDataURL('image/png')
       },
-      resize ({width, height}) {
+      resize (width, height) {
         this.width = width
         this.height = height
       },

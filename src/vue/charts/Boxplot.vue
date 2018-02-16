@@ -37,21 +37,21 @@
         <text :x="this.padded.width / 2"
               class="fjs-anova-results"
               v-if="Object.keys(this.results.anova).length">
-          ANOVA -- F-value: {{ this.results.anova.f_value.toFixed(4) }}
-          &nbsp p-value: {{ this.results.anova.p_value.toFixed(4) }}
+          ANOVA -- F-value: {{ anova.fValue }}
+          &nbsp p-value: {{ anova.pValue }}
         </text>
-        <g class="fjs-boxplot-axis fjs-x-axis" :transform="`translate(0, ${padded.height})`"></g>
-        <g class="fjs-boxplot-axis fjs-y-axis"></g>
+        <g class="fjs-boxplot-axis fjs-x-axis" ref="xAxis" :transform="`translate(0, ${padded.height})`"></g>
+        <g class="fjs-boxplot-axis fjs-y-axis" ref="yAxis"></g>
         <g class="fjs-box"
            :transform="`translate(${scales.x(label)}, 0)`"
            v-tooltip="{placement: 'bottom'}"
            :title="label"
-           :data-label="label"
            @click="setIDFilter(label)"
            @mouseenter="showTooltip(label)"
            @mouseleave="hideTooltip(label)"
-           v-for="label in labels" >
+           v-for="label in labels">
           <line class="fjs-upper-whisker"
+                :ref="`${label}-upper-whisker`"
                 :title="results.statistics[label].u_wsk"
                 v-tooltip="{placement: 'right'}"
                 :x1="- boxplotWidth / 6"
@@ -60,6 +60,7 @@
                 :y2="boxes[label].u_wsk">
           </line>
           <line class="fjs-lower-whisker"
+                :ref="`${label}-lower-whisker`"
                 :title="results.statistics[label].l_wsk"
                 v-tooltip="{placement: 'right'}"
                 :x1="- boxplotWidth / 6"
@@ -68,6 +69,7 @@
                 :y2="boxes[label].l_wsk">
           </line>
           <line class="fjs-upper-quartile"
+                :ref="`${label}-upper-quartile`"
                 :title="results.statistics[label].u_qrt"
                 v-tooltip="{placement: 'left'}"
                 :x1="- boxplotWidth / 2"
@@ -76,6 +78,7 @@
                 :y2="boxes[label].u_qrt">
           </line>
           <line class="fjs-lower-quartile"
+                :ref="`${label}-lower-quartile`"
                 :title="results.statistics[label].l_qrt"
                 v-tooltip="{placement: 'left'}"
                 :x1="- boxplotWidth / 2"
@@ -84,6 +87,7 @@
                 :y2="boxes[label].l_qrt">
           </line>
           <line class="fjs-median"
+                :ref="`${label}-median`"
                 :title="results.statistics[label].median"
                 v-tooltip="{placement: 'right'}"
                 :x1="- boxplotWidth / 2"
@@ -206,7 +210,7 @@
         const points = {}
         this.labels.forEach(label => {
           let [feature, category, subset] = label.split('//')
-          subset = parseInt(subset.substring(1)) - 1  // revert subset string formatting
+          subset = parseInt(subset.substring(1)) - 1 // revert subset string formatting
           points[label] = this.results.data
             .filter(d => d.subset === subset &&
               d.feature === feature &&
@@ -293,6 +297,11 @@
         const y = d3.axisRight(this.scales.y)
           .tickSizeInner(this.padded.width)
         return { x, y }
+      },
+      anova () {
+        let fValue = this.results.anova.f_value == null ? 'NaN' : this.results.anova.f_value.toFixed(4)
+        let pValue = this.results.anova.p_value == null ? 'NaN' : this.results.anova.p_value.toFixed(4)
+        return {pValue, fValue}
       }
     },
     // IMPORTANT: If the code within the watchers does interact with the DOM the code should be wrapped into a $nextTick
@@ -310,11 +319,11 @@
       'axis': {
         handler: function (newAxis) {
           this.$nextTick(() => {
-            d3.select(this.$el.querySelector('.fjs-x-axis'))
+            d3.select(this.$refs.xAxis)
               .call(newAxis.x)
               .selectAll('text')
               .attr('transform', 'rotate(20)')
-            d3.select(this.$el.querySelector('.fjs-y-axis'))
+            d3.select(this.$refs.yAxis)
               .call(newAxis.y)
           })
         }
@@ -335,11 +344,11 @@
         const event = document.createEvent('Event')
         event.initEvent('mouseover', true, true)
         return [
-          this.$el.querySelector(`.fjs-box[data-label="${label}"] .fjs-upper-whisker`),
-          this.$el.querySelector(`.fjs-box[data-label="${label}"] .fjs-lower-whisker`),
-          this.$el.querySelector(`.fjs-box[data-label="${label}"] .fjs-upper-quartile`),
-          this.$el.querySelector(`.fjs-box[data-label="${label}"] .fjs-lower-quartile`),
-          this.$el.querySelector(`.fjs-box[data-label="${label}"] .fjs-median`)
+          this.$refs[`${label}-upper-whisker`][0],
+          this.$refs[`${label}-lower-whisker`][0],
+          this.$refs[`${label}-upper-quartile`][0],
+          this.$refs[`${label}-lower-quartile`][0],
+          this.$refs[`${label}-median`][0]
         ].map(el => {
           el.dispatchEvent(event)
           return el._tippy
@@ -386,9 +395,9 @@
           this.$set(this.dataUrls, label, canvas.toDataURL())
         })
       },
-      resize ({height, width}) {
-        this.height = height
+      resize (width, height) {
         this.width = width
+        this.height = height
       },
       runAnalysisWrapper (args) {
         runAnalysis('compute-boxplot', args)

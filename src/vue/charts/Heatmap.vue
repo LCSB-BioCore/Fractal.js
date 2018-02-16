@@ -307,7 +307,7 @@
               range.push(i * this.grid.main.width)
             }
             range = range.concat([
-              (this.cols.length - 2) * this.grid.main.width,  // '$padding_col$'
+              (this.cols.length - 2) * this.grid.main.width, // '$padding_col$'
               (this.cols.length - 2) * this.grid.main.width + this.grid.padding.width // '$cluster_col$'
             ])
             return range
@@ -316,8 +316,8 @@
           .domain(this.rows)
           .range((() => {
             let range = [
-              0,  // '$cluster_row$'
-              this.grid.colCluster.height  // '$padding_row$'
+              0, // '$cluster_row$'
+              this.grid.colCluster.height // '$padding_row$'
             ]
             for (let i = 2; i < this.rows.length; i++) {
               range.push(this.grid.colCluster.height + this.grid.padding.height + (i - 2) * this.grid.main.height)
@@ -443,9 +443,9 @@
             this.cluster.results.cols = results['col_clusters']
           })
       },
-      resize ({height, width}) {
-        this.height = height
+      resize (width, height) {
         this.width = width
+        this.height = height
       },
       update_numericArrayData (ids) {
         this.numericArrayDataIds = ids

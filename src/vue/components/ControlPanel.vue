@@ -78,14 +78,18 @@
         this.focused = false
       },
       unfocusAll () {
-        Array.prototype.forEach.call(document.querySelectorAll('.fjs-control-panel'), panel => {
-          panel.__vue__.unFocus()
-        })
+        store.getters.controlPanel.panels.forEach(panel => panel.unFocus())
       }
     },
     mounted () {
       this.unfocusAll()
       this.focused = true
+      const panels = [...store.getters.controlPanel.panels, this]
+      store.dispatch('setControlPanel', {panels})
+    },
+    beforeDestroy () {
+      const panels = store.getters.controlPanel.panels.filter(panel => panel._uid !== this._uid)
+      store.dispatch('setControlPanel', {panels})
     },
     components: {
       TaskView

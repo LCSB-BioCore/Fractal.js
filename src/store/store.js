@@ -13,6 +13,7 @@ const state = {
   chartManager: null,
   stateManager: null,
   controlPanel: {
+    panels: [],
     locked: false,
     expanded: false
   },
