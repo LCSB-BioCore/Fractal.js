@@ -1,8 +1,18 @@
 {
   "presets": [
-    ["latest", {"modules": false}]
+    ["@babel/preset-env", {
+      "targets": {
+        "browsers": [
+          "last 2 chrome versions",
+          "last 2 firefox versions",
+          "safari >= 11"
+        ]
+      },
+      "modules": false
+    }]
   ],
   "plugins": [
-    "transform-runtime"
+    "@babel/plugin-transform-runtime",
+    "@babel/plugin-proposal-object-rest-spread"
   ]
 }
