@@ -113,16 +113,17 @@
   import DataBox from '../components/DataBox.vue'
   import ControlPanel from '../components/ControlPanel.vue'
   import Chart from '../components/Chart.vue'
-  import { getPolygonPointsForSubset } from '../mixins/utils'
+  import { getPolygonPointsForSubset } from '../../utils/utils'
   import store from '../../store/store'
-  import runAnalysis from '../mixins/run-analysis'
+  import runAnalysis from '../../utils/run-analysis'
   import * as d3 from 'd3'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
   import Crosshair from '../components/Crosshair.vue'
   import Html2svg from '../components/HTML2SVG.vue'
   import Draggable from '../components/Draggable.vue'
-  import getHDPICanvas from '../mixins/high-dpi-canvas'
+  import getHDPICanvas from '../../utils/high-dpi-canvas'
+  import StateSaver from '../mixins/state-saver'
   export default {
     name: 'pca-analysis',
     data () {
@@ -416,6 +417,14 @@
     },
     directives: {
       tooltip
+    },
+    mixins: [
+      StateSaver
+    ],
+    mounted () {
+      this.registerDataToSave([
+        'featureData', 'categoryData', 'pcX', 'pcY', 'params'
+      ])
     }
   }
 </script>

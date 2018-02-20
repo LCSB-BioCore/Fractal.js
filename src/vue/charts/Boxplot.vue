@@ -134,13 +134,13 @@
   import ControlPanel from '../components/ControlPanel.vue'
   import Chart from '../components/Chart.vue'
   import store from '../../store/store'
-  import runAnalysis from '../mixins/run-analysis'
+  import runAnalysis from '../../utils/run-analysis'
   import * as d3 from 'd3'
   import deepFreeze from 'deep-freeze-strict'
-  import { truncateTextUntil } from '../mixins/utils'
+  import { truncateTextUntil } from '../../utils/utils'
   import tooltip from '../directives/tooltip'
   import StateSaver from '../mixins/state-saver'
-  import getHDPICanvas from '../mixins/high-dpi-canvas'
+  import getHDPICanvas from '../../utils/high-dpi-canvas'
   export default {
     name: 'boxplot',
     data () {

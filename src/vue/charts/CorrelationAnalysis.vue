@@ -39,13 +39,13 @@
             <div class="fjs-legend">
               <span>Corr. Coef.: {{ tmpResults.coef.toFixed(4) }}</span>
               <span>p-value: {{ tmpResults.p_value.toFixed(4) }}</span>
-              <div v-for="point, i in legendSubsetPoints">
+              <div v-for="(point, i) in legendSubsetPoints">
                 <svg :width="pointSize * 2" :height="pointSize * 2">
                   <polygon :points="point"></polygon>
                 </svg>
                 <span>S{{ i + 1 }}</span>
               </div>
-              <div class="fjs-legend-category" v-for="color, i in legendCategoryColors">
+              <div class="fjs-legend-category" v-for="(color, i) in legendCategoryColors">
                 <div :style="{background: color}"></div>
                 <span>&nbsp{{ categories[i] }}</span>
               </div>
@@ -101,17 +101,18 @@
 <script>
   import DataBox from '../components/DataBox.vue'
   import ControlPanel from '../components/ControlPanel.vue'
-  import { getPolygonPointsForSubset } from '../mixins/utils'
+  import { getPolygonPointsForSubset } from '../../utils/utils'
   import Chart from '../components/Chart.vue'
   import store from '../../store/store'
-  import runAnalysis from '../mixins/run-analysis'
+  import runAnalysis from '../../utils/run-analysis'
   import * as d3 from 'd3'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
   import Crosshair from '../components/Crosshair.vue'
   import Html2svg from '../components/HTML2SVG.vue'
   import Draggable from '../components/Draggable.vue'
-  import getHDPICanvas from '../mixins/high-dpi-canvas'
+  import getHDPICanvas from '../../utils/high-dpi-canvas'
+  import StateSaver from '../mixins/state-saver'
   export default {
     name: 'correlation-analysis',
     data () {
@@ -410,6 +411,9 @@
     directives: {
       tooltip
     },
+    mixins: [
+      StateSaver
+    ],
     methods: {
       runAnalysisWrapper (init, args) {
         // function made available via requestHandling mixin
@@ -452,6 +456,11 @@
       update_categoryData (ids) {
         this.categoryData = ids
       }
+    },
+    mounted () {
+      this.registerDataToSave([
+        'xyData', 'categoryData', 'params'
+      ])
     }
   }
 </script>

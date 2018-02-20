@@ -1,27 +1,20 @@
 <template>
   <div class="fjs-data-box">
-    <label :for="`fjs-data-window-${_uid}`" :tooltip="tooltip">{{ header }}</label>
-    <div :id="`fjs-data-window-${_uid}`" class="fjs-data-window">
-      <div class="fjs-data-entry-container"
-           :data-state="item.etl_state"
-           v-for="item in items">
+    <span class="fjs-header-label">{{ header }}</span>
+    <div class="fjs-data-window">
+      <div class="fjs-item" v-for="item in items">
 
-        <div class="fjs-data-entry-header">
-          <input type="checkbox"
-                 :data-id="item.task_id"
-                 :checked="!!~selectedIDs.indexOf(item.task_id)" />
-          <span :data-id="item.task_id"
-                :data-state="item.etl_state"
-                class="fjs-data-label"
-                @click="toggleTaskId(item.task_id)">{{ item.label }}
+        <div class="fjs-item-head">
+          <input type="checkbox" :value="item.task_id" v-model="checkedIds"/>
+          <span class="fjs-item-label"
+                 :data-state="item.state"
+                 @click="toggleTaskId(item.task_id)">
+            {{ item.label }}
           </span>
-          <span class="fjs-options" @click="toggleDataEntryBody(item.task_id)">&#9776;</span>
+          <span class="fjs-item-options" @click="toggleItemBody(item.task_id)">&#9776;</span>
         </div>
 
-        <div class="fjs-data-entry-body"
-             ref="${item.task_id}-data-entry-body"
-             :data-state="item.etl_state"
-             :data-id="item.task_id">
+        <div class="fjs-item-body" v-show="expanded[item.task_id]">
           <div class="fjs-action-btns">
             <span class="fjs-reload-btn" @click="reloadData(item.task_id)">&#8635;</span>
             <span class="fjs-delete-btn" @click="deleteData(item.task_id)">&#215;</span>
@@ -40,7 +33,6 @@
 
 <script>
   import store from '../../store/store'
-  import $ from 'jquery'
   import 'devbridge-autocomplete'
   import Autocomplete from './Autocomplete.vue'
   export default {
@@ -48,8 +40,9 @@
     name: 'data-box',
     data () {
       return {
-        selectedIDs: [],
-        featureFilter: {}
+        checkedIds: [],
+        featureFilter: {},
+        expanded: {}
       }
     },
     props: {
@@ -60,10 +53,6 @@
       header: {
         type: String,
         required: true
-      },
-      tooltip: {
-        type: String,
-        required: false
       }
     },
     computed: {
@@ -72,7 +61,7 @@
           .filter(item => ~this.dataType.split(',').map(s => s.trim()).indexOf(item.data_type))
       },
       transformedIDs () {
-        return this.selectedIDs.map(id => `$${JSON.stringify({id, filters: { feature: this.featureFilter[id] }})}$`)
+        return this.checkedIds.map(id => `$${JSON.stringify({id, filters: { feature: this.featureFilter[id] }})}$`)
       }
     },
     watch: {
@@ -88,17 +77,17 @@
         handler: function (newItems) {
           const existingIDs = newItems.map(d => d.task_id)
           // this removes selected IDs when they expired in the back end
-          this.selectedIDs = this.selectedIDs.filter(id => existingIDs.indexOf(id) !== -1)
+          this.checkedIds = this.checkedIds.filter(existingIDs.includes)
         }
       }
     },
     methods: {
       toggleTaskId (taskID) {
-        const idx = this.selectedIDs.indexOf(taskID)
+        const idx = this.checkedIds.indexOf(taskID)
         if (~idx) {
-          this.selectedIDs.splice(idx, 1)
+          this.checkedIds.splice(idx, 1)
         } else {
-          this.selectedIDs.push(taskID)
+          this.checkedIds.push(taskID)
         }
       },
       featureGetter (taskID) {
@@ -107,9 +96,8 @@
           return metaData.data.meta['features'] || []
         }
       },
-      toggleDataEntryBody (taskID) {
-        const $body = $(this.$refs[`${taskID}-data-entry-body`])
-        $body.slideToggle(500)
+      toggleItemBody (taskID) {
+        this.$set(this.expanded, taskID, !this.expanded[taskID])
       },
       reloadData (taskID) {
         store.getters.requestManager.reloadData(taskID)
@@ -126,42 +114,33 @@
 
 <style lang="sass" scoped>
   .fjs-data-box
-    display: flex
-    justify-content: space-around
-    flex-direction: column
-    width: 100%
     text-align: start
     margin: 1vh 0 1vh 0
-    height: 15vh
-    label
-      text-align: right
     .fjs-data-window
-      flex: 1
+      height: 10vh
+      min-width: 15vw
       border: 1px solid #fff
       border-radius: 3px
       overflow-y: scroll
-      padding: 0.3vh 0.3vw 0.3vh 0.3vw
-      .fjs-data-entry-container
+      padding: 0.3vh 17px 0.3vh 0.3vw
+      .fjs-item
         display: flex
         flex-direction: column
-        .fjs-data-entry-header
+        .fjs-item-head
           display: flex
-          align-items: center
-          justify-content: space-between
           cursor: pointer
-          padding: 0.25vh 0.25vw 0.25vh 0.25vw
-          .fjs-data-label
+          padding: 0.25vh 0 0.25vh 0.25vw
+          .fjs-item-label
+            text-overflow: ellipsis
             display: inline-flex
             align-items: center
-            width: 100%
             overflow: hidden
-            overflow-wrap: break-word
+            width: 100%
             &[data-state="SUBMITTED"]
               animation: loadingColorCycle 2s infinite
             &[data-state="FAILURE"]
               color: #ff6565
-        .fjs-data-entry-body
-          display: none
+        .fjs-item-body
           padding: 0.25vh 0.25vw 0.25vh 0.25vw
           > span
               color: #ff6565

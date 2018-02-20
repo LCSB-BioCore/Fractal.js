@@ -1,6 +1,6 @@
 <template>
   <div class="fjs-control-panel"
-       :style="{width: width, left: left, right: right}"
+       :style="{left: left, right: right}"
        v-show="focused"
        @mouseover="show()"
        @mouseout="hide()">
@@ -48,9 +48,6 @@
       },
       right () {
         return store.getters.options.controlPanelPosition === 'right' ? 0 : ''
-      },
-      width () {
-        return this.expanded ? '15vw' : '1vw'
       }
     },
     methods: {

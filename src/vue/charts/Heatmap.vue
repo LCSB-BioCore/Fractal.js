@@ -176,11 +176,12 @@
   import ControlPanel from '../components/ControlPanel.vue'
   import Chart from '../components/Chart.vue'
   import store from '../../store/store'
-  import runAnalysis from '../mixins/run-analysis'
+  import runAnalysis from '../../utils/run-analysis'
   import * as d3 from 'd3'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
-  import getHDPICanvas from '../mixins/high-dpi-canvas'
+  import getHDPICanvas from '../../utils/high-dpi-canvas'
+  import StateSaver from '../mixins/state-saver'
   export default {
     name: 'heatmap',
     data () {
@@ -201,8 +202,8 @@
             n_row_centroids: 5,
             n_col_centroids: 5
           },
-          colColors: d3.schemeCategory20,
-          rowColors: d3.schemeCategory20.slice().reverse(),
+          colColors: d3.schemeCategory10,
+          rowColors: d3.schemeCategory10.slice().reverse(),
           results: {
             rows: [],
             cols: []
@@ -490,6 +491,14 @@
     },
     directives: {
       tooltip
+    },
+    mixins: [
+      StateSaver
+    ],
+    mounted () {
+      this.registerDataToSave([
+        'numericArrayDataIds', 'rankingMethod', 'cluster'
+      ])
     }
   }
 </script>

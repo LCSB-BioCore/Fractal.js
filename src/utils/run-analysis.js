@@ -1,4 +1,4 @@
-import store from '../../store/store'
+import store from '../store/store'
 
 /**
  * A helper method to submit an analysis.
@@ -27,7 +27,7 @@ async function runAnalysis (taskName, args) {
 
   let timeWaited = 0
   let delay = 200
-  while (timeWaited <= 900000) {  // we wait 15 minutes
+  while (timeWaited <= 900000) { // we wait 15 minutes
     await timeout(delay)
     timeWaited += delay
     delay += 100

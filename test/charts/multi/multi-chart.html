@@ -9,15 +9,15 @@
 <body>
 <input type="button" onclick="loadData()" value="load data"/>
 <input type="button" onclick="deleteData()" value="delete data"/>
-<input type="button" onclick="saveState()" value="save state"/>
-<input type="text" class="save-id">
 <input type="button" onclick="loadState()" value="load state"/>
-<input type="text" class="load-id">
+<input type="text" class="state-ids" style="width: 50vw;">
 <div class="containers">
   <div class="container container-1"></div>
   <div class="container container-2"></div>
   <div class="container container-3"></div>
-  <div class="container container-4"></div>
+  <div class="container copy-1"></div>
+  <div class="container copy-2"></div>
+  <div class="container copy-3"></div>
 </div>
 </body>
 
@@ -79,43 +79,41 @@
     fjs.clearCache()
   }
 
-  function saveState () {
-    fjs.chart2id('.fjs-chart', id => { document.querySelector('.save-id').value = id })
-  }
-
   function loadState () {
-    fjs.id2chart('#placeholder4', document.querySelector('.load-id').value)
+    document.querySelector('.state-ids').value.split('+').forEach((id, i) => {
+      fjs.id2chart(`.copy-${i+1}`, id)
+    })
   }
 
+  const chartStateIDs = []
   function setCharts () {
-    fjs.setChart('correlation-analysis', '.container-1')
-    fjs.setChart('boxplot', '.container-2')
-    fjs.setChart('heatmap', '.container-3')
-    fjs.setChart('pca-analysis', '.container-4')
+    const vms = [
+      fjs.setChart('correlation-analysis', '.container-1'),
+      fjs.setChart('boxplot', '.container-2'),
+      fjs.setChart('pca-analysis', '.container-3')
+    ]
+    vms.forEach((vm, i) => {
+      fjs.chart2id(vm, id => {
+        chartStateIDs[i] = id
+        document.querySelector('.state-ids').value = chartStateIDs.join('+')
+      })
+    })
   }
 
-  function resize () {
-    const container = document.querySelector('.containers')
-    container.style.height = document.documentElement.clientHeight + 'px'
-    container.style.width = document.documentElement.clientWidth + 'px'
-  }
-
-  window.addEventListener('resize', resize)
   window.addEventListener('load', () => {
-    resize()
     setCharts()
   })
 </script>
 
 <style>
   .containers {
-    width: 1000px;
-    height: 1000px;
+    display: flex;
+    flex-wrap: wrap;
   }
 
   .container {
-    width: 48%;
-    height: 48%;
-    float: left;
+    width: 200px;
+    height: 200px;
+    flex: 1;
   }
 </style>
