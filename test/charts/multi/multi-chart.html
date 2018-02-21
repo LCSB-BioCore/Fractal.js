@@ -2,8 +2,8 @@
 <meta charset="UTF-8">
 
 <head>
-  <script src="http://localhost:8080/credentials.js"></script>
-  <script src="http://localhost:8080/fractal.js"></script>
+  <script src="http://localhost:8082/credentials.js"></script>
+  <script src="http://localhost:8082/fractal.js"></script>
 </head>
 
 <body>
@@ -81,7 +81,9 @@
 
   function loadState () {
     document.querySelector('.state-ids').value.split('+').forEach((id, i) => {
-      fjs.id2chart(`.copy-${i+1}`, id)
+      if (id.length) {
+        fjs.id2chart(`.copy-${i+1}`, id)
+      }
     })
   }
 
@@ -107,13 +109,12 @@
 
 <style>
   .containers {
-    display: flex;
-    flex-wrap: wrap;
+      display: flex;
+      flex-wrap: wrap;
   }
 
   .container {
-    width: 200px;
-    height: 200px;
-    flex: 1;
+      width: 50%;
+      height: 50vh;
   }
 </style>

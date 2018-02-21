@@ -4,12 +4,12 @@
     <control-panel class="fjs-control-panel" name="PCA Panel">
       <data-box class="fjs-data-box"
                 header="Numerical Variables"
-                dataType="numerical,numerical_array"
+                :dataTypes="['numerical', 'numerical_array']"
                 v-on:update="update_featureData">
       </data-box>
       <data-box class="fjs-data-box"
                 header="Categorical Variables"
-                dataType="categorical"
+                :dataTypes="['categorical']"
                 v-on:update="update_categoryData">
       </data-box>
       <hr class="fjs-seperator"/>
@@ -59,7 +59,7 @@
         <g class="fjs-axis" ref="xAxis1" :transform="`translate(0, ${padded.height})`"></g>
         <g class="fjs-axis" ref="yAxis1"></g>
         <crosshair :width="padded.width" :height="padded.height"/>
-        <image :href="dataUrls.main" :width="padded.width" :height="padded.height"></image>
+        <image :xlink:href="dataUrls.main" :width="padded.width" :height="padded.height"></image>
         <g class="fjs-brush" ref="brush"></g>
         <text :x="padded.width / 2"
               :y="- margin.top / 2"
@@ -88,7 +88,7 @@
           <g class="fjs-pc-distribution fjs-pc-x-distribution"
              :transform="`translate(0, ${padded.height + margin.bottom / 2})`">
             <line :x2="padded.width"></line>
-            <image :href="dataUrls.xDist"
+            <image :xlink:href="dataUrls.xDist"
                    :y="-pointSize / 2"
                    :width="padded.width"
                    :height="pointSize">
@@ -97,7 +97,7 @@
           <g class="fjs-pc-distribution fjs-pc-y-distribution"
              :transform="`translate(${- margin.left / 2}, 0)`">
             <line :y2="padded.height"></line>
-            <image :href="dataUrls.yDist"
+            <image :xlink:href="dataUrls.yDist"
                    :x="-pointSize / 2"
                    :width="pointSize"
                    :height="padded.height">

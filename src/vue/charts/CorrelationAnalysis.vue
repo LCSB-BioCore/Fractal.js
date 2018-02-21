@@ -4,12 +4,12 @@
     <control-panel class="fjs-control-panel" name="Correlation Analysis">
       <data-box class="fjs-data-box"
                 header="Numerical Variables"
-                dataType="numerical,numerical_array"
+                :dataTypes="['numerical', 'numerical_array']"
                 v-on:update="update_xyData">
       </data-box>
       <data-box class="fjs-data-box"
                 header="Categorical Variables"
-                dataType="categorical"
+                :dataTypes="['categorical']"
                 v-on:update="update_categoryData">
       </data-box>
       <hr class="fjs-seperator"/>
@@ -57,7 +57,7 @@
         <g class="fjs-corr-axis" ref="xAxis1" :transform="`translate(0, ${padded.height})`"></g>
         <g class="fjs-corr-axis" ref="yAxis1"></g>
         <crosshair :width="padded.width" :height="padded.height"/>
-        <image :href="dataUrl" :width="padded.width" :height="padded.height"></image>
+        <image :xlink:href="dataUrl" :width="padded.width" :height="padded.height"></image>
         <g class="fjs-brush" ref="brush"></g>
         <text class="fjs-axis-label"
               :x="padded.width / 2"

@@ -52,10 +52,10 @@ describe('ControlPanel', () => {
   })
 
   it('adapts width when expanded state changes', () => {
-    expect(vm.width).toBe('1vw')
+    expect(vm.$el.querySelector('.fjs-panel-content').style.display).toBe('none')
     store.dispatch('setControlPanel', {expanded: true})
     Vue.nextTick(() => {
-      expect(vm.width).toBe('15vw')
+      expect(vm.$el.querySelector('.fjs-panel-content').style.display).not.toBe('none')
     })
   })
 

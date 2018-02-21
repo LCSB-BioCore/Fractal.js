@@ -9,7 +9,7 @@
       <span v-show="expanded">{{ name }}</span>
       <i class="fjs-lock-btn material-icons" @click="toggleLock">{{ lockIcon }}</i>
     </div>
-    <div v-show="expanded">
+    <div class="fjs-panel-content" v-show="expanded">
       <slot/>
       <hr class="fjs-seperator"/>
       <task-view/>

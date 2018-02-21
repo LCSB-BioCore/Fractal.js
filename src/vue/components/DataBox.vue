@@ -5,10 +5,11 @@
       <div class="fjs-item" v-for="item in items">
 
         <div class="fjs-item-head">
-          <input type="checkbox" :value="item.task_id" v-model="checkedIds"/>
-          <span class="fjs-item-label"
-                 :data-state="item.state"
-                 @click="toggleTaskId(item.task_id)">
+          <input type="checkbox"
+                 :value="item.task_id"
+                 v-model="checkedIds"
+                 :disabled="item.state === 'SUBMITTED'"/>
+          <span class="fjs-item-label" :data-state="item.state">
             {{ item.label }}
           </span>
           <span class="fjs-item-options" @click="toggleItemBody(item.task_id)">&#9776;</span>
@@ -33,10 +34,11 @@
 
 <script>
   import store from '../../store/store'
-  import 'devbridge-autocomplete'
   import Autocomplete from './Autocomplete.vue'
   export default {
-    components: {Autocomplete},
+    components: {
+      Autocomplete
+    },
     name: 'data-box',
     data () {
       return {
@@ -46,8 +48,8 @@
       }
     },
     props: {
-      dataType: {
-        type: String,
+      dataTypes: {
+        type: Array,
         required: true
       },
       header: {
@@ -57,8 +59,10 @@
     },
     computed: {
       items () {
-        return store.getters.data
-          .filter(item => ~this.dataType.split(',').map(s => s.trim()).indexOf(item.data_type))
+        return store.getters.data.filter(item => {
+          return this.dataTypes.includes(item.data_type) &&
+            ['SUBMITTED', 'SUCCESS', 'FAILURE'].includes(item.etl_state)
+        })
       },
       transformedIDs () {
         return this.checkedIds.map(id => `$${JSON.stringify({id, filters: { feature: this.featureFilter[id] }})}$`)
@@ -72,24 +76,9 @@
             this.$emit('update', newTransformedIDs)
           }
         }
-      },
-      'items': {
-        handler: function (newItems) {
-          const existingIDs = newItems.map(d => d.task_id)
-          // this removes selected IDs when they expired in the back end
-          this.checkedIds = this.checkedIds.filter(existingIDs.includes)
-        }
       }
     },
     methods: {
-      toggleTaskId (taskID) {
-        const idx = this.checkedIds.indexOf(taskID)
-        if (~idx) {
-          this.checkedIds.splice(idx, 1)
-        } else {
-          this.checkedIds.push(taskID)
-        }
-      },
       featureGetter (taskID) {
         return async () => {
           const metaData = await store.getters.requestManager.getMetaData(taskID)
@@ -128,8 +117,11 @@
         flex-direction: column
         .fjs-item-head
           display: flex
-          cursor: pointer
           padding: 0.25vh 0 0.25vh 0.25vw
+          input
+            cursor: pointer
+          .fjs-item-options
+            cursor: pointer
           .fjs-item-label
             text-overflow: ellipsis
             display: inline-flex

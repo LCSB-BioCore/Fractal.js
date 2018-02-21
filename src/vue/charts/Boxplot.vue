@@ -4,12 +4,12 @@
     <control-panel class="fjs-control-panel" name="Boxplot Panel">
       <data-box class="fjs-data-box"
                 header="Numerical Variables"
-                dataType="numerical"
+                :dataTypes="['numerical']"
                 v-on:update="update_numData">
       </data-box>
       <data-box class="fjs-data-box"
                 header="Categorical Variables"
-                dataType="categorical"
+                :dataTypes="['categorical']"
                 v-on:update="update_catData">
       </data-box>
       <hr class="fjs-seperator"/>
@@ -113,7 +113,7 @@
                 :width="boxplotWidth"
                 :height="boxes[label].l_qrt - boxes[label].median">
           </rect>
-          <image :href="dataUrls[label]"
+          <image :xlink:href="dataUrls[label]"
                  :data-label="label"
                  :height="padded.height"
                  :width="boxplotWidth / 2">

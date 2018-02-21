@@ -3,7 +3,7 @@
     <control-panel class="fjs-control-panel" name="Heatmap Panel">
       <data-box class="fjs-data-box"
                 header="Numerical Variables"
-                dataType="numerical_array"
+                :dataTypes="['numerical_array']"
                 v-on:update="update_numericArrayData">
       </data-box>
       <hr class="fjs-seperator"/>
@@ -155,7 +155,7 @@
 
     <svg :height="height" :width="width">
       <g :transform="`translate(${margin.left}, ${margin.top})`">
-        <image :href="dataUrl" :width="padded.width" :height="padded.height"></image>
+        <image :xlink:href="dataUrl" :width="padded.width" :height="padded.height"></image>
         <rect class="fjs-sig-bar"
               :x="bar.x"
               :y="bar.y"
