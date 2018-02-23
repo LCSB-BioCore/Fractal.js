@@ -24,7 +24,7 @@ module.exports = {
   entry: [
     path.resolve(__dirname, 'src/main.js')
   ],
-  devtool: '#inline-source-map',
+  devtool: '#source-map',
   devServer: {
     hot: true,
     inline: true,
