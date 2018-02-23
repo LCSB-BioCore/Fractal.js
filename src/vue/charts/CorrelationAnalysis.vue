@@ -514,6 +514,7 @@
 
 <!--CSS for dynamically created components-->
 <style lang="sass">
+  @import '~assets/d3.sass'
   .fjs-corr-axis
     shape-rendering: crispEdges
     .tick
