@@ -8,12 +8,17 @@ export default class {
    * @param callback: An arbitrary callback with one argument (the state ID).
    */
   chart2id (vm, callback) {
-    if (vm._setStateChangedCallback === 'undefined') {
+    if (typeof vm._setStateChangedCallback === 'undefined') {
       throw new Error('Cannot generate an id for this chart. It does not permit state saving.')
     }
     vm._setStateChangedCallback(async function (name, state) {
-      const rv = await store.getters.requestManager.saveState({chartName: name, chartState: state})
-      const stateID = rv.data.state_id
+      let stateID = ''
+      try {
+        const rv = await store.getters.requestManager.saveState({chartName: name, chartState: state})
+        stateID = rv.data.state_id
+      } catch (e) {
+        console.error(e.response.data.error)
+      }
       callback(stateID)
     })
   }
@@ -30,7 +35,7 @@ export default class {
     await store.getters.requestManager.requestStateAccess(stateID)
     let timeWaited = 0
     let delay = 200
-    while (timeWaited <= 900000) {  // we wait 15 minutes
+    while (timeWaited <= 900000) { // we wait 15 minutes
       await timeout(delay)
       timeWaited += delay
       delay += 100

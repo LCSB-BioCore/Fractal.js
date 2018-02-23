@@ -64,8 +64,13 @@
             ['SUBMITTED', 'SUCCESS', 'FAILURE'].includes(item.etl_state)
         })
       },
+      existing_ids () {
+        return this.items.map(item => item.task_id)
+      },
       transformedIDs () {
-        return this.checkedIds.map(id => `$${JSON.stringify({id, filters: { feature: this.featureFilter[id] }})}$`)
+        return this.checkedIds
+          .filter(id => this.existing_ids.includes(id))
+          .map(id => `$${JSON.stringify({id, filters: { feature: this.featureFilter[id] }})}$`)
       }
     },
     watch: {
