@@ -8,8 +8,8 @@
           <input type="checkbox"
                  :value="item.task_id"
                  v-model="checkedIds"
-                 :disabled="item.state === 'SUBMITTED'"/>
-          <span class="fjs-item-label" :data-state="item.state">
+                 :disabled="item.etl_state === 'SUBMITTED'"/>
+          <span class="fjs-item-label" :data-state="item.etl_state">
             {{ item.label }}
           </span>
           <span class="fjs-item-options" @click="toggleItemBody(item.task_id)">&#9776;</span>
