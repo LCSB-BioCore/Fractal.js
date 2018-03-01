@@ -128,7 +128,11 @@ export default class {
    * @returns {AxiosPromise} An ES6 promise.
    */
   saveState (state) {
-    return this._axios.post('/state', state)
+    return this._axios.post('/state', {
+      state,
+      handler: this._handler,
+      server: this._dataSource
+    })
   }
 
   /**
@@ -140,9 +144,7 @@ export default class {
    */
   requestStateAccess (stateID) {
     return this._axios.post(`/state/${stateID}`, {
-      auth: this._getAuth(),
-      handler: this._handler,
-      server: this._dataSource
+      auth: this._getAuth()
     })
   }
 
