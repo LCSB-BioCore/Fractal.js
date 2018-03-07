@@ -1,20 +1,15 @@
 const webpack = require('webpack')
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const path = require('path')
-const env = require('yargs').argv.env
+const mode = require('yargs').argv.mode
 const VERSION = require('./package.json').version
 
 let plugins = [
-  new webpack.HotModuleReplacementPlugin(),
-  new webpack.NamedModulesPlugin()
+  new webpack.HotModuleReplacementPlugin()
 ]
 let filename = ''
 const library = 'fractal'
 
-if (env === 'production') {
-  plugins.push(new UglifyJsPlugin())
-  plugins.push(new webpack.optimize.ModuleConcatenationPlugin())
-  plugins.push(new webpack.DefinePlugin({'process.env': {NODE_ENV: '"production"'}}))
+if (mode === 'production') {
   filename = `${library}-${VERSION}.min.js`
 } else {
   filename = `${library}.js`
