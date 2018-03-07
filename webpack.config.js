@@ -26,6 +26,8 @@ module.exports = {
   ],
   devtool: '#source-map',
   devServer: {
+    host: '0.0.0.0',
+    port: '8080',
     hot: true,
     inline: true,
     publicPath: 'http://127.0.0.1:8080/',
