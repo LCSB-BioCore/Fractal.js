@@ -18,11 +18,6 @@ describe('initializer', () => {
     expect(f).toThrow()
   })
 
-  it('returns FractalJS instance if given valid parameters', () => {
-    const fjs = init({handler: 'ada', dataSource: 'foo', fractalisNode: 'foo', getAuth: () => {}})
-    expect(fjs.constructor.name).toBe('FractalJS')
-  })
-
   afterAll(() => {
     document.body.innerHTML = ''
   })
