@@ -25,8 +25,8 @@
     },
     methods: {
       resize () {
-        const width = this.$el.getBoundingClientRect().width
-        const height = this.$el.getBoundingClientRect().height
+        const width = this.$el.getBoundingClientRect().width - 1
+        const height = this.$el.getBoundingClientRect().height - 1
         const fontSize = Math.ceil((height < width ? height : width) / 50)
         this.$el.style['font-size'] = fontSize + 'pt'
         this.$emit('resize', width, height)
@@ -43,7 +43,7 @@
   .fjs-chart
     width: 100%
     height: 100%
-    border: 2px solid rgba(0, 0, 0, 0)
+    box-sizing: border-box
     &:hover
-      border: 2px solid rgba(41, 213, 255, 0.3)
+      box-shadow: inset 0 0 0 2px #29D5FF
 </style>
