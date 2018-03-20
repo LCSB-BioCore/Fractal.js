@@ -2,7 +2,7 @@
   <div class="fjs-task-view">
     <div class="fjs-state-container"
          v-for="task in tasks"
-         v-if="task.taskState === 'SUBMITTED' || task.taskState === 'FAILED'">
+         v-if="task.taskState === 'SUBMITTED' || task.taskState === 'FAILURE'">
       <loader class="fjs-loader" :style="{opacity: task.taskState === 'SUBMITTED' ? 1 : 0}"/>
       <span class="fjs-submitted" v-if="task.taskState === 'SUBMITTED'">{{ task.taskName }}</span>
       <span class="fjs-failed" v-else>{{ task.taskMessage }}</span>
