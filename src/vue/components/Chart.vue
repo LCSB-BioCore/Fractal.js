@@ -43,7 +43,6 @@
   .fjs-chart
     width: 100%
     height: 100%
-    box-sizing: border-box
     &:hover
       box-shadow: inset 0 0 0 2px #29D5FF
 </style>

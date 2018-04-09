@@ -106,6 +106,7 @@
     justify-content: flex-start
     top: 0
     padding: 1vh
+    max-width: 20vw
     height: 100vh
     overflow-y: auto
     flex-shrink: 0

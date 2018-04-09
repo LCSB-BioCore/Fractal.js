@@ -17,8 +17,9 @@
 
         <div class="fjs-item-body" v-show="expanded[item.task_id]">
           <div class="fjs-action-btns">
-            <span class="fjs-reload-btn" @click="reloadData(item.task_id)">&#8635;</span>
-            <span class="fjs-delete-btn" @click="deleteData(item.task_id)">&#215;</span>
+            <i class="material-icons" @click="reloadData(item.task_id)">replay</i>
+            <i class="material-icons" @click="copyData(item.task_id)">content_copy</i>
+            <i class="material-icons" @click="deleteData(item.task_id)">delete</i>
           </div>
           <autocomplete class="fjs-autocomplete"
                         v-on:select="updateFilter($event, item.task_id)"
@@ -87,7 +88,7 @@
       featureGetter (taskID) {
         return async () => {
           const metaData = await store.getters.requestManager.getMetaData(taskID)
-          return metaData.data.meta['features'] || []
+          return metaData.data.meta.features || []
         }
       },
       toggleItemBody (taskID) {
@@ -95,6 +96,12 @@
       },
       reloadData (taskID) {
         store.getters.requestManager.reloadData(taskID)
+      },
+      copyData (taskID) {
+        store.getters.requestManager.getMetaData(taskID).then(metaData => {
+          const descriptor = JSON.stringify(metaData.data.meta.descriptor)
+          window.prompt('Copy to clipboard: Ctrl+C or Cmd+C', descriptor)
+        })
       },
       deleteData (taskID) {
         store.getters.requestManager.deleteData(taskID)
@@ -148,8 +155,9 @@
             border: 1px solid #fff
             border-radius: 3px
             margin: 0 0 0.5vh 0
-            span
+            i
               cursor: pointer
+              font-size: 1.5em
         .fjs-autocomplete
           text-align: center
   @keyframes loadingColorCycle

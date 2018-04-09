@@ -64,7 +64,7 @@ export default class {
    * @returns {AxiosPromise} An ES6 promise.
    */
   getMetaData (taskID) {
-    return this._axios.get(`/data/meta/${taskID}?wait=1`)
+    return this._axios.get(`/data/meta/${taskID}`)
   }
 
   /**

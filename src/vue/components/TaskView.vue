@@ -53,7 +53,7 @@
         font-size: 0.75em
         max-width: 75%
       .fjs-cancel-btn
-        font-size: 1em
+        font-size: 1.5em
         color: #ff9fa1
         cursor: pointer
 </style>
