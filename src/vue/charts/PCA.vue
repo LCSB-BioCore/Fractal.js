@@ -16,14 +16,14 @@
       <div>
         <label>
           <select v-model="pcX">
-            <option :value="i" v-for="i in components">Principal Component {{i}}</option>
+            <option :value="i" v-for="i in pcomponents">Principal Component {{i + 1}}</option>
           </select>
           X-Axis
         </label>
         <br/>
         <label>
           <select v-model="pcY">
-            <option :value="i" v-for="i in components">Principal Component {{i}}</option>
+            <option :value="i" v-for="i in pcomponents">Principal Component {{i + 1}}</option>
           </select>
           Y-Axis
         </label>
@@ -65,12 +65,12 @@
               :y="- margin.top / 2"
               text-anchor="middle"
               v-show="results.data.id.length">
-          Principal Component {{pcX}} (Variance Ratio: {{ results.variance_ratios[pcX].toFixed(2) }})
+          Principal Component {{pcX + 1}} (Variance Ratio: {{ results.variance_ratios[pcX].toFixed(2) }})
         </text>
         <text text-anchor="middle"
               :transform="`translate(${this.padded.width + this.margin.right / 2}, ${this.padded.height / 2})rotate(90)`"
               v-show="results.data.id.length">
-          Principal Component {{pcY}} (Variance Ratio: {{ results.variance_ratios[pcY].toFixed(2) }})
+          Principal Component {{pcY + 1}} (Variance Ratio: {{ results.variance_ratios[pcY].toFixed(2) }})
         </text>
         <g v-for="loading in loadings">
           <line class="fjs-loadings"
@@ -264,8 +264,8 @@
           }
         })
       },
-      components () {
-        return Object.keys(this.results.loadings).filter(d => d !== 'feature')
+      pcomponents () {
+        return Object.keys(this.results.loadings).filter(d => d !== 'feature').map(d => parseInt(d))
       },
       subsets () {
         return [...new Set(this.results.data.subset)]

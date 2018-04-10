@@ -40,16 +40,19 @@
           ANOVA -- F-value: {{ anova.fValue }}
           &nbsp p-value: {{ anova.pValue }}
         </text>
-        <g class="fjs-boxplot-axis fjs-x-axis" ref="xAxis" :transform="`translate(0, ${padded.height})`"></g>
         <g class="fjs-boxplot-axis fjs-y-axis" ref="yAxis"></g>
         <g class="fjs-box"
+           :ref="`${label}-box`"
            :transform="`translate(${scales.x(label)}, 0)`"
            v-tooltip="{placement: 'bottom'}"
-           :title="label"
            @click="setIDFilter(label)"
            @mouseenter="showTooltip(label)"
            @mouseleave="hideTooltip(label)"
            v-for="label in labels">
+          <text text-anchor="middle"
+                :transform="`translate(${boxplotWidth / 1.8},${boxes[label].median})rotate(90)`">
+            {{label}}
+          </text>
           <line class="fjs-upper-whisker"
                 :ref="`${label}-upper-whisker`"
                 :title="results.statistics[label].u_wsk"
@@ -137,7 +140,6 @@
   import runAnalysis from '../../utils/run-analysis'
   import * as d3 from 'd3'
   import deepFreeze from 'deep-freeze-strict'
-  import { truncateTextUntil } from '../../utils/utils'
   import tooltip from '../directives/tooltip'
   import StateSaver from '../mixins/state-saver'
   import getHDPICanvas from '../../utils/high-dpi-canvas'
@@ -188,7 +190,7 @@
         const left = 10
         const top = this.height / 20
         const right = this.width / 20
-        const bottom = this.height / 3
+        const bottom = 10
         return { left, top, right, bottom }
       },
       padded () {
@@ -289,18 +291,12 @@
         })
         return polyPoints
       },
-      axis () {
-        const x = d3.axisBottom(this.scales.x).tickFormat(d => {
-          // noinspection JSSuspiciousNameCombination
-          return truncateTextUntil({text: d, font: `0.875em Roboto`, maxWidth: this.margin.bottom})
-        })
-        const y = d3.axisRight(this.scales.y)
-          .tickSizeInner(this.padded.width)
-        return { x, y }
+      yAxis () {
+        return d3.axisRight(this.scales.y).tickSizeInner(this.padded.width)
       },
       anova () {
-        let fValue = this.results.anova.f_value == null ? 'NaN' : this.results.anova.f_value.toFixed(4)
-        let pValue = this.results.anova.p_value == null ? 'NaN' : this.results.anova.p_value.toFixed(4)
+        let fValue = this.results.anova.f_value == null ? 'NaN' : this.results.anova.f_value.toPrecision(4)
+        let pValue = this.results.anova.p_value == null ? 'NaN' : this.results.anova.p_value.toPrecision(4)
         return {pValue, fValue}
       }
     },
@@ -316,15 +312,10 @@
           this.hasSetFilter = false
         }
       },
-      'axis': {
+      'yAxis': {
         handler: function (newAxis) {
           this.$nextTick(() => {
-            d3.select(this.$refs.xAxis)
-              .call(newAxis.x)
-              .selectAll('text')
-              .attr('transform', 'rotate(20)')
-            d3.select(this.$refs.yAxis)
-              .call(newAxis.y)
+            d3.select(this.$refs.yAxis).call(newAxis)
           })
         }
       },
@@ -469,9 +460,4 @@
       stroke: #E2E2E2
     path
       stroke: none
-    .fjs-x-axis
-      .tick
-        text
-          text-anchor: start
-          font-size: 0.75em
 </style>

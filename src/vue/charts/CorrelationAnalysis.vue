@@ -37,8 +37,8 @@
         <html2svg :right="padded.width">
           <draggable>
             <div class="fjs-legend">
-              <span>Corr. Coef.: {{ tmpResults.coef.toFixed(4) }}</span>
-              <span>p-value: {{ tmpResults.p_value.toFixed(4) }}</span>
+              <span>Corr. Coef.: {{ tmpResults.coef.toPrecision(4) }}</span>
+              <span>p-value: {{ tmpResults.p_value.toPrecision(4) }}</span>
               <div v-for="(point, i) in legendSubsetPoints">
                 <svg :width="pointSize * 2" :height="pointSize * 2">
                   <polygon :points="point"></polygon>
