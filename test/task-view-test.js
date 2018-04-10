@@ -18,7 +18,7 @@ describe('TaskView', () => {
     store.dispatch('setTask', {taskID: 1, taskName: 'A', taskState: 'SUBMITTED'})
     store.dispatch('setTask', {taskID: 2, taskName: 'B', taskState: 'SUCCESS'})
     store.dispatch('setTask', {taskID: 3, taskName: 'C', taskState: 'SUBMITTED'})
-    store.dispatch('setTask', {taskID: 4, taskName: 'D', taskState: 'FAILED'})
+    store.dispatch('setTask', {taskID: 4, taskName: 'D', taskState: 'FAILURE'})
     store.dispatch('setTask', {taskID: 5, taskName: 'E', taskState: 'YAY'})
     store.dispatch('setTask', {taskID: 6, taskName: 'F', taskState: 'PENDING'})
     Vue.nextTick(() => {
@@ -32,7 +32,7 @@ describe('TaskView', () => {
 
   it('cancel button works', () => {
     store.dispatch('setTask', {taskID: 1, taskName: 'A', taskState: 'SUBMITTED'})
-    store.dispatch('setTask', {taskID: 2, taskName: 'B', taskState: 'FAILED'})
+    store.dispatch('setTask', {taskID: 2, taskName: 'B', taskState: 'FAILURE'})
     Vue.nextTick(() => {
       expect(Object.keys(store.getters.tasks).length).toBe(2)
       expect(vm.$el.querySelectorAll('.fjs-state-container').length).toBe(2)
