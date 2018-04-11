@@ -49,6 +49,13 @@
            @mouseenter="showTooltip(label)"
            @mouseleave="hideTooltip(label)"
            v-for="label in labels">
+          <rect class="fjs-select-rect"
+                :y="boxes[label].u_wsk"
+                :x="- boxplotWidth / 2 - 1"
+                :height="boxes[label].l_wsk - boxes[label].u_wsk"
+                :width="boxplotWidth + 4"
+                v-show="selectedLabel === label">
+          </rect>
           <text text-anchor="middle"
                 :transform="`translate(${boxplotWidth / 1.8},${boxes[label].median})rotate(90)`">
             {{label}}
@@ -157,6 +164,7 @@
         width: 0,
         height: 0,
         hasSetFilter: false,
+        selectedLabel: '',
         tooltips: {
           boxes: {}
         },
@@ -359,10 +367,12 @@
       },
       setIDFilter (label) {
         store.dispatch('setFilter', {filter: 'ids', value: this.points[label].map(d => d.id)})
+        this.selectedLabel = label
         this.hasSetFilter = true
       },
       resetFilter () {
         store.dispatch('setFilter', {filter: 'ids', value: []})
+        this.selectedLabel = ''
         this.hasSetFilter = true
       },
       drawPoints () {
@@ -425,6 +435,10 @@
   svg
     .fjs-box
       cursor: pointer
+      .fjs-select-rect
+        fill: none
+        stroke: red
+        stroke-width: 2px
       .fjs-median, .fjs-lower-quartile, .fjs-upper-quartile
         opacity: 1
       .fjs-lower-whisker, .fjs-upper-whisker, .fjs-antenna
