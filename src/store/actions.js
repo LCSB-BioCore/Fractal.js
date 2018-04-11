@@ -78,11 +78,12 @@ export default {
   /**
    * Commits a filter mutation that will replace the specified filter with a new value.
    * @param context The action context.
+   * @param source The source of the action.
    * @param filter The filter to apply (e.g. 'ids').
    * @param value The value of the new filter (e.g. Array of ids).
    */
-  setFilter: (context, {filter, value}) => {
-    context.commit(types.SET_FILTER, {filter, value})
+  setFilter: (context, {source, filter, value}) => {
+    context.commit(types.SET_FILTER, {source, filter, value})
   },
   /**
    * Commits a tasks mutation that will add a new task to the store.

@@ -62,7 +62,7 @@
                 v-show="selectedLabel === label">
           </rect>
           <text text-anchor="middle"
-                :transform="`translate(${boxplotWidth / 1.8},${boxes[label].median})rotate(90)`">
+                :transform="`translate(${boxplotWidth / 1.8}, ${padded.height / 2})rotate(90)`">
             {{label}}
           </text>
           <line class="fjs-upper-whisker"
@@ -190,7 +190,7 @@
         return {
           features: this.numData,
           categories: this.catData,
-          id_filter: this.idFilter,
+          id_filter: this.idFilter.value,
           subsets: store.getters.subsets
         }
       },
@@ -231,7 +231,7 @@
             .filter(d => d.subset === subset &&
               d.feature === feature &&
               d.category === category &&
-              this.params.showOutliers ? true : !d.outlier &&
+              (this.params.showOutliers ? true : !d.outlier) &&
               typeof d.value === 'number')
             .map(d => {
               return {
@@ -376,14 +376,14 @@
         this.catData = ids
       },
       setIDFilter (label) {
-        store.dispatch('setFilter', {filter: 'ids', value: this.points[label].map(d => d.id)})
+        store.dispatch('setFilter', {source: this._uid, filter: 'ids', value: this.points[label].map(d => d.id)})
         this.selectedLabel = label
         this.hasSetFilter = true
       },
       resetFilter () {
-        store.dispatch('setFilter', {filter: 'ids', value: []})
+        store.dispatch('setFilter', {source: this._uid, filter: 'ids', value: []})
         this.selectedLabel = ''
-        this.hasSetFilter = true
+        this.hasSetFilter = false
       },
       drawPoints () {
         this.labels.forEach(label => {

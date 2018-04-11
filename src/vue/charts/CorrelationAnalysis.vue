@@ -113,6 +113,7 @@
   import Draggable from '../components/Draggable.vue'
   import getHDPICanvas from '../../utils/high-dpi-canvas'
   import StateSaver from '../mixins/state-saver'
+  import _ from 'lodash'
   export default {
     name: 'correlation-analysis',
     data () {
@@ -165,7 +166,7 @@
         return {
           x: this.xyData[0],
           y: this.xyData[1],
-          id_filter: this.idFilter,
+          id_filter: this.idFilter.value,
           method: this.params.method,
           subsets: store.getters.subsets,
           categories: this.categoryData
@@ -288,10 +289,10 @@
           .extent([[0, 0], [this.padded.width, this.padded.height]])
           .on('end', () => {
             this.error = ''
+            if (!d3.event.sourceEvent) {
+              return
+            }
             if (!d3.event.selection) {
-              if (this.selectedPoints.length === 0) {
-                return
-              }
               this.selectedPoints = []
             } else {
               const [[x0, y0], [x1, y1]] = d3.event.selection
@@ -302,9 +303,9 @@
                 this.error = 'Selection must be zero (everything is selected) or greater than two.'
                 return
               }
+              this.hasSetFilter = true
             }
-            store.dispatch('setFilter', {filter: 'ids', value: this.selectedPoints.map(d => d.id)})
-            this.hasSetFilter = true
+            store.dispatch('setFilter', {source: this._uid, filter: 'ids', value: this.selectedPoints.map(d => d.id)})
           })
       },
       histogramBins () {
@@ -369,7 +370,7 @@
         handler: function (newArgs, oldArgs) {
           const init = newArgs.x !== oldArgs.x ||
             newArgs.y !== oldArgs.y ||
-            JSON.stringify(newArgs.categories) !== JSON.stringify(oldArgs.categories) ||
+            !_.isEqual(newArgs.categories, oldArgs.categories) ||
             !this.hasSetFilter
           if (this.validArgs) {
             this.runAnalysisWrapper(init, newArgs)
@@ -392,6 +393,13 @@
           this.$nextTick(() => {
             d3.select(this.$refs.brush).call(newBrush)
           })
+        }
+      },
+      'idFilter': {
+        handler: function (newIdFilter) {
+          if (newIdFilter.source !== this._uid) {
+            this.brush.move(d3.select(this.$refs.brush), null)
+          }
         }
       },
       'points': {

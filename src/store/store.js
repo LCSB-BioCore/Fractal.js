@@ -19,7 +19,7 @@ const state = {
   },
   subsets: [],
   filters: {
-    ids: []
+    ids: {source: null, value: []}
   },
   options: {
     controlPanelPosition: 'left'

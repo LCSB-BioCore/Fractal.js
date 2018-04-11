@@ -223,7 +223,7 @@
           numericals: [],
           categoricals: [],
           ranking_method: this.rankingMethod,
-          id_filter: this.idFilter,
+          id_filter: this.idFilter.value,
           max_rows: 100,
           subsets: store.getters.subsets
         }
@@ -558,6 +558,6 @@
       .fjs-cell:hover
         opacity: 0.4
       .fjs-sig-bar
-        stroke-width: none
+        stroke-width: 1px
         shape-rendering: crispEdges
 </style>

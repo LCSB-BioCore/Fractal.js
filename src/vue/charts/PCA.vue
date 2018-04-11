@@ -172,7 +172,7 @@
           features: this.featureData,
           categories: this.categoryData,
           whiten: this.params.whiten,
-          id_filter: this.idFilter,
+          id_filter: this.idFilter.value,
           subsets: store.getters.subsets
         }
       },
@@ -303,19 +303,19 @@
         return d3.brush()
           .extent([[0, 0], [this.padded.width, this.padded.height]])
           .on('end', () => {
+            if (!d3.event.sourceEvent) {
+              return
+            }
             if (!d3.event.selection) {
-              if (this.selectedPoints.length === 0) {
-                return
-              }
               this.selectedPoints = []
             } else {
               const [[x0, y0], [x1, y1]] = d3.event.selection
               this.selectedPoints = this.points.filter(d => {
                 return x0 <= d.x && d.x <= x1 && y0 <= d.y && d.y <= y1
               })
+              this.hasSetFilter = true
             }
-            store.dispatch('setFilter', {filter: 'ids', value: this.selectedPoints.map(d => d.id)})
-            this.hasSetFilter = true
+            store.dispatch('setFilter', {source: this._uid, filter: 'ids', value: this.selectedPoints.map(d => d.id)})
           })
       }
     },
@@ -343,6 +343,13 @@
           this.$nextTick(() => {
             d3.select(this.$refs.brush).call(newBrush)
           })
+        }
+      },
+      'idFilter': {
+        handler: function (newIdFilter) {
+          if (newIdFilter.source !== this._uid) {
+            this.brush.move(d3.select(this.$refs.brush), null)
+          }
         }
       },
       'points': {

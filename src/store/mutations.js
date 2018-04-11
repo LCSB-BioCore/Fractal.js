@@ -20,8 +20,8 @@ export default {
   [types.SET_SUBSETS] (state, subsets) {
     state.subsets = subsets
   },
-  [types.SET_FILTER] (state, {filter, value}) {
-    Vue.set(state.filters, filter, value)
+  [types.SET_FILTER] (state, {source, filter, value}) {
+    Vue.set(state.filters, filter, {source, value})
   },
   [types.SET_TASK] (state, {taskID, taskName, taskState, taskMessage}) {
     // avoid triggering possible watchers if task information remain the same
