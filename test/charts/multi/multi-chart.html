@@ -11,12 +11,13 @@
 <input type="button" onclick="loadState()" value="load state"/>
 <input type="text" class="state-ids" style="width: 50vw;">
 <div class="containers">
-  <div class="container container-1"></div>
-  <div class="container container-2"></div>
-  <div class="container container-3"></div>
-  <div class="container copy-1"></div>
-  <div class="container copy-2"></div>
-  <div class="container copy-3"></div>
+  <div class="chart chart-1"></div>
+  <div class="chart chart-2"></div>
+  <div class="chart chart-3"></div>
+  <div class="chart chart-4"></div>
+  <div class="chart copy-1"></div>
+  <div class="chart copy-2"></div>
+  <div class="chart copy-3"></div>
 </div>
 </body>
 
@@ -89,9 +90,10 @@
   const chartStateIDs = []
   function setCharts () {
     const vms = [
-      fjs.setChart('correlation-analysis', '.container-1'),
-      fjs.setChart('boxplot', '.container-2'),
-      fjs.setChart('pca-analysis', '.container-3')
+      fjs.setChart('correlation-analysis', '.chart-1'),
+      fjs.setChart('boxplot', '.chart-2'),
+      fjs.setChart('pca-analysis', '.chart-3'),
+      fjs.setChart('correlation-analysis', '.chart-4')
     ]
     vms.forEach((vm, i) => {
       fjs.chart2id(vm, id => {
@@ -108,12 +110,11 @@
 
 <style>
   .containers {
-      display: flex;
-      flex-wrap: wrap;
   }
 
-  .container {
-      width: 50%;
+  .chart {
+      float: left;
+      width: 48%;
       height: 50vh;
   }
 </style>
