@@ -15,6 +15,11 @@
       <hr class="fjs-seperator"/>
       <div class="fjs-parameter-container">
         <label>
+          <input type="checkbox" v-model="params.showOutliers"/>
+          Show Outliers
+        </label>
+        <br/>
+        <label>
           <input type="checkbox" v-model="params.showData"/>
           Show Points
         </label>
@@ -157,6 +162,7 @@
         numData: [],
         catData: [],
         params: {
+          showOutliers: true,
           showData: false,
           jitter: false,
           showKDE: false
@@ -225,6 +231,7 @@
             .filter(d => d.subset === subset &&
               d.feature === feature &&
               d.category === category &&
+              this.params.showOutliers ? true : !d.outlier &&
               typeof d.value === 'number')
             .map(d => {
               return {
@@ -232,7 +239,8 @@
                 value: d.value,
                 jitter: Math.max(this.pointSize / 2, (this.params.jitter ? Math.random() * this.boxplotWidth / 2 : this.boxplotWidth / 2) - this.pointSize / 2),
                 subset: d.subset,
-                category: d.category
+                category: d.category,
+                outlier: d.outlier
               }
             })
         })
@@ -263,7 +271,9 @@
         return boxplotWidth
       },
       scales () {
-        const values = this.results.data.map(d => d.value)
+        const values = this.results.data
+          .filter(d => this.params.showOutliers ? true : !d.outlier)
+          .map(d => d.value)
         const flattened = [].concat.apply([], values)
         const extent = d3.extent(flattened)
         const padding = (extent[1] - extent[0]) / 20
@@ -383,7 +393,7 @@
           if (this.params.showData) {
             this.points[label].forEach(point => {
               ctx.beginPath()
-              ctx.fillStyle = 'black'
+              ctx.fillStyle = point.outlier ? '#f00' : '#000'
               ctx.fillRect(
                 point.jitter - this.pointSize / 2,
                 this.scales.y(point.value) - this.pointSize / 2,
