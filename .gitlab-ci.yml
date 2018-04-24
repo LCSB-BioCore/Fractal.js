@@ -17,7 +17,7 @@ test:all:
         - rm /usr/bin/firefox
         - wget -O firefox.tar.bz2 "https://download.mozilla.org/?product=firefox-latest&os=linux64&lang=en-US"
         - tar jxf firefox.tar.bz2
-        - ln -s /firefox/firefox /usr/local/bin/firefox
+        - export FIREFOX_BIN=/firefox/firefox
         - npm install
         - npm test
 
