@@ -15,7 +15,7 @@ test:all:
         - yum update -y
         - yum install -y git wget bzip2 firefox
         - rm /usr/bin/firefox
-        - wget -O firefox "https://download.mozilla.org/?product=firefox-latest&os=linux64&lang=en-US"
+        - wget -O firefox.tar.bz2 "https://download.mozilla.org/?product=firefox-latest&os=linux64&lang=en-US"
         - tar jxf firefox.tar.bz2
         - ln -s /firefox/firefox /usr/local/bin/firefox
         - npm install
