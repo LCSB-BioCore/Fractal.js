@@ -7,8 +7,6 @@ module.exports = function (config) {
     files: [
       'test/test-index.js'
     ],
-    exclude: [
-    ],
     preprocessors: {
       'test/test-index.js': ['webpack', 'sourcemap']
     },
@@ -24,7 +22,13 @@ module.exports = function (config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: false,
-    browsers: ['FirefoxHeadless'],
+    browsers: ['NoSandboxHeadlessChrome'],
+    customLaunchers: {
+      NoSandboxHeadlessChrome: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox']
+      }
+    },
     singleRun: true,
     concurrency: Infinity
   })

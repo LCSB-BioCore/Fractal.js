@@ -2,8 +2,6 @@ image: centos:latest
 
 variables:
     NPM_TOKEN: SECURE
-    FIREFOX_BIN: /usr/bin/firefox
-    NO_PROXY: 'localhost, 0.0.0.0/4201, 0.0.0.0/9876'
 
 stages:
     - test
@@ -13,17 +11,12 @@ stages:
 test:all:
     stage: test
     script:
-        - yum install -y epel-release
+        - yum install -y epel-release git
         - yum update -y
-        - yum install -y git wget bzip2 firefox npm gtk3
-        - wget -O firefox.tar.bz2 "https://download.mozilla.org/?product=firefox-latest&os=linux64&lang=en-US"
-        - tar vjxf firefox.tar.bz2
-        - rm -rf /usr/bin/firefox
-        - ln -s /firefox/firefox $FIREFOX_BIN
+        - echo -e "[google-chrome]\nname=google-chrome\nbaseurl=http://dl.google.com/linux/chrome/rpm/stable/\$basearch\nenabled=1\ngpgcheck=1\ngpgkey=https://dl-ssl.google.com/linux/linux_signing_key.pub" > /etc/yum.repos.d/google-chrome.repo
+        - yum install -y npm google-chrome-stable
         - npm install
-        - export
         - npm test
-        - firefox -headless
 
 release:npm:
     stage: release

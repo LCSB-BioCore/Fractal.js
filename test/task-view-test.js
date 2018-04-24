@@ -37,10 +37,10 @@ describe('TaskView', () => {
       expect(Object.keys(store.getters.tasks).length).toBe(2)
       expect(vm.$el.querySelectorAll('.fjs-state-container').length).toBe(2)
       vm.$el.querySelectorAll('.fjs-cancel-btn').forEach(button => button.click())
-      Vue.nextTick(() => {
+      Vue.nextTick().then(() => {
         expect(Object.keys(store.getters.tasks).length).toBe(0)
         expect(vm.$el.querySelectorAll('.fjs-state-container').length).toBe(0)
-      })
+      }).catch(() => fail())
     })
   })
 })
