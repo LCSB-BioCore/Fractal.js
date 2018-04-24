@@ -18,6 +18,7 @@ test:all:
         - tar vjxf firefox.tar.bz2
         - rm -rf /usr/bin/firefox
         - ln -s /firefox/firefox /usr/bin/firefox
+        - export FIREFOX_BIN=/usr/bin/firefox
         - npm install
         - npm test
 
