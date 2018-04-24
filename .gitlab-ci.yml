@@ -13,11 +13,11 @@ test:all:
     script:
         - yum install -y epel-release
         - yum update -y
-        - yum install -y git wget bzip2 firefox npm
-        - rm /usr/bin/firefox
+        - yum install -y git wget bzip2 firefox npm gtk3
         - wget -O firefox.tar.bz2 "https://download.mozilla.org/?product=firefox-latest&os=linux64&lang=en-US"
-        - tar jxf firefox.tar.bz2
-        - export FIREFOX_BIN=/firefox/firefox
+        - tar vjxf firefox.tar.bz2
+        - rm -rf /usr/bin/firefox
+        - ln -s /firefox/firefox /usr/bin/firefox
         - npm install
         - npm test
 
