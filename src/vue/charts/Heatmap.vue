@@ -176,7 +176,7 @@
   import ControlPanel from '../components/ControlPanel.vue'
   import Chart from '../components/Chart.vue'
   import store from '../../store/store'
-  import runAnalysis from '../../utils/run-analysis'
+  import RunAnalysis from '../mixins/run-analysis'
   import * as d3 from 'd3'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
@@ -428,7 +428,7 @@
     },
     methods: {
       computeHeatmap (args) {
-        runAnalysis('compute-heatmap', args)
+        this.runAnalysis('compute-heatmap', args)
           .then(response => {
             const results = JSON.parse(response)
             deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
@@ -436,7 +436,7 @@
           })
       },
       computeCluster (args) {
-        runAnalysis('compute-cluster', args)
+        this.runAnalysis('compute-cluster', args)
           .then(response => {
             const results = JSON.parse(response)
             deepFreeze(results)
@@ -493,7 +493,8 @@
       tooltip
     },
     mixins: [
-      StateSaver
+      StateSaver,
+      RunAnalysis
     ],
     mounted () {
       this.registerDataToSave([

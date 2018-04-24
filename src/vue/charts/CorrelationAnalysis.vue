@@ -104,7 +104,7 @@
   import { getPolygonPointsForSubset } from '../../utils/utils'
   import Chart from '../components/Chart.vue'
   import store from '../../store/store'
-  import runAnalysis from '../../utils/run-analysis'
+  import RunAnalysis from '../mixins/run-analysis'
   import * as d3 from 'd3'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
@@ -420,12 +420,12 @@
       tooltip
     },
     mixins: [
-      StateSaver
+      StateSaver,
+      RunAnalysis
     ],
     methods: {
       runAnalysisWrapper (init, args) {
-        // function made available via requestHandling mixin
-        runAnalysis('compute-correlation', args)
+        this.runAnalysis('compute-correlation', args)
           .then(response => {
             const results = JSON.parse(response)
             results.data = JSON.parse(results.data)

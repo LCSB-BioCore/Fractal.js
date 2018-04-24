@@ -115,7 +115,7 @@
   import Chart from '../components/Chart.vue'
   import { getPolygonPointsForSubset } from '../../utils/utils'
   import store from '../../store/store'
-  import runAnalysis from '../../utils/run-analysis'
+  import RunAnalysis from '../mixins/run-analysis'
   import * as d3 from 'd3'
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
@@ -361,7 +361,7 @@
     },
     methods: {
       runAnalysisWrapper (args) {
-        runAnalysis('compute-pca', args)
+        this.runAnalysis('compute-pca', args)
           .then(response => {
             const results = JSON.parse(response)
             deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
@@ -426,7 +426,8 @@
       tooltip
     },
     mixins: [
-      StateSaver
+      StateSaver,
+      RunAnalysis
     ],
     mounted () {
       this.registerDataToSave([

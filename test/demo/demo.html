@@ -6,19 +6,30 @@
 </head>
 
 <body>
-<input type="button" onclick="loadData()" value="load data"/>
-<input type="button" onclick="deleteData()" value="delete data"/>
-<input type="button" onclick="loadState()" value="load state"/>
-<input type="text" class="state-ids" style="width: 50vw;">
-<div class="containers">
+<h1>Fractalis Test Page</h1>
+<p>
+  This page is for demonstration purpose only.
+  It showcases the functionality of Fractalis for researchers and
+  serves as an example on how to use the API for developers.
+</p>
+<input type="button" onclick="loadData()" value="Prepare data for analysis"/>
+<input type="button" onclick="deleteData()" value="Clear analysis cache"/>
+<!--<input type="button" onclick="loadState()" value="load state"/>-->
+<label for="state-ids">State ID:</label>
+<input type="text" id="state-ids" style="width: 20vw;">
+<br/>
+<br/>
+<div class="charts">
   <div class="chart chart-1"></div>
   <div class="chart chart-2"></div>
   <div class="chart chart-3"></div>
   <div class="chart chart-4"></div>
-  <div class="chart copy-1"></div>
-  <div class="chart copy-2"></div>
-  <div class="chart copy-3"></div>
+  <div class="chart chart-5"></div>
+  <div class="chart chart-6"></div>
+  <div class="chart chart-7"></div>
+  <div class="chart chart-8"></div>
 </div>
+
 </body>
 
 <script>
@@ -27,16 +38,18 @@
   const fjs = fractal.init({
     handler: 'test',
     dataSource: 'http://localhost',
-    fractalisNode: 'http://localhost:5000',
+    fractalisNode: 'http://localhost',
     getAuth () {
-      return {user: '', passwd: ''}
+      return {token: ''}
+    },
+    options: {
+      controlPanelPosition: 'right'
     }
   })
+
   fjs.setSubsets([
-    [...new Array(100).keys()],
-    [...new Array(500).keys()].slice(100, 200),
-    [...new Array(500).keys()].slice(200, 300)
   ])
+
   function loadData () {
     fjs.loadData([
       {
@@ -91,14 +104,18 @@
   function setCharts () {
     const vms = [
       fjs.setChart('correlation-analysis', '.chart-1'),
-      fjs.setChart('boxplot', '.chart-2'),
-      fjs.setChart('pca-analysis', '.chart-3'),
-      fjs.setChart('correlation-analysis', '.chart-4')
+      fjs.setChart('correlation-analysis', '.chart-2'),
+      fjs.setChart('correlation-analysis', '.chart-3'),
+      fjs.setChart('correlation-analysis', '.chart-4'),
+      fjs.setChart('boxplot', '.chart-5'),
+      fjs.setChart('boxplot', '.chart-6'),
+      fjs.setChart('pca-analysis', '.chart-7'),
+      fjs.setChart('pca-analysis', '.chart-8')
     ]
     vms.forEach((vm, i) => {
       fjs.chart2id(vm, id => {
         chartStateIDs[i] = id
-        document.querySelector('.state-ids').value = chartStateIDs.join('+')
+        document.querySelector('#state-ids').value = chartStateIDs.join('+')
       })
     })
   }
@@ -109,12 +126,12 @@
 </script>
 
 <style>
-  .containers {
+  .charts {
   }
 
   .chart {
-      float: left;
-      width: 48%;
-      height: 50vh;
+    float: left;
+    height: 20vw;
+    width: 20vw;
   }
 </style>

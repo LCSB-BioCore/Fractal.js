@@ -149,7 +149,7 @@
   import ControlPanel from '../components/ControlPanel.vue'
   import Chart from '../components/Chart.vue'
   import store from '../../store/store'
-  import runAnalysis from '../../utils/run-analysis'
+  import RunAnalysis from '../mixins/run-analysis'
   import * as d3 from 'd3'
   import deepFreeze from 'deep-freeze-strict'
   import tooltip from '../directives/tooltip'
@@ -411,7 +411,7 @@
         this.height = height
       },
       runAnalysisWrapper (args) {
-        runAnalysis('compute-boxplot', args)
+        this.runAnalysis('compute-boxplot', args)
           .then(response => {
             const results = JSON.parse(response)
             results.data = JSON.parse(results.data)
@@ -427,7 +427,8 @@
       Chart
     },
     mixins: [
-      StateSaver
+      StateSaver,
+      RunAnalysis
     ],
     directives: {
       tooltip

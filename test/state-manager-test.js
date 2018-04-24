@@ -52,7 +52,7 @@ describe('state manager', () => {
     it('throws if request access fails', done => {
       spyOn(store.getters.requestManager, 'requestStateAccess').and.returnValue(Promise.reject(new Error('foo')))
       stateManager.getState(123)
-        .then(done.fail)
+        .then(() => fail())
         .catch(e => {
           expect(e.toString()).toBe('Error: foo')
           done()
@@ -63,7 +63,7 @@ describe('state manager', () => {
       spyOn(store.getters.requestManager, 'requestStateAccess').and.returnValue(null)
       spyOn(store.getters.requestManager, 'getState').and.returnValue(Promise.reject(new Error('foo')))
       stateManager.getState(123)
-        .then(done.fail)
+        .then(() => fail())
         .catch(e => {
           expect(e.toString()).toBe('Error: foo')
           done()
@@ -82,7 +82,7 @@ describe('state manager', () => {
           expect(state).toBe('foo')
           done()
         })
-        .catch(done.fail)
+        .catch(() => fail())
     })
 
     it('to fail when getting status rejects', done => {
@@ -92,7 +92,7 @@ describe('state manager', () => {
         Promise.resolve({status: 202}),
         Promise.reject(new Error('foo')))
       stateManager.getState(123)
-        .then(done.fail)
+        .then(() => fail())
         .catch(error => {
           expect(store.getters.requestManager.getState).toHaveBeenCalledTimes(3)
           expect(error.toString()).toBe('Error: foo')
@@ -105,7 +105,7 @@ describe('state manager', () => {
     it('to throw error if selector does match no element', done => {
       spyOn(stateManager, 'getState').and.returnValue(Promise.resolve({chartName: 'boxplot'}))
       stateManager.id2chart('#foo', 123)
-        .then(done.fail)
+        .then(() => fail())
         .catch(e => {
           expect(e.toString()).toContain('exactly one element')
           done()
@@ -121,7 +121,7 @@ describe('state manager', () => {
       document.body.appendChild(el2)
       spyOn(stateManager, 'getState').and.returnValue(Promise.resolve({chartName: 'boxplot'}))
       stateManager.id2chart('.bar', 123)
-        .then(done.fail)
+        .then(() => fail())
         .catch(e => {
           expect(e.toString()).toContain('exactly one element')
           done()
@@ -137,13 +137,13 @@ describe('state manager', () => {
           expect(vm.$data.some).toBe('thing')
           done()
         })
-        .catch(done.fail)
+        .catch(() => fail())
     })
 
     it('to throw if cannot get state for id', done => {
       spyOn(stateManager, 'getState').and.returnValue(Promise.reject(new Error('foo')))
       stateManager.id2chart('.fjs-chart', 123)
-        .then(done.fail)
+        .then(() => fail())
         .catch(e => {
           expect(e.toString()).toContain('foo')
           done()
