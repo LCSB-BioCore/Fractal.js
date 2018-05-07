@@ -39,5 +39,6 @@ export default {
   },
   [types.SET_OPTIONS] (state, options) {
     Object.assign(state.options, options)
+    state.init()
   }
 }

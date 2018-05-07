@@ -14,17 +14,21 @@ const state = {
   stateManager: null,
   controlPanel: {
     panels: [],
-    locked: false,
-    expanded: false
+    locked: false
   },
   subsets: [],
   filters: {
     ids: {source: null, value: []}
   },
   options: {
-    controlPanelPosition: 'left'
+    controlPanelPosition: 'left',
+    controlPanelExpanded: false
+  },
+  init () {
+    this.controlPanel.expanded = this.options.controlPanelExpanded
+    return this
   }
-}
+}.init()
 
 const store = new Vuex.Store({
   state,

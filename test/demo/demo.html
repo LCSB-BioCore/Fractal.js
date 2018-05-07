@@ -14,9 +14,6 @@
 </p>
 <input type="button" onclick="loadData()" value="Prepare data for analysis"/>
 <input type="button" onclick="deleteData()" value="Clear analysis cache"/>
-<!--<input type="button" onclick="loadState()" value="load state"/>-->
-<label for="state-ids">State ID:</label>
-<input type="text" id="state-ids" style="width: 20vw;">
 <br/>
 <br/>
 <div class="charts">
@@ -36,54 +33,73 @@
   /* eslint-disable */
 
   const fjs = fractal.init({
-    handler: 'test',
-    dataSource: 'http://localhost',
+    handler: 'demo',
+    dataSource: location.protocol + '//' + window.location.host,
     fractalisNode: 'http://localhost',
     getAuth () {
       return {token: ''}
     },
     options: {
-      controlPanelPosition: 'right'
+      controlPanelPosition: 'right',
+      controlPanelExpanded: true
     }
   })
 
-  fjs.setSubsets([
-  ])
+  fjs.setSubsets([])
 
   function loadData () {
     fjs.loadData([
       {
-        data_type: 'numerical_array',
-        label: 'Expression Data',
-        num_samples: 300,
-        num_features: 100
+        dataType: 'numerical',
+        field: 'alcohol'
       },
       {
-        data_type: 'numerical',
-        label: 'Numerical Data 1',
-        num_samples: 300
+        dataType: 'numerical',
+        field: 'chlorides'
       },
       {
-        data_type: 'numerical',
-        label: 'Numerical Data 2',
-        num_samples: 300
+        dataType: 'numerical',
+        field: 'citric acid'
       },
       {
-        data_type: 'numerical',
-        label: 'Numerical Data 3',
-        num_samples: 300
+        dataType: 'numerical',
+        field: 'density'
       },
       {
-        data_type: 'categorical',
-        label: 'Categorical Data 1',
-        num_samples: 300,
-        values: ['A', 'B', 'C', 'D']
+        dataType: 'numerical',
+        field: 'fixed acidity'
       },
       {
-        data_type: 'categorical',
-        label: 'Categorical Data 2',
-        num_samples: 300,
-        values:['X', 'Y']
+        dataType: 'numerical',
+        field: 'free sulfur dioxide'
+      },
+      {
+        dataType: 'numerical',
+        field: 'pH'
+      },
+      {
+        dataType: 'numerical',
+        field: 'quality'
+      },
+      {
+        dataType: 'numerical',
+        field: 'residual sugar'
+      },
+      {
+        dataType: 'numerical',
+        field: 'sulphates'
+      },
+      {
+        dataType: 'numerical',
+        field: 'total sulfur dioxide'
+      },
+      {
+        dataType: 'categorical',
+        field: 'type'
+      },
+      {
+        dataType: 'numerical',
+        field: 'volatile acidity'
       }
     ])
   }
@@ -92,15 +108,6 @@
     fjs.clearCache()
   }
 
-  function loadState () {
-    document.querySelector('.state-ids').value.split('+').forEach((id, i) => {
-      if (id.length) {
-        fjs.id2chart(`.copy-${i+1}`, id)
-      }
-    })
-  }
-
-  const chartStateIDs = []
   function setCharts () {
     const vms = [
       fjs.setChart('correlation-analysis', '.chart-1'),
@@ -112,12 +119,6 @@
       fjs.setChart('pca-analysis', '.chart-7'),
       fjs.setChart('pca-analysis', '.chart-8')
     ]
-    vms.forEach((vm, i) => {
-      fjs.chart2id(vm, id => {
-        chartStateIDs[i] = id
-        document.querySelector('#state-ids').value = chartStateIDs.join('+')
-      })
-    })
   }
 
   window.addEventListener('load', () => {
