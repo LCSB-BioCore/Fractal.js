@@ -13,8 +13,7 @@ const state = {
   chartManager: null,
   stateManager: null,
   controlPanel: {
-    panels: [],
-    locked: false
+    panels: []
   },
   subsets: [],
   filters: {
@@ -25,7 +24,7 @@ const state = {
     controlPanelExpanded: false
   },
   init () {
-    this.controlPanel.expanded = this.options.controlPanelExpanded
+    this.controlPanel.expanded = this.controlPanel.locked = this.options.controlPanelExpanded
     return this
   }
 }.init()
