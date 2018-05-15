@@ -8,7 +8,7 @@
           <input type="checkbox"
                  :value="item.task_id"
                  v-model="checkedIds"
-                 :disabled="item.etl_state === 'SUBMITTED'"/>
+                 :disabled="item.etl_state !== 'SUCCESS'"/>
           <span class="fjs-item-label" :data-state="item.etl_state">
             {{ item.label }}
           </span>
