@@ -10,7 +10,7 @@
                  v-model="checkedIds"
                  :disabled="item.etl_state !== 'SUCCESS'"/>
           <span class="fjs-item-label" :data-state="item.etl_state">
-            {{ item.label }}
+            {{ (item.etl_state === 'SUBMITTED' ? 'Loading: ' : '') + item.label }}
           </span>
           <span class="fjs-item-options" @click="toggleItemBody(item.task_id)">&#9776;</span>
         </div>
