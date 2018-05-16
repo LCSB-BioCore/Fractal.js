@@ -265,16 +265,16 @@
         let y2 = this.scales.y(this.tmpResults.intercept + this.tmpResults.slope * maxX) || 0
 
         x1 = x1 < 0 ? 0 : x1
-        x1 = x1 > this.width ? this.width : x1
+        x1 = x1 > this.padded.width ? this.padded.width : x1
 
         x2 = x2 < 0 ? 0 : x2
-        x2 = x2 > this.width ? this.width : x2
+        x2 = x2 > this.padded.width ? this.padded.width : x2
 
         y1 = y1 < 0 ? 0 : y1
-        y1 = y1 > this.height ? this.height : y1
+        y1 = y1 > this.padded.height ? this.padded.height : y1
 
         y2 = y2 < 0 ? 0 : y2
-        y2 = y2 > this.height ? this.height : y2
+        y2 = y2 > this.padded.height ? this.padded.height : y2
 
         const tooltip = `
 <div>
