@@ -21,7 +21,8 @@
         posX: 0,
         posY: 0,
         width: 0,
-        height: 0
+        height: 0,
+        setPositionInterval: null
       }
     },
     props: {
@@ -84,10 +85,12 @@
       }
       vm.$el.appendChild(this.$refs.htmlContent)
       this.$nextTick(this.setPosition)
+      this.setPositionInterval = window.setInterval(this.setPosition, 1000)
       window.addEventListener('scroll', this.setPosition, true)
     },
     beforeDestroy () {
       this.$refs.htmlContent.remove()
+      window.clearInterval(this.setPositionInterval)
       window.removeEventListener('scroll', this.setPosition, true)
     }
   }
