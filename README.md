@@ -1,7 +1,7 @@
 [![Build Status](https://git-r3lab.uni.lu/sascha.herzinger/fractal.js/badges/master/build.svg)](https://git-r3lab.uni.lu/sascha.herzinger/fractal.js/builds/)
 
 ### About
-This is the front-end component of the Fractalis project. It is responsible for the communication with the back-end and the visualisation of analysis results.
+This is the front-end component of the Fractalis project. It is responsible for the communication with the back-end and the visualisation of analysis results. See https://fractalis.lcsb.uni.lu/
 
 ### Demo
 Please have a look at this playlist to see a demo of the visual aspects of Fractalis: [Playlist](https://www.youtube.com/playlist?list=PLNvp9GB9uBmH1NNAf-qTyj_jN2aCPISFU).
