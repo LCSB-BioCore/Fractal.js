@@ -443,7 +443,10 @@
   svg
     .fjs-loadings
       stroke: #f00
-      stroke-width: 1px
+      stroke-width: 2px
+    .fjs-loading-label
+      fill: #7aff00
+      font-weight: bold
     .fjs-pc-distribution
       line
         stroke: #000
@@ -452,6 +455,7 @@
   .fjs-control-panel
     select
       margin: 0 0 0.5vh 0
+      color: initial
   .fjs-legend
     display: flex
     flex-direction: column

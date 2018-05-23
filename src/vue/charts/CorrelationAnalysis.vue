@@ -484,6 +484,10 @@
       text-align: left
       border-radius: 3px
       padding: 0 0.5vw 0 0.5vw
+      legend
+        color: #fff
+        border: none
+        margin: 0
   svg
     .fjs-lin-reg-line
       stroke: #ff5e00
