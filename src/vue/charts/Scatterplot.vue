@@ -1,7 +1,7 @@
 <template>
   <chart v-on:resize="resize">
 
-    <control-panel class="fjs-control-panel" name="Correlation Analysis">
+    <control-panel class="fjs-control-panel" name="Scatterplot Panel">
       <data-box class="fjs-data-box"
                 header="Numerical Variables"
                 :dataTypes="['numerical', 'numerical_array']"
@@ -13,18 +13,16 @@
                 v-on:update="update_categoryData">
       </data-box>
       <hr class="fjs-seperator"/>
-      <fieldset class="fjs-correlation-method">
+      <fieldset class="fjs-fieldset">
         <legend>Correlation Method</legend>
         <label>
           <input type="radio" value="pearson" v-model="params.method">
           Pearson
         </label>
-        <br/>
         <label>
           <input type="radio" value="spearman" v-model="params.method">
           Spearman
         </label>
-        <br/>
         <label>
           <input type="radio" value="kendall" v-model="params.method">
           Kendall
@@ -115,7 +113,7 @@
   import StateSaver from '../mixins/state-saver'
   import _ from 'lodash'
   export default {
-    name: 'correlation-analysis',
+    name: 'scatterplot',
     data () {
       return {
         error: '',
@@ -193,7 +191,7 @@
       subsets () {
         return [...new Set(this.shownResults.data.map(d => d.subset))]
       },
-      points () {
+      scaledPoints () {
         return this.shownResults.data.map(d => {
           const x = this.scales.x(d.value_x)
           const y = this.scales.y(d.value_y)
@@ -296,7 +294,7 @@
               this.selectedPoints = []
             } else {
               const [[x0, y0], [x1, y1]] = d3.event.selection
-              this.selectedPoints = this.points.filter(d => {
+              this.selectedPoints = this.scaledPoints.filter(d => {
                 return x0 <= d.x && d.x <= x1 && y0 <= d.y && d.y <= y1
               })
               if (this.selectedPoints.length > 0 && this.selectedPoints.length < 3) {
@@ -402,7 +400,7 @@
           }
         }
       },
-      'points': {
+      'scaledPoints': {
         handler: function (newPoints) {
           this.$nextTick(() => this.drawPoints(newPoints))
         }
@@ -477,17 +475,6 @@
 <style lang="sass" scoped>
   @import '~assets/base.sass'
 
-  .fjs-control-panel
-    .fjs-correlation-method
-      white-space: nowrap
-      border: solid 1px #fff
-      text-align: left
-      border-radius: 3px
-      padding: 0 0.5vw 0 0.5vw
-      legend
-        color: #fff
-        border: none
-        margin: 0
   svg
     .fjs-lin-reg-line
       stroke: #ff5e00

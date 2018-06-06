@@ -121,7 +121,6 @@
       height: 10vh
       min-width: 15vw
       border: 1px solid #fff
-      border-radius: 3px
       overflow-y: scroll
       padding: 0.3vh 17px 0.3vh 0.3vw
       .fjs-item
