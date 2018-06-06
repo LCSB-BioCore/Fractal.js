@@ -4,7 +4,7 @@
     <control-panel class="fjs-control-panel" name="Boxplot Panel">
       <data-box class="fjs-data-box"
                 header="Numerical Variables"
-                :dataTypes="['numerical']"
+                :dataTypes="['numerical', 'numerical_array']"
                 v-on:update="update_numData">
       </data-box>
       <data-box class="fjs-data-box"
