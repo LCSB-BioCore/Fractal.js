@@ -20,7 +20,7 @@ describe('Chart manager', () => {
   })
 
   it('sets chart if it exists', () => {
-    cm.setChart('correlation-analysis', '.placeholder')
+    cm.setChart('scatterplot', '.placeholder')
     expect(document.querySelector('.fjs-chart')).toBeDefined()
   })
 
