@@ -10,7 +10,7 @@
 
       <div class="fjs-ranking-params">
         <span class="fjs-param-header">Ranking Criteria</span>
-        <fieldset>
+        <fieldset class="fjs-expression-ranking fjs-fieldset">
           <legend>Expression Level</legend>
           <div>
             <label>
@@ -25,7 +25,7 @@
             </label>
           </div>
         </fieldset>
-        <fieldset>
+        <fieldset class="fjs-fieldset">
           <legend>Expression Variability</legend>
           <div>
             <label>
@@ -34,7 +34,7 @@
             </label>
           </div>
         </fieldset>
-        <fieldset>
+        <fieldset class="fjs-fieldset">
           <legend>Differential Expression</legend>
           <div>
             <label>
@@ -77,7 +77,7 @@
 
       <div class="fjs-clustering-params">
         <span class="fjs-param-header">Heatmap Clustering</span>
-        <fieldset class="fjs-cluster-algo-fieldset">
+        <fieldset class="fjs-fieldset">
           <legend>Algorithm</legend>
           <div>
             <label>
@@ -93,7 +93,7 @@
           </div>
         </fieldset>
 
-        <fieldset class="fjs-cluster-option-fieldset" v-if="cluster.algorithm === 'hclust'">
+        <fieldset class="fjs-cluster-option-fieldset fjs-fieldset" v-if="cluster.algorithm === 'hclust'">
           <legend>Options</legend>
           <div class="fjs-hclust-selects">
             <select v-model="cluster.options.method">
@@ -131,7 +131,7 @@
           </div>
         </fieldset>
 
-        <fieldset class="fjs-cluster-option-fieldset" v-if="cluster.algorithm === 'kmeans'">
+        <fieldset class="fjs-cluster-option-fieldset fjs-fieldset" v-if="cluster.algorithm === 'kmeans'">
           <legend>Options</legend>
           <div class="fjs-cluster-ranges">
             <label>
@@ -515,33 +515,11 @@
       display: flex
       flex-direction: column
       flex-shrink: 0
-      fieldset
-        display: flex
-        flex-direction: row
-        flex-wrap: nowrap
-        justify-content: flex-start
-        margin: 0.4vh 0 0.4vh 0
-        border: solid 1px #fff
-        border-radius: 3px
-        padding: 0 0.5vw 0 0.5vw
     .fjs-clustering-params
       display: flex
       flex-direction: column
       flex-shrink: 0
-      .fjs-cluster-algo-fieldset
-        border: solid 1px #fff
-        border-radius: 3px
-        padding: 0 0.5vw 0 0.5vw
-        margin: 0.4vh 0 0.4vh 0
-        div
-          float: left
       .fjs-cluster-option-fieldset
-        display: flex
-        flex-direction: column
-        border: solid 1px #fff
-        border-radius: 3px
-        padding: 0 0.5vw 0 0.5vw
-        margin: 0.4vh 0 0.4vh 0
         div
           margin-top: 3px
         .fjs-hclust-selects
