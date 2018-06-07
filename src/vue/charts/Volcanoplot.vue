@@ -9,19 +9,33 @@
             <hr class="fjs-seperator"/>
             <fieldset class="fjs-fieldset">
                 <legend>Differential Expression Analysis</legend>
-                <div>
+                <div v-for="method in rankingMethods">
                     <label>
-                        <input type="radio" value="limma" v-model="rankingMethod">
-                        Limma
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        <input type="radio" value="DESeq2" v-model="rankingMethod">
-                        DESeq2
+                        <input type="radio" :value="method" v-model="rankingMethod">
+                        {{ method }}
                     </label>
                 </div>
             </fieldset>
+            <div class="fjs-axis-params">
+                <label>
+                    X-Axis
+                    <select v-model="xAxisTransform">
+                        <option :value="d" v-for="d in Object.keys(transformations)">{{ d }}</option>
+                    </select>
+                    <select v-model="xAxisStatistic">
+                        <option :value="d" v-for="d in statistics">{{ d }}</option>
+                    </select>
+                </label>
+                <label>
+                    Y-Axis
+                    <select v-model="yAxisTransform">
+                        <option :value="d" v-for="d in Object.keys(transformations)">{{ d }}</option>
+                    </select>
+                    <select v-model="yAxisStatistic">
+                        <option :value="d" v-for="d in statistics">{{ d }}</option>
+                    </select>
+                </label>
+            </div>
         </control-panel>
         <svg :height="height" :width="width">
             <g :transform="`translate(${margin.left}, ${margin.top})`">
@@ -42,6 +56,7 @@
   import getHDPICanvas from '../../utils/high-dpi-canvas'
   import * as d3 from 'd3'
   import Crosshair from '../components/Crosshair.vue'
+  import _ from 'lodash'
   export default {
     name: 'volcanoplot',
     components: {Crosshair, DataBox, ControlPanel, Chart},
@@ -52,10 +67,21 @@
         width: 0,
         arrays: [],
         rankingMethod: 'limma',
+        rankingMethods: ['limma', 'DESeq2'],
+        xAxisStatistic: '',
+        yAxisStatistic: '',
+        xAxisTransform: 'log2',
+        yAxisTransform: '-log10',
+        transformations: {
+          'log2': Math.log2,
+          '-log0': d => -Math.log2(d),
+          'log10': Math.log10,
+          '-log10': d => -Math.log10(d),
+          'identity': d => d
+        },
         results: {
-          pValue: [],
-          logFC: [],
-          baseMean: []
+          features: [],
+          stats: {'': []}
         },
         dataUrl: ''
       }
@@ -92,8 +118,8 @@
       },
       rawPoints () {
         // TODO: make configurable
-        const x = this.results.pValue
-        const y = this.results.logFC
+        const x = this.results.stats[this.xAxisStatistic].map(d => this.transformations[this.xAxisTransform](d))
+        const y = this.results.stats[this.yAxisStatistic].map(d => this.transformations[this.yAxisTransform](d))
         return { x, y }
       },
       scales () {
@@ -106,7 +132,7 @@
         return { x, y }
       },
       scaledPoints () {
-        return this.rawPoints.x.map(_, i => {
+        return this.rawPoints.x.map((_, i) => {
           const x = this.scales.x(this.rawPoints.x[i])
           const y = this.scales.y(this.rawPoints.y[i])
           return { x, y }
@@ -114,6 +140,17 @@
       },
       axis () {
         return {}
+      },
+      statistics () {
+        if ((this.rankingMethod === 'limma') && (store.getters.subsets.length === 2)) {
+          return ['logFC', 'P.Value', 'feature', 'AveExpr', 't', 'adj.P.Val', 'B']
+        } else if ((this.rankingMethod === 'limma') && (store.getters.subsets.length > 2)) {
+          return ['F', 'P.Value', 'feature', 'AveExpr', 'adj.P.Val']
+        } else if (this.rankingMethod === 'DESeq2') {
+          return ['log2FoldChange', 'pvalue', 'baseMean', 'lfcSE', 'stat', 'padj']
+        } else {
+          throw new Error(`Unknown ranking method: ${this.rankingMethod}`)
+        }
       }
     },
     methods: {
@@ -129,6 +166,7 @@
           .then(response => {
             const results = JSON.parse(response)
             deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
+            this.results = results
           })
           .catch(error => console.error(error))
       },
@@ -157,6 +195,16 @@
             this.drawPoints(newPoints)
           })
         }
+      },
+      'statistics': {
+        handler: function (newStats, oldStats) {
+          if (!_.isEqual(newStats, oldStats)) {
+            this.xAxisStatistic = newStats[0]
+            this.yAxisStatistic = newStats[1]
+            this.results.stats = _.zipObject(newStats, _.times(newStats.length, _ => []))
+          }
+        },
+        immediate: true
       }
     }
   }
@@ -164,4 +212,9 @@
 
 <style lang="sass" scoped>
     @import '~assets/base.sass'
+
+    .fjs-control-panel
+        .fjs-axis-params
+            display: flex
+            flex-direction: column
 </style>
