@@ -70,11 +70,11 @@
         rankingMethods: ['limma', 'DESeq2'],
         xAxisStatistic: '',
         yAxisStatistic: '',
-        xAxisTransform: 'log2',
+        xAxisTransform: 'identity',
         yAxisTransform: '-log10',
         transformations: {
           'log2': Math.log2,
-          '-log0': d => -Math.log2(d),
+          '-log2': d => -Math.log2(d),
           'log10': Math.log10,
           '-log10': d => -Math.log10(d),
           'identity': d => d
@@ -116,25 +116,28 @@
       canvas () {
         return getHDPICanvas(this.padded.width, this.padded.height)
       },
-      rawPoints () {
-        // TODO: make configurable
-        const x = this.results.stats[this.xAxisStatistic].map(d => this.transformations[this.xAxisTransform](d))
-        const y = this.results.stats[this.yAxisStatistic].map(d => this.transformations[this.yAxisTransform](d))
+      points () {
+        const x = this.results.stats[this.xAxisStatistic]
+          .map(d => this.transformations[this.xAxisTransform](d))
+          .filter(d => isFinite(d))
+        const y = this.results.stats[this.yAxisStatistic]
+          .map(d => this.transformations[this.yAxisTransform](d))
+          .filter(d => isFinite(d))
         return { x, y }
       },
       scales () {
         const x = d3.scaleLinear()
-          .domain(d3.extent(this.rawPoints.x))
+          .domain(d3.extent(this.points.x))
           .range([0, this.padded.width])
         const y = d3.scaleLinear()
-          .domain(d3.extent(this.rawPoints.y))
+          .domain(d3.extent(this.points.y))
           .range([this.padded.height, 0])
         return { x, y }
       },
       scaledPoints () {
-        return this.rawPoints.x.map((_, i) => {
-          const x = this.scales.x(this.rawPoints.x[i])
-          const y = this.scales.y(this.rawPoints.y[i])
+        return this.points.x.map((_, i) => {
+          const x = this.scales.x(this.points.x[i])
+          const y = this.scales.y(this.points.y[i])
           return { x, y }
         })
       },
@@ -191,9 +194,7 @@
       },
       'scaledPoints': {
         handler: function (newPoints) {
-          this.$nextTick(() => {
-            this.drawPoints(newPoints)
-          })
+          this.drawPoints(newPoints)
         }
       },
       'statistics': {
