@@ -287,9 +287,7 @@
           .extent([[0, 0], [this.padded.width, this.padded.height]])
           .on('end', () => {
             this.error = ''
-            if (!d3.event.sourceEvent) {
-              return
-            }
+            if (!d3.event.sourceEvent) { return }
             if (!d3.event.selection) {
               this.selectedPoints = []
             } else {
@@ -490,8 +488,6 @@
       stroke-width: 0
     .fjs-scatterplot-point:hover
       fill: #f00
-    .fjs-brush
-      stroke-width: 0
   .fjs-legend
     display: flex
     flex-direction: column

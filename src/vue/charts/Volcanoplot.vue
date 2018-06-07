@@ -36,11 +36,33 @@
                     </select>
                 </label>
             </div>
+            <div v-if="rankingMethod === 'DESeq2'">
+                <label>
+                    Minimal total reads:
+                    <input type="number" v-model.number="params.min_total_row_count"/>
+                </label>
+            </div>
         </control-panel>
         <svg :height="height" :width="width">
             <g :transform="`translate(${margin.left}, ${margin.top})`">
+                <html2svg :right="padded.width">
+                    <draggable>
+                        <table>
+                            <tr v-for="d in selectedFeaturesTable">
+                                <td>{{ d.feature }}</td>
+                                <td>{{ d.xStat }}</td>
+                                <td>{{ d.yStat }}</td>
+                            </tr>
+                        </table>
+                    </draggable>
+                </html2svg>
+                <g class="fjs-corr-axis" ref="yAxis2" :transform="`translate(${padded.width}, 0)`"></g>
+                <g class="fjs-corr-axis" ref="xAxis2"></g>
+                <g class="fjs-corr-axis" ref="xAxis1" :transform="`translate(0, ${padded.height})`"></g>
+                <g class="fjs-corr-axis" ref="yAxis1"></g>
                 <crosshair :width="padded.width" :height="padded.height"/>
                 <image :xlink:href="dataUrl" :width="padded.width" :height="padded.height"></image>
+                <g class="fjs-brush" ref="brush"></g>
             </g>
         </svg>
     </chart>
@@ -57,9 +79,11 @@
   import * as d3 from 'd3'
   import Crosshair from '../components/Crosshair.vue'
   import _ from 'lodash'
+  import Html2svg from '../components/HTML2SVG.vue'
+  import Draggable from '../components/Draggable.vue'
   export default {
     name: 'volcanoplot',
-    components: {Crosshair, DataBox, ControlPanel, Chart},
+    components: {Draggable, Html2svg, Crosshair, DataBox, ControlPanel, Chart},
     mixins: [RunAnalysis],
     data () {
       return {
@@ -79,11 +103,14 @@
           '-log10': d => -Math.log10(d),
           'identity': d => d
         },
-        results: {
-          features: [],
-          stats: {'': []}
+        params: {
+          min_total_row_count: 10
         },
-        dataUrl: ''
+        results: {
+          stats: { feature: [] }
+        },
+        dataUrl: '',
+        selectedFeatures: []
       }
     },
     computed: {
@@ -91,6 +118,7 @@
         return {
           numerical_arrays: this.arrays,
           id_filter: [],
+          params: this.params,
           ranking_method: this.rankingMethod,
           subsets: store.getters.subsets
         }
@@ -117,32 +145,54 @@
         return getHDPICanvas(this.padded.width, this.padded.height)
       },
       points () {
-        const x = this.results.stats[this.xAxisStatistic]
-          .map(d => this.transformations[this.xAxisTransform](d))
-          .filter(d => isFinite(d))
-        const y = this.results.stats[this.yAxisStatistic]
-          .map(d => this.transformations[this.yAxisTransform](d))
-          .filter(d => isFinite(d))
-        return { x, y }
+        const xs = []
+        const ys = []
+        const features = []
+        this.results.stats.feature.forEach((feature, i) => {
+          const x = this.transformations[this.xAxisTransform](this.results.stats[this.xAxisStatistic][i])
+          const y = this.transformations[this.yAxisTransform](this.results.stats[this.yAxisStatistic][i])
+          if (isFinite(x) && isFinite(y)) {
+            xs.push(x)
+            ys.push(y)
+            features.push(feature)
+          }
+        })
+        return { xs, ys, features }
       },
       scales () {
         const x = d3.scaleLinear()
-          .domain(d3.extent(this.points.x))
+          .domain((() => {
+            const xExtent = d3.extent(this.points.xs)
+            const xPadding = (xExtent[1] - xExtent[0]) / 10
+            return [xExtent[0] - xPadding, xExtent[1] + xPadding]
+          })())
           .range([0, this.padded.width])
         const y = d3.scaleLinear()
-          .domain(d3.extent(this.points.y))
+          .domain((() => {
+            const yExtent = d3.extent(this.points.ys)
+            const yPadding = (yExtent[1] - yExtent[0]) / 10
+            return [yExtent[0] - yPadding, yExtent[1] + yPadding]
+          })())
           .range([this.padded.height, 0])
         return { x, y }
       },
       scaledPoints () {
-        return this.points.x.map((_, i) => {
-          const x = this.scales.x(this.points.x[i])
-          const y = this.scales.y(this.points.y[i])
-          return { x, y }
+        return this.points.features.map((feature, i) => {
+          const x = this.scales.x(this.points.xs[i])
+          const y = this.scales.y(this.points.ys[i])
+          return { x, y, feature }
         })
       },
       axis () {
-        return {}
+        const x1 = d3.axisTop(this.scales.x)
+        const y1 = d3.axisRight(this.scales.y)
+        const x2 = d3.axisBottom(this.scales.x)
+          .tickSizeInner(this.padded.height)
+          .tickFormat('')
+        const y2 = d3.axisLeft(this.scales.y)
+          .tickSizeInner(this.padded.width)
+          .tickFormat('')
+        return {x1, x2, y1, y2}
       },
       statistics () {
         if ((this.rankingMethod === 'limma') && (store.getters.subsets.length === 2)) {
@@ -150,10 +200,34 @@
         } else if ((this.rankingMethod === 'limma') && (store.getters.subsets.length > 2)) {
           return ['F', 'P.Value', 'feature', 'AveExpr', 'adj.P.Val']
         } else if (this.rankingMethod === 'DESeq2') {
-          return ['log2FoldChange', 'pvalue', 'baseMean', 'lfcSE', 'stat', 'padj']
+          return ['log2FoldChange', 'pvalue', 'baseMean', 'lfcSE', 'stat', 'padj', 'feature']
         } else {
           throw new Error(`Unknown ranking method: ${this.rankingMethod}`)
         }
+      },
+      brush () {
+        return d3.brush()
+          .extent([[0, 0], [this.padded.width, this.padded.height]])
+          .on('brush', () => {
+            if (!d3.event.sourceEvent) { return }
+            if (!d3.event.selection) {
+              this.selectedFeatures = []
+            } else {
+              const [[x0, y0], [x1, y1]] = d3.event.selection
+              this.selectedFeatures = this.scaledPoints.filter(d => {
+                return x0 <= d.x && d.x <= x1 && y0 <= d.y && d.y <= y1
+              })
+            }
+          })
+      },
+      selectedFeaturesTable () {
+        return this.selectedFeatures.map(d => {
+          const i = this.results.stats.feature.findIndex(e => e === d.feature)
+          const feature = this.results.stats.feature[i]
+          const xStat = this.results.stats[this.xAxisStatistic][i].toPrecision(4)
+          const yStat = this.results.stats[this.yAxisStatistic][i].toPrecision(4)
+          return { feature, xStat, yStat }
+        })
       }
     },
     methods: {
@@ -202,10 +276,27 @@
           if (!_.isEqual(newStats, oldStats)) {
             this.xAxisStatistic = newStats[0]
             this.yAxisStatistic = newStats[1]
-            this.results.stats = _.zipObject(newStats, _.times(newStats.length, _ => []))
+            this.results.stats = _.zipObject(newStats, _.times(newStats.length, () => []))
           }
         },
         immediate: true
+      },
+      'axis': {
+        handler: function (newAxis) {
+          this.$nextTick(() => {
+            d3.select(this.$refs.yAxis2).call(newAxis.y2)
+            d3.select(this.$refs.xAxis2).call(newAxis.x2)
+            d3.select(this.$refs.xAxis1).call(newAxis.x1)
+            d3.select(this.$refs.yAxis1).call(newAxis.y1)
+          })
+        }
+      },
+      'brush': {
+        handler: function (newBrush) {
+          this.$nextTick(() => {
+            d3.select(this.$refs.brush).call(newBrush)
+          })
+        }
       }
     }
   }
@@ -218,4 +309,20 @@
         .fjs-axis-params
             display: flex
             flex-direction: column
+</style>
+
+<!--CSS for dynamically created components-->
+<style lang="sass">
+    @import '~assets/d3.sass'
+
+    .fjs-axis
+        shape-rendering: crispEdges
+        .tick
+            shape-rendering: crispEdges
+            line
+                stroke: #E2E2E2
+            text
+                font-size: 0.75em
+        path
+            stroke: none
 </style>

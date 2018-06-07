@@ -12,6 +12,7 @@
         <span class="fjs-param-header">Ranking Criteria</span>
         <fieldset class="fjs-expression-ranking fjs-fieldset">
           <legend>Expression Level</legend>
+          <!--FIXME: Make this dynamic similar to volcanoplot-->
           <div>
             <label>
               <input type="radio" value="mean" v-model="rankingMethod">
