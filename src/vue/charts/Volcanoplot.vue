@@ -45,19 +45,41 @@
         </control-panel>
         <svg :height="height" :width="width">
             <g :transform="`translate(${margin.left}, ${margin.top})`">
-                <html2svg :left="brushCoords.x" :top="brushCoords.y">
-                    <table>
-                        <tr v-for="d in selectedFeaturesTable">
+                <html2svg :left="selectionTable.left" :top="selectionTable.top">
+                    <table class="fjs-selection-table"
+                           ref="selectionTable"
+                           :style="{'min-width': brushSelection.x1 - brushSelection.x0 + 'px'}"
+                           v-show="Object.keys(brushSelection).length > 0">
+                        <tr id="table-colnames">
+                            <td>Feature</td>
+                            <td>{{ xAxisStatistic }}</td>
+                            <td>{{ yAxisStatistic }}</td>
+                        </tr>
+                        <tr @mouseover="highlightedFeature = d.feature"
+                            @mouseout="highlightedFeature = ''"
+                            v-for="d in selectedFeaturesTable">
                             <td>{{ d.feature }}</td>
                             <td>{{ d.xStat }}</td>
                             <td>{{ d.yStat }}</td>
                         </tr>
                     </table>
                 </html2svg>
-                <g class="fjs-corr-axis" ref="yAxis2" :transform="`translate(${padded.width}, 0)`"></g>
-                <g class="fjs-corr-axis" ref="xAxis2"></g>
-                <g class="fjs-corr-axis" ref="xAxis1" :transform="`translate(0, ${padded.height})`"></g>
-                <g class="fjs-corr-axis" ref="yAxis1"></g>
+                <g class="fjs-axis" ref="yAxis2" :transform="`translate(${padded.width}, 0)`"></g>
+                <g class="fjs-axis" ref="xAxis2"></g>
+                <g class="fjs-axis" ref="xAxis1" :transform="`translate(0, ${padded.height})`"></g>
+                <g class="fjs-axis" ref="yAxis1"></g>
+                <text class="fjs-axis-label" :transform="`translate(${padded.width / 2}, ${padded.height})`">
+                    {{ `${xAxisTransform}(${xAxisStatistic})` }}
+                </text>
+                <text class="fjs-axis-label" :transform="`translate(${0}, ${padded.height / 2})rotate(-90)`">
+                    {{ `${yAxisTransform}(${yAxisStatistic})` }}
+                </text>
+                <text class="fjs-axis-label" :transform="`translate(${padded.width / 2}, ${0})`">
+                    {{ `${xAxisStatistic}` }}
+                </text>
+                <text class="fjs-axis-label" :transform="`translate(${padded.width}, ${padded.height / 2})rotate(90)`">
+                    {{ `${yAxisStatistic}` }}
+                </text>
                 <crosshair :width="padded.width" :height="padded.height"/>
                 <image :xlink:href="dataUrl" :width="padded.width" :height="padded.height"></image>
                 <g class="fjs-brush" ref="brush"></g>
@@ -101,10 +123,12 @@
           '-log10': d => -Math.log10(d),
           'identity': d => d
         },
-        brushCoords: {
-          x: 0,
-          y: 0
+        brushSelection: {},
+        selectionTable: {
+          left: 0,
+          top: 0
         },
+        highlightedFeature: '',
         params: {
           min_total_row_count: 10
         },
@@ -129,10 +153,10 @@
         return this.args.numerical_arrays.length > 0
       },
       margin () {
-        const left = this.width / 20
-        const top = this.height / 20
-        const right = this.width / 20
-        const bottom = this.height / 20
+        const left = this.width / 18
+        const top = this.height / 18
+        const right = this.width / 18
+        const bottom = this.height / 18
         return {left, top, right, bottom}
       },
       padded () {
@@ -161,6 +185,23 @@
         })
         return { xs, ys, features }
       },
+      rawScales () {
+        const x = d3.scaleLinear()
+          .domain((() => {
+            const xExtent = d3.extent(this.results.stats[this.xAxisStatistic])
+            const xPadding = (xExtent[1] - xExtent[0]) / 10
+            return [xExtent[0] - xPadding, xExtent[1] + xPadding]
+          })())
+          .range([0, this.padded.width])
+        const y = d3.scaleLinear()
+          .domain((() => {
+            const yExtent = d3.extent(this.results.stats[this.yAxisStatistic])
+            const yPadding = (yExtent[1] - yExtent[0]) / 10
+            return [yExtent[0] - yPadding, yExtent[1] + yPadding]
+          })())
+          .range([0, this.padded.height])
+        return { x, y }
+      },
       scales () {
         const x = d3.scaleLinear()
           .domain((() => {
@@ -186,14 +227,12 @@
         })
       },
       axis () {
-        const x1 = d3.axisTop(this.scales.x)
-        const y1 = d3.axisRight(this.scales.y)
-        const x2 = d3.axisBottom(this.scales.x)
-          .tickSizeInner(this.padded.height)
-          .tickFormat('')
-        const y2 = d3.axisLeft(this.scales.y)
-          .tickSizeInner(this.padded.width)
-          .tickFormat('')
+        const x1 = d3.axisBottom(this.scales.x)
+        const y1 = d3.axisLeft(this.scales.y)
+        const x2 = d3.axisTop(this.rawScales.x)
+          .tickSizeOuter(-this.padded.height)
+        const y2 = d3.axisRight(this.rawScales.y)
+          .tickSizeOuter(-this.padded.width)
         return {x1, x2, y1, y2}
       },
       statistics () {
@@ -212,15 +251,19 @@
           .extent([[0, 0], [this.padded.width, this.padded.height]])
           .on('brush', () => {
             if (!d3.event.sourceEvent) { return }
-            if (!d3.event.selection) {
-              this.selectedFeatures = []
-            } else {
+            if (d3.event.selection) {
               const [[x0, y0], [x1, y1]] = d3.event.selection
-              this.brushCoords.x = x0
-              this.brushCoords.y = y1
+              this.brushSelection = { x0, x1, y0, y1 }
               this.selectedFeatures = this.scaledPoints.filter(d => {
                 return x0 <= d.x && d.x <= x1 && y0 <= d.y && d.y <= y1
               })
+            }
+          })
+          .on('end', () => {
+            if (!d3.event.selection) {
+              this.brushSelection = {}
+              this.selectedFeatures = []
+              this.highlightedFeature = ''
             }
           })
       },
@@ -255,16 +298,22 @@
         const ctx = this.canvas.getContext('2d')
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
         points.forEach(d => {
+          let pointSize = this.pointSize
           ctx.beginPath()
-          ctx.fillStyle = '#000'
-          ctx.fillRect(d.x - this.pointSize / 2, d.y - this.pointSize / 2, this.pointSize, this.pointSize)
+          if (d.feature === this.highlightedFeature) {
+            ctx.fillStyle = '#F00'
+            pointSize *= 2
+          } else {
+            ctx.fillStyle = '#000'
+          }
+          ctx.fillRect(d.x - pointSize / 2, d.y - pointSize / 2, pointSize, pointSize)
         })
         this.dataUrl = this.canvas.toDataURL('image/png')
       }
     },
     watch: {
       'args': {
-        handler: function (newArgs, oldArgs) {
+        handler: function (newArgs) {
           if (this.validArgs) {
             this.runAnalysisWrapper(newArgs)
           }
@@ -273,6 +322,11 @@
       'scaledPoints': {
         handler: function (newPoints) {
           this.drawPoints(newPoints)
+        }
+      },
+      'highlightedFeature': {
+        handler: function () {
+          this.drawPoints(this.scaledPoints)
         }
       },
       'statistics': {
@@ -301,6 +355,14 @@
             d3.select(this.$refs.brush).call(newBrush)
           })
         }
+      },
+      'brushSelection': {
+        handler: function (newSelection) {
+          const tableWidth = this.$refs.selectionTable.getBoundingClientRect().width
+          const selectionWidth = newSelection.x1 - newSelection.x0
+          this.selectionTable.left = newSelection.x0 - (tableWidth / 2 - selectionWidth / 2)
+          this.selectionTable.top = newSelection.y1
+        }
       }
     }
   }
@@ -313,6 +375,22 @@
         .fjs-axis-params
             display: flex
             flex-direction: column
+    svg
+        .fjs-axis-label
+            text-anchor: middle
+    .fjs-selection-table
+        border-collapse: collapse
+        background: rgb(216, 217, 216)
+        color: #000
+        margin: 0
+        #table-colnames
+            border-top: 1px solid black
+            border-bottom: 1px solid black
+        td, tr
+            border: none
+        tr
+            &:hover:not(#table-colnames)
+                background: aqua
 </style>
 
 <!--CSS for dynamically created components-->
