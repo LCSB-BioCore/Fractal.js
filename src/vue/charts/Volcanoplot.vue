@@ -64,20 +64,27 @@
                         </tr>
                     </table>
                 </html2svg>
-                <g class="fjs-axis" ref="yAxis2" :transform="`translate(${padded.width}, 0)`"></g>
-                <g class="fjs-axis" ref="xAxis2"></g>
                 <g class="fjs-axis" ref="xAxis1" :transform="`translate(0, ${padded.height})`"></g>
                 <g class="fjs-axis" ref="yAxis1"></g>
-                <text class="fjs-axis-label" :transform="`translate(${padded.width / 2}, ${padded.height})`">
+                <g class="fjs-axis" ref="yAxis2" :transform="`translate(${padded.width}, 0)`"></g>
+                <g class="fjs-axis" ref="xAxis2"></g>
+                <text class="fjs-axis-label"
+                      :transform="`translate(${padded.width / 2}, ${padded.height})`">
                     {{ `${xAxisTransform}(${xAxisStatistic})` }}
                 </text>
-                <text class="fjs-axis-label" :transform="`translate(${0}, ${padded.height / 2})rotate(-90)`">
+                <text class="fjs-axis-label"
+                      style="dominant-baseline: hanging"
+                      :transform="`translate(${0}, ${padded.height / 2})rotate(-90)`">
                     {{ `${yAxisTransform}(${yAxisStatistic})` }}
                 </text>
-                <text class="fjs-axis-label" :transform="`translate(${padded.width / 2}, ${0})`">
+                <text class="fjs-axis-label"
+                      style="dominant-baseline: hanging"
+                      :transform="`translate(${padded.width / 2}, ${0})`">
                     {{ `${xAxisStatistic}` }}
                 </text>
-                <text class="fjs-axis-label" :transform="`translate(${padded.width}, ${padded.height / 2})rotate(90)`">
+                <text class="fjs-axis-label"
+                      style="dominant-baseline: hanging"
+                      :transform="`translate(${padded.width}, ${padded.height / 2})rotate(90)`">
                     {{ `${yAxisStatistic}` }}
                 </text>
                 <crosshair :width="padded.width" :height="padded.height"/>
@@ -123,6 +130,13 @@
           '-log10': d => -Math.log10(d),
           'identity': d => d
         },
+        inverseTransformations: {
+          'log2': d => Math.pow(2, d),
+          '-log2': d => Math.pow(2, -d),
+          'log10': d => Math.pow(10, d),
+          '-log10': d => Math.pow(10, -d),
+          'identity': d => d
+        },
         brushSelection: {},
         selectionTable: {
           left: 0,
@@ -153,10 +167,10 @@
         return this.args.numerical_arrays.length > 0
       },
       margin () {
-        const left = this.width / 18
-        const top = this.height / 18
-        const right = this.width / 18
-        const bottom = this.height / 18
+        const left = this.width / 15
+        const top = this.height / 15
+        const right = this.width / 15
+        const bottom = this.height / 15
         return {left, top, right, bottom}
       },
       padded () {
@@ -185,23 +199,6 @@
         })
         return { xs, ys, features }
       },
-      rawScales () {
-        const x = d3.scaleLinear()
-          .domain((() => {
-            const xExtent = d3.extent(this.results.stats[this.xAxisStatistic])
-            const xPadding = (xExtent[1] - xExtent[0]) / 10
-            return [xExtent[0] - xPadding, xExtent[1] + xPadding]
-          })())
-          .range([0, this.padded.width])
-        const y = d3.scaleLinear()
-          .domain((() => {
-            const yExtent = d3.extent(this.results.stats[this.yAxisStatistic])
-            const yPadding = (yExtent[1] - yExtent[0]) / 10
-            return [yExtent[0] - yPadding, yExtent[1] + yPadding]
-          })())
-          .range([0, this.padded.height])
-        return { x, y }
-      },
       scales () {
         const x = d3.scaleLinear()
           .domain((() => {
@@ -229,10 +226,12 @@
       axis () {
         const x1 = d3.axisBottom(this.scales.x)
         const y1 = d3.axisLeft(this.scales.y)
-        const x2 = d3.axisTop(this.rawScales.x)
-          .tickSizeOuter(-this.padded.height)
-        const y2 = d3.axisRight(this.rawScales.y)
-          .tickSizeOuter(-this.padded.width)
+        const x2 = d3.axisTop(this.scales.x)
+          .tickFormat(d => this.inverseTransformations[this.xAxisTransform](d).toPrecision(2))
+          .tickSize(-this.padded.height)
+        const y2 = d3.axisRight(this.scales.y)
+          .tickFormat(d => this.inverseTransformations[this.yAxisTransform](d).toPrecision(2))
+          .tickSize(-this.padded.width)
         return {x1, x2, y1, y2}
       },
       statistics () {
@@ -271,8 +270,8 @@
         return this.selectedFeatures.map(d => {
           const i = this.results.stats.feature.findIndex(e => e === d.feature)
           const feature = this.results.stats.feature[i]
-          const xStat = this.results.stats[this.xAxisStatistic][i].toPrecision(4)
-          const yStat = this.results.stats[this.yAxisStatistic][i].toPrecision(4)
+          const xStat = this.results.stats[this.xAxisStatistic][i].toPrecision(2)
+          const yStat = this.results.stats[this.yAxisStatistic][i].toPrecision(2)
           return { feature, xStat, yStat }
         })
       }
@@ -301,10 +300,10 @@
           let pointSize = this.pointSize
           ctx.beginPath()
           if (d.feature === this.highlightedFeature) {
-            ctx.fillStyle = '#F00'
+            ctx.fillStyle = 'rgba(255, 0, 0, 1)'
             pointSize *= 2
           } else {
-            ctx.fillStyle = '#000'
+            ctx.fillStyle = `rgba(0, 0, 0, ${1 - d.y / this.padded.height})`
           }
           ctx.fillRect(d.x - pointSize / 2, d.y - pointSize / 2, pointSize, pointSize)
         })
@@ -342,10 +341,16 @@
       'axis': {
         handler: function (newAxis) {
           this.$nextTick(() => {
-            d3.select(this.$refs.yAxis2).call(newAxis.y2)
-            d3.select(this.$refs.xAxis2).call(newAxis.x2)
             d3.select(this.$refs.xAxis1).call(newAxis.x1)
             d3.select(this.$refs.yAxis1).call(newAxis.y1)
+              .selectAll('text')
+              .attr('transform', 'rotate(-60)')
+              .attr('text-anchor', 'end')
+            d3.select(this.$refs.yAxis2).call(newAxis.y2)
+              .selectAll('text')
+              .attr('transform', 'rotate(60)')
+              .attr('text-anchor', 'start')
+            d3.select(this.$refs.xAxis2).call(newAxis.x2)
           })
         }
       },
