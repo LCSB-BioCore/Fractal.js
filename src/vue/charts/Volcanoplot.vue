@@ -45,16 +45,14 @@
         </control-panel>
         <svg :height="height" :width="width">
             <g :transform="`translate(${margin.left}, ${margin.top})`">
-                <html2svg :right="padded.width">
-                    <draggable>
-                        <table>
-                            <tr v-for="d in selectedFeaturesTable">
-                                <td>{{ d.feature }}</td>
-                                <td>{{ d.xStat }}</td>
-                                <td>{{ d.yStat }}</td>
-                            </tr>
-                        </table>
-                    </draggable>
+                <html2svg :left="brushCoords.x" :top="brushCoords.y">
+                    <table>
+                        <tr v-for="d in selectedFeaturesTable">
+                            <td>{{ d.feature }}</td>
+                            <td>{{ d.xStat }}</td>
+                            <td>{{ d.yStat }}</td>
+                        </tr>
+                    </table>
                 </html2svg>
                 <g class="fjs-corr-axis" ref="yAxis2" :transform="`translate(${padded.width}, 0)`"></g>
                 <g class="fjs-corr-axis" ref="xAxis2"></g>
@@ -102,6 +100,10 @@
           'log10': Math.log10,
           '-log10': d => -Math.log10(d),
           'identity': d => d
+        },
+        brushCoords: {
+          x: 0,
+          y: 0
         },
         params: {
           min_total_row_count: 10
@@ -214,6 +216,8 @@
               this.selectedFeatures = []
             } else {
               const [[x0, y0], [x1, y1]] = d3.event.selection
+              this.brushCoords.x = x0
+              this.brushCoords.y = y1
               this.selectedFeatures = this.scaledPoints.filter(d => {
                 return x0 <= d.x && d.x <= x1 && y0 <= d.y && d.y <= y1
               })
