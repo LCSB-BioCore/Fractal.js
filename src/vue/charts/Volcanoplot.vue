@@ -360,8 +360,12 @@
         handler: function (newSelection) {
           const tableWidth = this.$refs.selectionTable.getBoundingClientRect().width
           const selectionWidth = newSelection.x1 - newSelection.x0
-          this.selectionTable.left = newSelection.x0 - (tableWidth / 2 - selectionWidth / 2)
-          this.selectionTable.top = newSelection.y1
+          let left = newSelection.x0 - (tableWidth / 2 - selectionWidth / 2)
+          const top = newSelection.y1
+          left = left < 0 ? 0 : left
+          left = left + tableWidth > this.padded.width ? this.padded.width - tableWidth : left
+          this.selectionTable.left = left
+          this.selectionTable.top = top
         }
       }
     }
