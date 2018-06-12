@@ -16,14 +16,31 @@
                       :data-types="['categorical']"
                       v-on:update="updateObservedVariable">
             </data-box>
+            <hr class="fjs-seperator"/>
+            <fieldset class="fjs-fieldset">
+                <legend>Estimator</legend>
+                <div v-for="method in estimators">
+                    <label>
+                        <input type="radio" :value="method" v-model="estimator">
+                        {{ method }}
+                    </label>
+                </div>
+            </fieldset>
+            <div>
+                <label>
+                    Ignore Subsets
+                    <input type="checkbox" v-model="ignoreSubsets"/>
+                </label>
+
+            </div>
         </control-panel>
         <svg :height="height" :width="width">
             <g :transform="`translate(${margin.left}, ${margin.top})`">
-                <crosshair :width="padded.width" :height="padded.height"/>
                 <g class="fjs-axis" ref="yAxis2" :transform="`translate(${padded.width}, 0)`"></g>
                 <g class="fjs-axis" ref="xAxis2"></g>
                 <g class="fjs-axis" ref="xAxis1" :transform="`translate(0, ${padded.height})`"></g>
                 <g class="fjs-axis" ref="yAxis1"></g>
+                <crosshair :width="padded.width" :height="padded.height"/>
                 <g class="fjs-paths">
                     <path class="fjs-estimate-path"
                           :style="{stroke: path.color}"
@@ -60,6 +77,8 @@
         groupVariables: [],
         observedVariables: [],
         estimator: 'KaplanMeier',
+        estimators: ['KaplanMeier', 'NelsonAalen'],
+        ignoreSubsets: false,
         groupColors: d3.schemeCategory10,
         results: {
           subsets: [],
@@ -76,7 +95,7 @@
           event_observed: this.observedVariables,
           estimator: this.estimator,
           id_filter: store.getters.filter('ids').value,
-          subsets: store.getters.subsets
+          subsets: this.ignoreSubsets ? [] : store.getters.subsets
         }
       },
       validArgs () {
@@ -170,18 +189,19 @@
         const paths = []
         this.results.categories.forEach(category => {
           this.results.subsets.forEach(subset => {
+            const stats = this.results.stats[category][subset]
             let path = ''
             let backpath = ' Z '
-            this.results.stats[category][subset].ci_upper.forEach((d, i, arr) => {
-              const stats = this.results.stats[category][subset]
+            this.results.stats[category][subset].ci_upper.forEach((_, i) => {
               const x = this.scales.x(stats.timeline[i])
               if (i === 0) {
                 return true
               } else if (i === 1) {
-                path += `M ${x} ${this.scales.y(d)}`
+                path += `M ${x} ${this.scales.y(stats.ci_upper[i])} `
+                backpath = ` L ${x} ${this.scales.y(stats.ci_lower[i])}` + backpath
               } else {
-                path += `L ${x} ${this.scales.y(arr[i - 1])}`
-                path += `L ${x} ${this.scales.y(d)}`
+                path += `L ${x} ${this.scales.y(stats.ci_upper[i - 1])} `
+                path += `L ${x} ${this.scales.y(stats.ci_upper[i])} `
                 backpath = ` L ${x} ${this.scales.y(stats.ci_lower[i - 1])}` + backpath
                 backpath = ` L ${x} ${this.scales.y(stats.ci_lower[i])}` + backpath
               }
