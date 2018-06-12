@@ -4,6 +4,7 @@ import Boxplot from '../vue/charts/Boxplot.vue'
 import Volcanoplot from '../vue/charts/Volcanoplot.vue'
 import Heatmap from '../vue/charts/Heatmap.vue'
 import PCA from '../vue/charts/PCA.vue'
+import SurvivalPlot from '../vue/charts/Survivalplot.vue'
 
 export default class {
   constructor () {
@@ -12,7 +13,8 @@ export default class {
       [Boxplot.name]: Boxplot,
       [Heatmap.name]: Heatmap,
       [PCA.name]: PCA,
-      [Volcanoplot.name]: Volcanoplot
+      [Volcanoplot.name]: Volcanoplot,
+      [SurvivalPlot.name]: SurvivalPlot
     }
   }
 

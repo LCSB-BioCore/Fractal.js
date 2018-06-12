@@ -157,7 +157,7 @@
       args () {
         return {
           numerical_arrays: this.arrays,
-          id_filter: [],
+          id_filter: store.getters.filter('ids'),
           params: this.params,
           ranking_method: this.rankingMethod,
           subsets: store.getters.subsets
