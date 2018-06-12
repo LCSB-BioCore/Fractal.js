@@ -19,7 +19,21 @@
         </control-panel>
         <svg :height="height" :width="width">
             <g :transform="`translate(${margin.left}, ${margin.top})`">
-
+                <crosshair :width="padded.width" :height="padded.height"/>
+                <g class="fjs-axis" ref="yAxis2" :transform="`translate(${padded.width}, 0)`"></g>
+                <g class="fjs-axis" ref="xAxis2"></g>
+                <g class="fjs-axis" ref="xAxis1" :transform="`translate(0, ${padded.height})`"></g>
+                <g class="fjs-axis" ref="yAxis1"></g>
+                <g class="fjs-paths">
+                    <path class="fjs-estimate-path"
+                          :style="{stroke: path.color}"
+                          :d="path.d" v-for="path in paths">
+                    </path>
+                    <path class="fjs-ci-path"
+                          :style="{fill: path.color}"
+                          :d="path.d" v-for="path in ciPaths">
+                    </path>
+                </g>
             </g>
         </svg>
     </chart>
@@ -36,7 +50,7 @@
   import Crosshair from '../components/Crosshair.vue'
   export default {
     name: 'survivalplot',
-    components: {DataBox, Chart, ControlPanel},
+    components: {Crosshair, DataBox, Chart, ControlPanel},
     mixins: [RunAnalysis],
     data () {
       return {
@@ -46,7 +60,12 @@
         groupVariables: [],
         observedVariables: [],
         estimator: 'KaplanMeier',
-        results: {}
+        groupColors: d3.schemeCategory10,
+        results: {
+          subsets: [],
+          categories: [],
+          stats: {}
+        }
       }
     },
     computed: {
@@ -56,12 +75,12 @@
           categories: this.groupVariables,
           event_observed: this.observedVariables,
           estimator: this.estimator,
-          id_filter: store.getters.filter('ids'),
+          id_filter: store.getters.filter('ids').value,
           subsets: store.getters.subsets
         }
       },
       validArgs () {
-        return this.durations.length === 1
+        return this.durationVariables.length === 1
       },
       margin () {
         const left = this.width / 15
@@ -74,6 +93,106 @@
         const width = this.width - this.margin.left - this.margin.right
         const height = this.height - this.margin.top - this.margin.bottom
         return {width, height}
+      },
+      dataRanges () {
+        let timelineGlobalMin = Number.MAX_SAFE_INTEGER
+        let timelineGlobalMax = Number.MIN_SAFE_INTEGER
+        let estimateGlobalMin = Number.MAX_SAFE_INTEGER
+        let estimateGlobalMax = Number.MIN_SAFE_INTEGER
+        this.results.categories.forEach(category => {
+          this.results.subsets.forEach(subset => {
+            const [localTimelineMin, localTimelineMax] = d3.extent(this.results.stats[category][subset].timeline)
+            timelineGlobalMin = localTimelineMin < timelineGlobalMin ? localTimelineMin : timelineGlobalMin
+            timelineGlobalMax = localTimelineMax > timelineGlobalMax ? localTimelineMax : timelineGlobalMax
+            const [localEstimateMin, localEstimateMax] = d3.extent(this.results.stats[category][subset].estimate)
+            estimateGlobalMin = localEstimateMin < estimateGlobalMin ? localEstimateMin : estimateGlobalMin
+            estimateGlobalMax = localEstimateMax > estimateGlobalMax ? localEstimateMax : estimateGlobalMax
+          })
+        })
+        return { timelineGlobalMin, timelineGlobalMax, estimateGlobalMin, estimateGlobalMax }
+      },
+      scales () {
+        const x = d3.scaleLinear()
+          .domain([this.dataRanges.timelineGlobalMin, this.dataRanges.timelineGlobalMax])
+          .range([0, this.padded.width])
+        const y = d3.scaleLinear()
+          .domain([this.dataRanges.estimateGlobalMin, this.dataRanges.estimateGlobalMax])
+          .range([this.padded.height, 0])
+        return { x, y }
+      },
+      axis () {
+        const x1 = d3.axisTop(this.scales.x)
+        const y1 = d3.axisRight(this.scales.y)
+        const x2 = d3.axisBottom(this.scales.x)
+          .tickSizeInner(this.padded.height)
+          .tickFormat('')
+        const y2 = d3.axisLeft(this.scales.y)
+          .tickSizeInner(this.padded.width)
+          .tickFormat('')
+        return { x1, x2, y1, y2 }
+      },
+      groups () {
+        const groups = {}
+        this.results.categories.forEach(category => {
+          this.results.subsets.forEach(subset => {
+            groups[this.getGroupName(category, subset)] = {}
+          })
+        })
+        Object.keys(groups).forEach((key, i) => {
+          groups[key].color = this.groupColors[i % this.groupColors.length]
+        })
+        return groups
+      },
+      paths () {
+        const paths = []
+        this.results.categories.forEach(category => {
+          this.results.subsets.forEach(subset => {
+            let path = ''
+            this.results.stats[category][subset].estimate.forEach((d, i, arr) => {
+              const stats = this.results.stats[category][subset]
+              const x = this.scales.x(stats.timeline[i])
+              if (i === 0) {
+                path += `M ${x} ${this.scales.y(d)}`
+              } else {
+                path += `L ${x} ${this.scales.y(arr[i - 1])}`
+                path += `L ${x} ${this.scales.y(d)}`
+              }
+            })
+            paths.push({
+              d: path,
+              color: this.groups[this.getGroupName(category, subset)].color
+            })
+          })
+        })
+        return paths
+      },
+      ciPaths () {
+        const paths = []
+        this.results.categories.forEach(category => {
+          this.results.subsets.forEach(subset => {
+            let path = ''
+            let backpath = ' Z '
+            this.results.stats[category][subset].ci_upper.forEach((d, i, arr) => {
+              const stats = this.results.stats[category][subset]
+              const x = this.scales.x(stats.timeline[i])
+              if (i === 0) {
+                return true
+              } else if (i === 1) {
+                path += `M ${x} ${this.scales.y(d)}`
+              } else {
+                path += `L ${x} ${this.scales.y(arr[i - 1])}`
+                path += `L ${x} ${this.scales.y(d)}`
+                backpath = ` L ${x} ${this.scales.y(stats.ci_lower[i - 1])}` + backpath
+                backpath = ` L ${x} ${this.scales.y(stats.ci_lower[i])}` + backpath
+              }
+            })
+            paths.push({
+              d: path + backpath,
+              color: this.groups[this.getGroupName(category, subset)].color
+            })
+          })
+        })
+        return paths
       }
     },
     methods: {
@@ -98,6 +217,9 @@
             this.results = results
           })
           .catch(error => console.error(error))
+      },
+      getGroupName (category, subset) {
+        return `${category} [s${subset + 1}]`
       }
     },
     watch: {
@@ -107,6 +229,16 @@
             this.runAnalysisWrapper(newArgs)
           }
         }
+      },
+      'axis': {
+        handler: function (newAxis) {
+          this.$nextTick(() => {
+            d3.select(this.$refs.xAxis1).call(newAxis.x1)
+            d3.select(this.$refs.yAxis1).call(newAxis.y1)
+            d3.select(this.$refs.yAxis2).call(newAxis.y2)
+            d3.select(this.$refs.xAxis2).call(newAxis.x2)
+          })
+        }
       }
     }
   }
@@ -115,9 +247,29 @@
 <style lang="sass" scoped>
     @import '~assets/base.sass'
 
+    svg
+        .fjs-paths
+            path
+                shape-rendering: crispEdges
+            .fjs-estimate-path
+                stroke-width: 2px
+                fill: none
+            .fjs-ci-path
+                opacity: 0.4
 </style>
 
 <!--CSS for dynamically created components-->
 <style lang="sass">
+    @import '~assets/d3.sass'
 
+    .fjs-axis
+        shape-rendering: crispEdges
+        .tick
+            shape-rendering: crispEdges
+            line
+                stroke: #E2E2E2
+            text
+                font-size: 0.75em
+        path
+            stroke: none
 </style>
