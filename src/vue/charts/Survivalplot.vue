@@ -121,8 +121,8 @@
         return { x, y }
       },
       axis () {
-        const x1 = d3.axisTop(this.scales.x)
-        const y1 = d3.axisRight(this.scales.y)
+        const x1 = d3.axisBottom(this.scales.x)
+        const y1 = d3.axisLeft(this.scales.y)
         const x2 = d3.axisBottom(this.scales.x)
           .tickSizeInner(this.padded.height)
           .tickFormat('')
