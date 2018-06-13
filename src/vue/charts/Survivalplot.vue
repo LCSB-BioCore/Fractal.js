@@ -55,7 +55,7 @@
                 <g class="fjs-axis" ref="yAxis2" :transform="`translate(${padded.width}, 0)`"></g>
                 <g class="fjs-axis" ref="xAxis2"></g>
                 <g class="fjs-axis" ref="xAxis1" :transform="`translate(0, ${padded.height})`"></g>
-                <g class="fjs-axis" ref="yAxis1"></g>
+                <g class="fjs-axis" ref="yAxis1"></g>
                 <text :transform="`translate(${padded.width / 2}, ${padded.height + margin.bottom * 0.90})`"
                       text-anchor="middle">
                     {{ results.label }}
