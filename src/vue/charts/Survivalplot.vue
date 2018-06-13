@@ -17,30 +17,49 @@
                       v-on:update="updateObservedVariable">
             </data-box>
             <hr class="fjs-seperator"/>
-            <fieldset class="fjs-fieldset">
-                <legend>Estimator</legend>
-                <div v-for="method in estimators">
+            <div class="fjs-settings">
+                <fieldset class="fjs-fieldset">
+                    <legend>Estimator</legend>
+                    <div v-for="method in estimators">
+                        <label>
+                            <input type="radio" :value="method" v-model="estimator">
+                            {{ method }}
+                        </label>
+                    </div>
+                </fieldset>
+                <div>
                     <label>
-                        <input type="radio" :value="method" v-model="estimator">
-                        {{ method }}
+                        Ignore Subsets
+                        <input type="checkbox" v-model="ignoreSubsets"/>
                     </label>
                 </div>
-            </fieldset>
-            <div>
-                <label>
-                    Ignore Subsets
-                    <input type="checkbox" v-model="ignoreSubsets"/>
-                </label>
-
             </div>
+
         </control-panel>
         <svg :height="height" :width="width">
             <g :transform="`translate(${margin.left}, ${margin.top})`">
+                <html2svg :right="padded.width">
+                    <draggable>
+                        <div class="fjs-legend">
+                            <div class="fjs-legend-element" v-for="group in groups">
+                                <svg width="1vw" height="1vw">
+                                    <rect width="1vw" height="1vw" :fill="group.color"></rect>
+                                </svg>
+
+                                <span>{{ group.name }}</span>
+                            </div>
+                        </div>
+                    </draggable>
+                </html2svg>
+                <crosshair :width="padded.width" :height="padded.height"/>
                 <g class="fjs-axis" ref="yAxis2" :transform="`translate(${padded.width}, 0)`"></g>
                 <g class="fjs-axis" ref="xAxis2"></g>
                 <g class="fjs-axis" ref="xAxis1" :transform="`translate(0, ${padded.height})`"></g>
-                <g class="fjs-axis" ref="yAxis1"></g>
-                <crosshair :width="padded.width" :height="padded.height"/>
+                <g class="fjs-axis" ref="yAxis1"></g>
+                <text :transform="`translate(${padded.width / 2}, ${padded.height + margin.bottom * 0.90})`"
+                      text-anchor="middle">
+                    {{ results.label }}
+                </text>
                 <g class="fjs-paths">
                     <path class="fjs-estimate-path"
                           :style="{stroke: path.color}"
@@ -65,9 +84,11 @@
   import deepFreeze from 'deep-freeze-strict'
   import * as d3 from 'd3'
   import Crosshair from '../components/Crosshair.vue'
+  import Html2svg from '../components/HTML2SVG.vue'
+  import Draggable from '../components/Draggable.vue'
   export default {
     name: 'survivalplot',
-    components: {Crosshair, DataBox, Chart, ControlPanel},
+    components: {Draggable, Html2svg, Crosshair, DataBox, Chart, ControlPanel},
     mixins: [RunAnalysis],
     data () {
       return {
@@ -151,14 +172,14 @@
         return { x1, x2, y1, y2 }
       },
       groups () {
-        const groups = {}
+        const groups = []
         this.results.categories.forEach(category => {
           this.results.subsets.forEach(subset => {
-            groups[this.getGroupName(category, subset)] = {}
+            groups.push({name: this.getGroupName(category, subset)})
           })
         })
-        Object.keys(groups).forEach((key, i) => {
-          groups[key].color = this.groupColors[i % this.groupColors.length]
+        groups.forEach((group, i) => {
+          group.color = this.groupColors[i % this.groupColors.length]
         })
         return groups
       },
@@ -179,7 +200,7 @@
             })
             paths.push({
               d: path,
-              color: this.groups[this.getGroupName(category, subset)].color
+              color: this.groups.find(group => group.name === this.getGroupName(category, subset)).color
             })
           })
         })
@@ -208,7 +229,7 @@
             })
             paths.push({
               d: path + backpath,
-              color: this.groups[this.getGroupName(category, subset)].color
+              color: this.groups.find(group => group.name === this.getGroupName(category, subset)).color
             })
           })
         })
@@ -239,7 +260,7 @@
           .catch(error => console.error(error))
       },
       getGroupName (category, subset) {
-        return `${category} [s${subset + 1}]`
+        return `${this.results.label} [${category}] [s${subset + 1}]`
       }
     },
     watch: {
@@ -266,6 +287,17 @@
 
 <style lang="sass" scoped>
     @import '~assets/base.sass'
+
+    .fjs-control-panel
+        .fjs-settings > *
+            margin-bottom: 1vh
+
+    .fjs-legend
+        .fjs-legend-element
+            > svg
+                margin-right: 0.5vw
+            display: flex
+            align-items: center
 
     svg
         .fjs-paths
