@@ -87,6 +87,7 @@
   import Crosshair from '../components/Crosshair.vue'
   import Html2svg from '../components/HTML2SVG.vue'
   import Draggable from '../components/Draggable.vue'
+  import _ from 'lodash'
   export default {
     name: 'survivalplot',
     components: {Draggable, Html2svg, Crosshair, DataBox, Chart, ControlPanel},
@@ -142,6 +143,9 @@
         let estimateGlobalMax = Number.MIN_SAFE_INTEGER
         this.results.categories.forEach(category => {
           this.results.subsets.forEach(subset => {
+            if (!_.has(this.results.stats, [category, subset])) {
+              return true
+            }
             const [localTimelineMin, localTimelineMax] = d3.extent(this.results.stats[category][subset].timeline)
             timelineGlobalMin = localTimelineMin < timelineGlobalMin ? localTimelineMin : timelineGlobalMin
             timelineGlobalMax = localTimelineMax > timelineGlobalMax ? localTimelineMax : timelineGlobalMax
@@ -176,6 +180,9 @@
         const groups = []
         this.results.categories.forEach(category => {
           this.results.subsets.forEach(subset => {
+            if (!_.has(this.results.stats, [category, subset])) {
+              return true
+            }
             groups.push({name: this.getGroupName(category, subset)})
           })
         })
@@ -188,6 +195,9 @@
         const paths = []
         this.results.categories.forEach(category => {
           this.results.subsets.forEach(subset => {
+            if (!_.has(this.results.stats, [category, subset])) {
+              return true
+            }
             let path = ''
             this.results.stats[category][subset].estimate.forEach((d, i, arr) => {
               const stats = this.results.stats[category][subset]
@@ -211,6 +221,9 @@
         const paths = []
         this.results.categories.forEach(category => {
           this.results.subsets.forEach(subset => {
+            if (!_.has(this.results.stats, [category, subset])) {
+              return true
+            }
             const stats = this.results.stats[category][subset]
             let path = ''
             let backpath = ' Z '
