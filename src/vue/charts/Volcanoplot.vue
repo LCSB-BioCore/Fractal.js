@@ -7,40 +7,42 @@
                       v-on:update="update_arrays">
             </data-box>
             <hr class="fjs-seperator"/>
-            <fieldset class="fjs-fieldset">
-                <legend>Differential Expression Analysis</legend>
-                <div v-for="method in rankingMethods">
+            <div class="fjs-settings">
+                <fieldset class="fjs-fieldset">
+                    <legend>Differential Expression Analysis</legend>
+                    <div v-for="method in rankingMethods">
+                        <label>
+                            <input type="radio" :value="method" v-model="rankingMethod">
+                            {{ method }}
+                        </label>
+                    </div>
+                </fieldset>
+                <div class="fjs-axis-params">
                     <label>
-                        <input type="radio" :value="method" v-model="rankingMethod">
-                        {{ method }}
+                        X-Axis
+                        <select v-model="xAxisTransform">
+                            <option :value="d" v-for="d in Object.keys(transformations)">{{ d }}</option>
+                        </select>
+                        <select v-model="xAxisStatistic">
+                            <option :value="d" v-for="d in statistics">{{ d }}</option>
+                        </select>
+                    </label>
+                    <label>
+                        Y-Axis
+                        <select v-model="yAxisTransform">
+                            <option :value="d" v-for="d in Object.keys(transformations)">{{ d }}</option>
+                        </select>
+                        <select v-model="yAxisStatistic">
+                            <option :value="d" v-for="d in statistics">{{ d }}</option>
+                        </select>
                     </label>
                 </div>
-            </fieldset>
-            <div class="fjs-axis-params">
-                <label>
-                    X-Axis
-                    <select v-model="xAxisTransform">
-                        <option :value="d" v-for="d in Object.keys(transformations)">{{ d }}</option>
-                    </select>
-                    <select v-model="xAxisStatistic">
-                        <option :value="d" v-for="d in statistics">{{ d }}</option>
-                    </select>
-                </label>
-                <label>
-                    Y-Axis
-                    <select v-model="yAxisTransform">
-                        <option :value="d" v-for="d in Object.keys(transformations)">{{ d }}</option>
-                    </select>
-                    <select v-model="yAxisStatistic">
-                        <option :value="d" v-for="d in statistics">{{ d }}</option>
-                    </select>
-                </label>
-            </div>
-            <div v-if="rankingMethod === 'DESeq2'">
-                <label>
-                    Minimal total reads:
-                    <input type="number" v-model.number="params.min_total_row_count"/>
-                </label>
+                <div v-if="rankingMethod === 'DESeq2'">
+                    <label>
+                        Minimal total reads:
+                        <input type="number" v-model.number="params.min_total_row_count"/>
+                    </label>
+                </div>
             </div>
         </control-panel>
         <svg :height="height" :width="width">
@@ -157,7 +159,7 @@
       args () {
         return {
           numerical_arrays: this.arrays,
-          id_filter: store.getters.filter('ids'),
+          id_filter: store.getters.filter('ids').value,
           params: this.params,
           ranking_method: this.rankingMethod,
           subsets: store.getters.subsets
@@ -381,17 +383,20 @@
     @import '~assets/base.sass'
 
     .fjs-control-panel
-        .fjs-axis-params
-            display: flex
-            flex-direction: column
+        .fjs-settings
+            > *
+                margin-bottom: 1vh
+            .fjs-axis-params
+                display: flex
+                flex-direction: column
     svg
         .fjs-axis-label
             text-anchor: middle
     .fjs-selection-table
-        border-collapse: collapse
-        background: rgb(216, 217, 216)
+        background: #97d8ff
         color: #000
         margin: 0
+        text-align: center
         #table-colnames
             border-top: 1px solid black
             border-bottom: 1px solid black
@@ -399,7 +404,7 @@
             border: none
         tr
             &:hover:not(#table-colnames)
-                background: aqua
+                background: #ff6c6c
 </style>
 
 <!--CSS for dynamically created components-->
