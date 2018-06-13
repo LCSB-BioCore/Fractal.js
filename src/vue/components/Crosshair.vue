@@ -27,13 +27,13 @@
     },
     mounted () {
       this.$el.parentNode.addEventListener('mousemove', this.setMousePos)
-      this.$el.parentNode.addEventListener('mouseenter', () => { this.mouseWithin = true })
-      this.$el.parentNode.addEventListener('mouseleave', () => { this.mouseWithin = false })
+      this.$el.parentNode.addEventListener('mouseover', () => { this.mouseWithin = true })
+      this.$el.parentNode.addEventListener('mouseout', () => { this.mouseWithin = false })
     },
     beforeDestroy () {
       this.$el.parentNode.removeEventListener('mousemove', this.setMousePos)
-      this.$el.parentNode.removeEventListener('mouseenter', () => { this.mouseWithin = true })
-      this.$el.parentNode.removeEventListener('mouseleave', () => { this.mouseWithin = false })
+      this.$el.parentNode.removeEventListener('mouseover', () => { this.mouseWithin = true })
+      this.$el.parentNode.removeEventListener('mouseout', () => { this.mouseWithin = false })
     },
     methods: {
       setMousePos (event) {

@@ -38,6 +38,7 @@
         </control-panel>
         <svg :height="height" :width="width">
             <g :transform="`translate(${margin.left}, ${margin.top})`">
+                <rect :width="padded.width" :height="padded.height" style="opacity: 0"></rect>
                 <html2svg :right="padded.width">
                     <draggable>
                         <div class="fjs-legend">
