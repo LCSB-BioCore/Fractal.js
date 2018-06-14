@@ -14,25 +14,45 @@
       </data-box>
       <hr class="fjs-seperator"/>
       <div class="fjs-parameter-container">
-        <label>
-          <input type="checkbox" v-model="params.showOutliers"/>
-          Show Outliers
-        </label>
-        <br/>
-        <label>
-          <input type="checkbox" v-model="params.showData"/>
-          Show Points
-        </label>
-        <br/>
-        <label>
-          <input type="checkbox" v-model="params.jitter"/>
-          Jitter Data
-        </label>
-        <br/>
-        <label>
-          <input type="checkbox" v-model="params.showKDE"/>
-          Show Density Est.
-        </label>
+        <div>
+          <label>
+            Data transformation:
+            <select class="fjs-transformation-select" v-model="params.transformation">
+              <option v-for="t in transformations">{{ t }}</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>
+            <input type="checkbox" v-model="params.showOutliers"/>
+            Show Outliers
+          </label>
+        </div>
+        <div>
+          <label>
+            <input type="checkbox" v-model="params.showData"/>
+            Show Points
+          </label>
+        </div>
+        <div>
+          <label>
+            <input type="checkbox" v-model="params.jitter"/>
+            Jitter Data
+          </label>
+        </div>
+        <div>
+          <label>
+            <input type="checkbox" v-model="params.showKDE"/>
+            Show Density Est.
+          </label>
+        </div>
+        <div>
+          <label>
+            <input type="checkbox" v-model="params.ignoreSubsets"/>
+            Ignore Subsets
+          </label>
+        </div>
+
       </div>
     </control-panel>
 
@@ -161,11 +181,14 @@
       return {
         numData: [],
         catData: [],
+        transformations: ['identity', 'log2(x)', 'log10(x)', '2^x', '10^x'],
         params: {
           showOutliers: true,
           showData: false,
           jitter: false,
-          showKDE: false
+          showKDE: false,
+          ignoreSubsets: false,
+          transformation: 'identity'
         },
         width: 0,
         height: 0,
@@ -191,7 +214,8 @@
           features: this.numData,
           categories: this.catData,
           id_filter: this.idFilter.value,
-          subsets: store.getters.subsets
+          transformation: this.params.transformation,
+          subsets: this.params.ignoreSubsets ? [] : store.getters.subsets
         }
       },
       pointSize () {
@@ -203,7 +227,7 @@
       margin () {
         const left = 10
         const top = this.height / 20
-        const right = this.width / 20
+        const right = this.width / 15
         const bottom = 10
         return { left, top, right, bottom }
       },
@@ -443,6 +467,12 @@
 
 <style lang="sass" scoped>
   @import '~assets/base.sass'
+  .fjs-control-panel
+    .fjs-parameter-container
+      display: flex
+      flex-direction: column
+      > div
+        margin-bottom: 0.5vh
   svg
     .fjs-box
       cursor: pointer
