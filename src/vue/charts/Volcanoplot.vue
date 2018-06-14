@@ -403,6 +403,7 @@
         td, tr
             border: none
         tr
+            margin: 0
             &:hover:not(#table-colnames)
                 background: #ff6c6c
 </style>

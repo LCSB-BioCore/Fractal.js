@@ -125,7 +125,7 @@
   import getHDPICanvas from '../../utils/high-dpi-canvas'
   import StateSaver from '../mixins/state-saver'
   export default {
-    name: 'pca-analysis',
+    name: 'pca',
     data () {
       return {
         height: 0,
