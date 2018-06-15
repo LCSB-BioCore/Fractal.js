@@ -34,6 +34,12 @@
           Whiten Output
         </label>
       </div>
+      <div>
+        <label>
+          <input type="checkbox" v-model="params.ignoreSubsets"/>
+          Ignore Subsets
+        </label>
+      </div>
     </control-panel>
 
     <svg :width="width" :height="height">
@@ -154,7 +160,8 @@
         selectedPoints: [],
         hasSetFilter: false,
         params: {
-          whiten: false
+          whiten: false,
+          ignoreSubsets: false
         },
         dataUrls: {
           main: '',
@@ -173,7 +180,7 @@
           categories: this.categoryData,
           whiten: this.params.whiten,
           id_filter: this.idFilter.value,
-          subsets: store.getters.subsets
+          subsets: this.params.ignoreSubsets ? [] : store.getters.subsets
         }
       },
       validArgs () {

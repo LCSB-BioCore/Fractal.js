@@ -28,6 +28,10 @@
           Kendall
         </label>
       </fieldset>
+      <label>
+        Ignore Subsets:
+        <input type="checkbox" v-model="params.ignoreSubsets"/>
+      </label>
     </control-panel>
 
     <svg :height="height" :width="width">
@@ -123,7 +127,8 @@
         categoryData: [],
         categoryColors: d3.schemeCategory10,
         params: {
-          method: 'pearson'
+          method: 'pearson',
+          ignoreSubsets: false
         },
         shownResults: { // initially computed
           coef: 0,
@@ -166,7 +171,7 @@
           y: this.xyData[1],
           id_filter: this.idFilter.value,
           method: this.params.method,
-          subsets: store.getters.subsets,
+          subsets: this.params.ignoreSubsets ? [] : store.getters.subsets,
           categories: this.categoryData
         }
       },

@@ -37,7 +37,11 @@
   <option value="volcanoplot">Volcanoplot</option>
 </select>
 <input type="button" value="Add Chart" onclick="addChart()"/>
-<input id="chart-size-range" type="range" min="10" max="100" value="30" oninput="setChartSize(this.value)"/>
+<br/>
+<label>
+  Zoom:
+  <input id="chart-size-range" type="range" min="10" max="100" value="30" oninput="setChartSize(this.value)"/>
+</label>
 <br/>
 <br/>
 <input type="button" onclick="loadData()" value="Prepare analysis cache"/>
@@ -108,6 +112,11 @@
       {
         dataType: 'categorical',
         field: 'tumor_stage'
+      },
+
+      {
+        dataType: 'categorical',
+        field: 'miR1269a_expression'
       },
       {
         dataType: 'numerical',
