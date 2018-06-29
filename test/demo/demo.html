@@ -6,48 +6,68 @@
 </head>
 
 <body>
-<h1>Fractalis Demo Page</h1>
-<p>
-  This page is for demonstration and educational purpose only!<br/>
-  Fractalis is not meant to be used alone.<br/>
-  Please refer to <a href="https://fractalis.lcsb.uni.lu/">https://fractalis.lcsb.uni.lu/</a> to find supported platforms or add support for your own.
-</p>
-<h2>What you can do on this page</h2>
-<p>
-  Albeit the warning above, you have come here to see what Fractalis can do. Fair enough.<br/>
-  We prepared the <a href="https://portal.gdc.cancer.gov/repository">TCGA - COAD</a> study for you to experiment with the
-  available analytics.<br/>
-  There is no interface to select subsets (remember the warning?), so we pre-selected two subsets for you:
-  early stage cancer vs late stage cancer.
-</p>
-<h2>To get started</h2>
-<p>
-  1. Add one or more charts you want to see.<br/>
-  2. You will see a control panel on the right without variables, because no data have been loaded yet.<br/>
-  3. Click the "Prepare analysis cache" button and watch how variables become available.<br/>
-  4. Select parameters and variables to create several charts.<br/>
-</p>
-<select id="chart-select">
-  <option selected disabled>-- Select Chart --</option>
-  <option value="scatterplot">Scatterplot</option>
-  <option value="boxplot">Boxplot</option>
-  <option value="heatmap">Heatmap</option>
-  <option value="pca">PCA</option>
-  <option value="survivalplot">Survivalplot</option>
-  <option value="volcanoplot">Volcanoplot</option>
-</select>
-<input type="button" value="Add Chart" onclick="addChart()"/>
-<br/>
-<label>
-  Zoom:
-  <input id="chart-size-range" type="range" min="10" max="100" value="30" oninput="setChartSize(this.value)"/>
-</label>
-<br/>
-<br/>
-<input type="button" onclick="loadData()" value="Prepare analysis cache"/>
-<input type="button" onclick="deleteData()" value="Clear analysis cache"/>
-<br/>
-<br/>
+<div class="introduction">
+  <h1>Fractalis Demo Page</h1>
+
+  This page is for demonstration and educational purpose only!
+  <br/>
+  <br/>
+  <table class="do-table">
+    <tr>
+      <td><b>Do</b></td>
+      <td><b>Don't</b></td>
+    </tr>
+    <tr>
+      <td>Get an idea about what functionality Fractalis offers</td>
+      <td>Attempt to use this page for analysing your own data</td>
+    </tr>
+    <tr>
+      <td>Learn about the API of the front-end library</td>
+      <td>Copy the code 1:1 into your own application</td>
+    </tr>
+    <tr>
+      <td>Go <a href="https://git-r3lab.uni.lu/Fractalis/fractalis/blob/master/README.md#add-support-for-new-services">here</a> to learn how to add support for your own service</td>
+      <td>Wait for someone else to do it. It's really simple!</td>
+    </tr>
+    <tr>
+      <td>Ask questions: <a href="mailto:sascha.herzinger@uni.lu">Contact</a></td>
+      <td>Be shy!</td>
+    </tr>
+  </table>
+  <h2>What you can do on this page</h2>
+  <p>
+    You have come here to see what Fractalis can do, so we prepared the
+    <a href="https://portal.gdc.cancer.gov/repository">TCGA - COAD</a> study for you to experiment with the available analytics.
+    The two groups that have been pre-selected are: early stage cancer vs. late stage cancer.
+    We recommend you have a look at the videos <a href="https://www.youtube.com/playlist?list=PLNvp9GB9uBmH1NNAf-qTyj_jN2aCPISFU">here</a>
+    to learn how these tools are used.
+  </p>
+  <h2>To get started</h2>
+  <p>
+    1. Add one or more charts you want to see from the --Select Chart-- field below.<br/>
+    2. You will see a control panel on the right without variables, because no data have been loaded yet.<br/>
+    3. Click the "Prepare analysis cache" button and wait for the variables become available.<br/>
+    4. Select parameters and variables to run an analysis.<br/>
+  </p>
+  <div class="controls">
+  <select id="chart-select">
+    <option selected disabled>-- Select Chart --</option>
+    <option value="scatterplot">Scatterplot</option>
+    <option value="boxplot">Boxplot</option>
+    <option value="heatmap">Heatmap</option>
+    <option value="pca">PCA</option>
+    <option value="survivalplot">Survivalplot</option>
+    <option value="volcanoplot">Volcanoplot</option>
+  </select>
+  <input type="button" value="Add Chart" onclick="addChart()"/>
+  <label>
+    Zoom:
+    <input id="chart-size-range" type="range" min="10" max="100" value="30" oninput="setChartSize(this.value)"/>
+  </label>
+  <input type="button" onclick="loadData()" value="Prepare analysis cache"/>
+  <input type="button" onclick="deleteData()" value="Clear analysis cache"/>
+  </div>
+</div>
 <div class="charts">
 </div>
 
@@ -137,5 +157,26 @@
 <style>
   .charts > div {
     float: left;
+  }
+
+  .do-table {
+    border-collapse: collapse;
+  }
+
+  .do-table table, .do-table th, .do-table td {
+    border: 1px solid black;
+  }
+
+  .introduction {
+    width: 500px;
+  }
+
+  .controls {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+  }
+  .controls > * {
+    margin-bottom: 5px;
   }
 </style>
