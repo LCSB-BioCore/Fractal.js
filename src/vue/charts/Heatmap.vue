@@ -224,6 +224,7 @@
           numericals: [],
           categoricals: [],
           ranking_method: this.rankingMethod,
+          params: {},
           id_filter: this.idFilter.value,
           max_rows: 100,
           subsets: store.getters.subsets
