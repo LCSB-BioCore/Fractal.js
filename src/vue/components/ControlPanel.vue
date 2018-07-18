@@ -15,8 +15,8 @@
       <task-view/>
     </div>
     <div class="fjs-links">
-      <input type="button" value="Report Issue" @click="issuePopup"/>
-      <input type="button" value="Cite Paper" @click="citationPopup"/>
+      <input type="button" value="Issues" @click="issuePopup"/>
+      <input type="button" value="Cite" @click="citationPopup"/>
       <input type="button" value="About" @click="infoPopup"/>
     </div>
   </div>
@@ -143,5 +143,5 @@
       margin: -100vw
     .fjs-links
       position: absolute
-      bottom: 60px
+      bottom: 4vh
 </style>
