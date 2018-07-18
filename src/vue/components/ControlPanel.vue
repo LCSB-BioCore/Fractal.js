@@ -14,6 +14,11 @@
       <hr class="fjs-seperator"/>
       <task-view/>
     </div>
+    <div class="fjs-links">
+      <input type="button" value="Report Issue" @click="issuePopup"/>
+      <input type="button" value="Cite Paper" @click="citationPopup"/>
+      <input type="button" value="About" @click="infoPopup"/>
+    </div>
   </div>
 </template>
 
@@ -76,6 +81,17 @@
       },
       unfocusAll () {
         store.getters.controlPanel.panels.forEach(panel => panel.unFocus())
+      },
+      issuePopup () {
+        const win = window.open('https://github.com/LCSB-BioCore/Fractalis-Issues/issues/new/choose', '_blank')
+        win.focus()
+      },
+      citationPopup () {
+        window.prompt('Copy to clipboard: Ctrl+C or Cmd+C', 'Manuscript in Preparation')
+      },
+      infoPopup () {
+        const win = window.open('https://fractalis.lcsb.uni.lu', '_blank')
+        win.focus()
       }
     },
     mounted () {
@@ -125,4 +141,7 @@
       transform: translate(0,50vh)rotate(-90deg)
       /*remove any margin after rotation*/
       margin: -100vw
+    .fjs-links
+      position: absolute
+      bottom: 60px
 </style>
