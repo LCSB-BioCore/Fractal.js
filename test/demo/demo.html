@@ -52,12 +52,6 @@
   <div class="controls">
   <select id="chart-select">
     <option selected disabled>-- Select Chart --</option>
-    <option value="scatterplot">Scatterplot</option>
-    <option value="boxplot">Boxplot</option>
-    <option value="heatmap">Heatmap</option>
-    <option value="pca">PCA</option>
-    <option value="survivalplot">Survivalplot</option>
-    <option value="volcanoplot">Volcanoplot</option>
   </select>
   <input type="button" value="Add Chart" onclick="addChart()"/>
   <label>
@@ -87,6 +81,14 @@
       controlPanelPosition: 'right',
       controlPanelExpanded: true
     }
+  })
+
+  const selection = document.querySelector('#chart-select')
+  fjs.getAvailableCharts().forEach(chartName => {
+    const el = document.createElement('option')
+    el.setAttribute('value', chartName)
+    el.innerHTML = chartName
+    selection.appendChild(el)
   })
 
   function deleteData () {

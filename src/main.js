@@ -43,6 +43,11 @@ class FractalJS {
   }
 
   // noinspection JSMethodCanBeStatic
+  getAvailableCharts () {
+    return store.getters.chartManager.getAvailableCharts()
+  }
+
+  // noinspection JSMethodCanBeStatic
   clearCache () {
     return store.getters.requestManager.deleteAllData()
   }
@@ -68,7 +73,6 @@ class FractalJS {
   }
 }
 
-// TODO: Link to external documentation where supported services are listed
 /**
  * Initialize FractalJS and return an instance that contains all basic methods necessary to use this library.
  *
