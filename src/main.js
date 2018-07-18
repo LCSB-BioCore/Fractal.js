@@ -20,9 +20,14 @@ class FractalJS {
   // noinspection JSMethodCanBeStatic
   async _versionCheck () {
     const rv = await store.getters.requestManager.getVersion()
-    const backendVersion = rv.data.version
-    if (backendVersion !== version) {
-      console.warn(`WARNING: The Fractalis backend is version ${backendVersion},
+    const fractaljsVersions = version.split('.')
+    const fractaljsMajor = fractaljsVersions[0]
+    const fractaljsMinor = fractaljsVersions[1]
+    const fractalisVersions = rv.data.version.split('.')
+    const fractalisMajor = fractalisVersions[0]
+    const fractalisMinor = fractalisVersions[1]
+    if (fractaljsMajor !== fractalisMajor || fractaljsMinor !== fractalisMinor) {
+      console.warn(`WARNING: The Fractalis backend is version ${rv.data.version},
       but the frontend is version ${version}. This might or might not cause issues.`)
     }
   }
