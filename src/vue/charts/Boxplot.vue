@@ -58,7 +58,6 @@
     </control-panel>
 
     <svg :width="width" :height="height">
-      <rect x="0" y="0" :height="height" :width="width" style="opacity: 0;" @click="resetFilter"></rect>
       <g :transform="`translate(${margin.left}, ${margin.top})`">
         <text :x="this.padded.width / 2"
               class="fjs-anova-results"
@@ -401,14 +400,15 @@
         this.catData = ids
       },
       setIDFilter (label) {
-        store.dispatch('setFilter', {source: this._uid, filter: 'ids', value: this.points[label].map(d => d.id)})
-        this.selectedLabel = label
-        this.hasSetFilter = true
-      },
-      resetFilter () {
-        store.dispatch('setFilter', {source: this._uid, filter: 'ids', value: []})
-        this.selectedLabel = ''
-        this.hasSetFilter = false
+        if (label === this.selectedLabel) {
+          store.dispatch('setFilter', {source: this._uid, filter: 'ids', value: []})
+          this.selectedLabel = ''
+          this.hasSetFilter = false
+        } else {
+          store.dispatch('setFilter', {source: this._uid, filter: 'ids', value: this.points[label].map(d => d.id)})
+          this.selectedLabel = label
+          this.hasSetFilter = true
+        }
       },
       drawPoints () {
         this.labels.forEach(label => {
