@@ -15,9 +15,8 @@
       <task-view/>
     </div>
     <div class="fjs-links">
-      <input type="button" value="Issues" @click="issuePopup"/>
-      <input type="button" value="Cite" @click="citationPopup"/>
-      <input type="button" value="About" @click="infoPopup"/>
+      <a href="https://github.com/LCSB-BioCore/Fractalis-Issues/issues/new/choose" target="_blank">Report Issues</a>
+      <a href="https://fractalis.lcsb.uni.lu" target="_blank">About</a>
     </div>
   </div>
 </template>
@@ -81,17 +80,6 @@
       },
       unfocusAll () {
         store.getters.controlPanel.panels.forEach(panel => panel.unFocus())
-      },
-      issuePopup () {
-        const win = window.open('https://github.com/LCSB-BioCore/Fractalis-Issues/issues/new/choose', '_blank')
-        win.focus()
-      },
-      citationPopup () {
-        window.prompt('Copy to clipboard: Ctrl+C or Cmd+C', 'Manuscript in Preparation')
-      },
-      infoPopup () {
-        const win = window.open('https://fractalis.lcsb.uni.lu', '_blank')
-        win.focus()
       }
     },
     mounted () {
@@ -144,4 +132,8 @@
     .fjs-links
       position: absolute
       bottom: 4vh
+      a
+        color: #fff
+        text-decoration: none
+        margin-right: 0.5vw
 </style>
