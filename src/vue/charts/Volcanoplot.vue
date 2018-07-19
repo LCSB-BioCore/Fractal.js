@@ -4,6 +4,7 @@
             <data-box class="fjs-data-box"
                       header="Numerical Array Variables"
                       :data-types="['numerical_array']"
+                      :validRange="[1, Infinity]"
                       v-on:update="update_arrays">
             </data-box>
             <hr class="fjs-seperator"/>

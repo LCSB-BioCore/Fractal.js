@@ -4,6 +4,7 @@
             <data-box class="fjs-data-box"
                       header="Duration [numerical]"
                       :data-types="['numerical']"
+                      :validRange="[1, 1]"
                       v-on:update="updateDurationVariable">
             </data-box>
             <data-box class="fjs-data-box"

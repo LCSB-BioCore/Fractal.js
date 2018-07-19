@@ -1,7 +1,10 @@
 <template>
   <div class="fjs-data-box">
-    <span class="fjs-header-label">{{ header }}</span>
-    <div class="fjs-data-window">
+    <div class="fjs-header">
+      <span class="fjs-header-label">{{ header }}</span>
+      <span class="fjs-error-text" v-if="!isInValidRange">Please select between {{ validRange[0] }} and {{ validRange[1] }} variables</span>
+    </div>
+    <div class="fjs-data-window" :class="{'fjs-invalid-range-window': !isInValidRange}">
       <div class="fjs-item" v-for="item in items">
 
         <div class="fjs-item-head">
@@ -10,7 +13,7 @@
                  v-model="checkedIds"
                  :disabled="item.etl_state !== 'SUCCESS'"/>
           <span class="fjs-item-label" :data-state="item.etl_state">
-            {{ (item.etl_state === 'SUBMITTED' ? 'Loading: ' : '') + item.label }}
+            {{ (item.etl_state === 'SUBMITTED' ? 'LOADING: ' : item.etl_state === 'FAILURE' ? 'ERROR: ' : '') + item.label }}
           </span>
           <span class="fjs-item-options" @click="toggleItemBody(item.task_id)">&#9776;</span>
         </div>
@@ -36,6 +39,7 @@
 <script>
   import store from '../../store/store'
   import Autocomplete from './Autocomplete.vue'
+  import _ from 'lodash'
   export default {
     components: {
       Autocomplete
@@ -56,6 +60,11 @@
       header: {
         type: String,
         required: true
+      },
+      validRange: {
+        type: Array,
+        required: false,
+        default: () => [0, Infinity]
       }
     },
     computed: {
@@ -72,13 +81,16 @@
         return this.checkedIds
           .filter(id => this.existing_ids.includes(id))
           .map(id => `$${JSON.stringify({id, filters: { feature: this.featureFilter[id] }})}$`)
+      },
+      isInValidRange () {
+        return this.checkedIds.length >= this.validRange[0] && this.checkedIds.length <= this.validRange[1]
       }
     },
     watch: {
       'transformedIDs': {
         handler: function (newTransformedIDs, oldTransformedIDs) {
           // avoid emitting signals and thus triggering watchers if selected ids didn't change
-          if (JSON.stringify(newTransformedIDs) !== JSON.stringify(oldTransformedIDs)) {
+          if (this.isInValidRange && !_.isEqual(newTransformedIDs, oldTransformedIDs)) {
             this.$emit('update', newTransformedIDs)
           }
         }
@@ -117,6 +129,11 @@
   .fjs-data-box
     text-align: start
     margin: 1vh 0 1vh 0
+    .fjs-header
+      display: flex
+      flex-direction: column
+      .fjs-error-text
+        color: #f0ff9b
     .fjs-data-window
       height: 10vh
       min-width: 15vw
@@ -142,11 +159,11 @@
             &[data-state="SUBMITTED"]
               animation: loadingColorCycle 2s infinite
             &[data-state="FAILURE"]
-              color: #ff6565
+              color: #f0ff9b
         .fjs-item-body
           padding: 0.25vh 0.25vw 0.25vh 0.25vw
           > span
-              color: #ff6565
+              color: #f0ff9b
           .fjs-action-btns
             display: flex
             flex-direction: row
@@ -159,6 +176,8 @@
               font-size: 1.5em
         .fjs-autocomplete
           text-align: center
+    .fjs-invalid-range-window
+      border-color: #f0ff9b
   @keyframes loadingColorCycle
     0%
       opacity: 1

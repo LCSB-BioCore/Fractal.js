@@ -5,6 +5,7 @@
       <data-box class="fjs-data-box"
                 header="Numerical Variables"
                 :dataTypes="['numerical', 'numerical_array']"
+                :validRange="[2, Infinity]"
                 v-on:update="update_featureData">
       </data-box>
       <data-box class="fjs-data-box"
