@@ -1,7 +1,7 @@
 {
   "name": "fractalis",
   "description": "The front-end component of the Fractalis visual analytics project.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "Sascha Herzinger <sascha.herzinger@uni.lu>",
   "license": "Apache-2.0",
   "bugs": {
@@ -52,7 +52,7 @@
     "jsdoc": "3.5.5",
     "karma": "2.0.2",
     "karma-chrome-launcher": "2.2.0",
-    "karma-firefox-launcher": "1.1.0",
+    "karma-firefox-launcher": "1.1.1",
     "karma-jasmine": "1.1.1",
     "karma-sourcemap-loader": "0.3.7",
     "karma-spec-reporter": "0.0.32",
