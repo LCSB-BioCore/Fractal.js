@@ -2,7 +2,9 @@
   <div class="fjs-data-box">
     <div class="fjs-header">
       <span class="fjs-header-label">{{ header }}</span>
-      <span class="fjs-error-text" v-if="!isInValidRange">Please select between {{ validRange[0] }} and {{ validRange[1] }} variables</span>
+      <span class="fjs-error-text" v-if="!isInValidRange">
+          Please select between {{ validRange[0] }} and {{ validRange[1] }} variables
+      </span>
     </div>
     <div class="fjs-data-window" :class="{'fjs-invalid-range-window': !isInValidRange}">
       <div class="fjs-item" v-for="item in items">
