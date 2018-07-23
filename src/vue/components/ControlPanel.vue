@@ -14,7 +14,7 @@
       <hr class="fjs-seperator"/>
       <task-view/>
     </div>
-    <div class="fjs-links">
+    <div class="fjs-links" v-show="expanded">
       <a href="https://github.com/LCSB-BioCore/Fractalis-Issues/issues/new/choose" target="_blank">Report Issues</a>
       <a href="https://fractalis.lcsb.uni.lu" target="_blank">About</a>
     </div>
