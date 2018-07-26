@@ -142,18 +142,13 @@
         let timelineGlobalMax = Number.MIN_SAFE_INTEGER
         let estimateGlobalMin = Number.MAX_SAFE_INTEGER
         let estimateGlobalMax = Number.MIN_SAFE_INTEGER
-        this.results.categories.forEach(category => {
-          this.results.subsets.forEach(subset => {
-            if (!_.has(this.results.stats, [category, subset])) {
-              return true
-            }
-            const [localTimelineMin, localTimelineMax] = d3.extent(this.results.stats[category][subset].timeline)
-            timelineGlobalMin = localTimelineMin < timelineGlobalMin ? localTimelineMin : timelineGlobalMin
-            timelineGlobalMax = localTimelineMax > timelineGlobalMax ? localTimelineMax : timelineGlobalMax
-            const [localEstimateMin, localEstimateMax] = d3.extent(this.results.stats[category][subset].estimate)
-            estimateGlobalMin = localEstimateMin < estimateGlobalMin ? localEstimateMin : estimateGlobalMin
-            estimateGlobalMax = localEstimateMax > estimateGlobalMax ? localEstimateMax : estimateGlobalMax
-          })
+        this.groups.forEach(group => {
+          const [localTimelineMin, localTimelineMax] = d3.extent(this.results.stats[group.category][group.subset].timeline)
+          timelineGlobalMin = localTimelineMin < timelineGlobalMin ? localTimelineMin : timelineGlobalMin
+          timelineGlobalMax = localTimelineMax > timelineGlobalMax ? localTimelineMax : timelineGlobalMax
+          const [localEstimateMin, localEstimateMax] = d3.extent(this.results.stats[group.category][group.subset].estimate)
+          estimateGlobalMin = localEstimateMin < estimateGlobalMin ? localEstimateMin : estimateGlobalMin
+          estimateGlobalMax = localEstimateMax > estimateGlobalMax ? localEstimateMax : estimateGlobalMax
         })
         return { timelineGlobalMin, timelineGlobalMax, estimateGlobalMin, estimateGlobalMax }
       },
@@ -184,7 +179,11 @@
             if (!_.has(this.results.stats, [category, subset])) {
               return true
             }
-            groups.push({name: this.getGroupName(category, subset)})
+            groups.push({
+              name: this.getGroupName(category, subset),
+              subset,
+              category
+            })
           })
         })
         groups.forEach((group, i) => {
@@ -194,58 +193,48 @@
       },
       paths () {
         const paths = []
-        this.results.categories.forEach(category => {
-          this.results.subsets.forEach(subset => {
-            if (!_.has(this.results.stats, [category, subset])) {
-              return true
+        this.groups.forEach(group => {
+          let path = ''
+          this.results.stats[group.category][group.subset].estimate.forEach((d, i, arr) => {
+            const stats = this.results.stats[group.category][group.subset]
+            const x = this.scales.x(stats.timeline[i])
+            if (i === 0) {
+              path += `M ${x} ${this.scales.y(d)}`
+            } else {
+              path += `L ${x} ${this.scales.y(arr[i - 1])}`
+              path += `L ${x} ${this.scales.y(d)}`
             }
-            let path = ''
-            this.results.stats[category][subset].estimate.forEach((d, i, arr) => {
-              const stats = this.results.stats[category][subset]
-              const x = this.scales.x(stats.timeline[i])
-              if (i === 0) {
-                path += `M ${x} ${this.scales.y(d)}`
-              } else {
-                path += `L ${x} ${this.scales.y(arr[i - 1])}`
-                path += `L ${x} ${this.scales.y(d)}`
-              }
-            })
-            paths.push({
-              d: path,
-              color: this.groups.find(group => group.name === this.getGroupName(category, subset)).color
-            })
+          })
+          paths.push({
+            d: path,
+            color: group.color
           })
         })
         return paths
       },
       ciPaths () {
         const paths = []
-        this.results.categories.forEach(category => {
-          this.results.subsets.forEach(subset => {
-            if (!_.has(this.results.stats, [category, subset])) {
+        this.groups.forEach(group => {
+          const stats = this.results.stats[group.category][group.subset]
+          let path = ''
+          let backpath = ' Z '
+          this.results.stats[group.category][group.subset].ci_upper.forEach((_, i) => {
+            const x = this.scales.x(stats.timeline[i])
+            if (i === 0) {
               return true
+            } else if (i === 1) {
+              path += `M ${x} ${this.scales.y(stats.ci_upper[i])} `
+              backpath = ` L ${x} ${this.scales.y(stats.ci_lower[i])}` + backpath
+            } else {
+              path += `L ${x} ${this.scales.y(stats.ci_upper[i - 1])} `
+              path += `L ${x} ${this.scales.y(stats.ci_upper[i])} `
+              backpath = ` L ${x} ${this.scales.y(stats.ci_lower[i - 1])}` + backpath
+              backpath = ` L ${x} ${this.scales.y(stats.ci_lower[i])}` + backpath
             }
-            const stats = this.results.stats[category][subset]
-            let path = ''
-            let backpath = ' Z '
-            this.results.stats[category][subset].ci_upper.forEach((_, i) => {
-              const x = this.scales.x(stats.timeline[i])
-              if (i === 0) {
-                return true
-              } else if (i === 1) {
-                path += `M ${x} ${this.scales.y(stats.ci_upper[i])} `
-                backpath = ` L ${x} ${this.scales.y(stats.ci_lower[i])}` + backpath
-              } else {
-                path += `L ${x} ${this.scales.y(stats.ci_upper[i - 1])} `
-                path += `L ${x} ${this.scales.y(stats.ci_upper[i])} `
-                backpath = ` L ${x} ${this.scales.y(stats.ci_lower[i - 1])}` + backpath
-                backpath = ` L ${x} ${this.scales.y(stats.ci_lower[i])}` + backpath
-              }
-            })
-            paths.push({
-              d: path + backpath,
-              color: this.groups.find(group => group.name === this.getGroupName(category, subset)).color
-            })
+          })
+          paths.push({
+            d: path + backpath,
+            color: group.color
           })
         })
         return paths
