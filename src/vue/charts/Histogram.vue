@@ -4,11 +4,13 @@
             <data-box class="fjs-data-box"
                       header="Numerical Variable"
                       :data-types="['numerical']"
+                      v-on:update="update_numericData"
                       :valid-range="[1, 1]">
             </data-box>
             <data-box class="fjs-data-box"
                       header="Categorical Variables"
                       :data-types="['numerical']"
+                      v-on:update="update_categoricData"
                       :valid-range="[0, Infinity]">
             </data-box>
             <hr class="fjs-seperator"/>
@@ -21,7 +23,6 @@
                             <svg width="1vw" height="1vw">
                                 <rect width="1vw" height="1vw" :fill="group.color"></rect>
                             </svg>
-
                             <span>{{ group.name }}</span>
                         </div>
                     </div>
@@ -30,6 +31,15 @@
                 <g class="fjs-hist-axis" ref="yAxis"></g>
                 <crosshair :width="padded.width" :height="padded.height"></crosshair>
                 <g class="fjs-brush" ref="brush"></g>
+                <g class="fjs-histogram" v-for="histogram in histograms">
+                    <rect class="fjs-bin"
+                          :x="bin.x"
+                          :y="padded.height - bin.y"
+                          :height="bin.y"
+                          :width="bin.width"
+                          v-for="bin in histogram">
+                    </rect>
+                </g>
             </g>
         </svg>
     </chart>
@@ -67,6 +77,7 @@
         numericData: [],
         categoryData: [],
         results: {
+          label: '',
           subsets: [],
           categories: [],
           stats: {}
@@ -80,10 +91,10 @@
       },
       args () {
         return {
+          id_filter: this.idFilter.value,
+          subsets: store.getters.subsets,
           data: this.numericData,
-          categories: this.categoryData,
-          id_filter: this.id_filter,
-          subsets: store.getters.subsets
+          categories: this.categoryData
         }
       },
       margin () {
@@ -103,18 +114,13 @@
         let binEdgeGlobalMax = Number.MIN_SAFE_INTEGER
         let histGlobalMin = Number.MAX_SAFE_INTEGER
         let histGlobalMax = Number.MIN_SAFE_INTEGER
-        this.results.categories.forEach(category => {
-          this.results.subsets.forEach(subset => {
-            if (!_.has(this.results.stats, [category, subset])) {
-              return true
-            }
-            const [localBinEdgeMin, localBinEdgeMax] = d3.extent(this.results.stats[category][subset].bin_edges)
-            binEdgeGlobalMin = localBinEdgeMin < binEdgeGlobalMin ? localBinEdgeMin : binEdgeGlobalMin
-            binEdgeGlobalMax = localBinEdgeMax > binEdgeGlobalMax ? localBinEdgeMax : binEdgeGlobalMax
-            const [localHistMin, localHistMax] = d3.extent(this.results.stats[category][subset].hist)
-            histGlobalMin = localHistMin < histGlobalMin ? localHistMin : histGlobalMin
-            histGlobalMax = localHistMax > histGlobalMax ? localHistMax : histGlobalMax
-          })
+        this.groups.forEach(group => {
+          const [localBinEdgeMin, localBinEdgeMax] = d3.extent(this.results.stats[group.category][group.subset].bin_edges)
+          binEdgeGlobalMin = localBinEdgeMin < binEdgeGlobalMin ? localBinEdgeMin : binEdgeGlobalMin
+          binEdgeGlobalMax = localBinEdgeMax > binEdgeGlobalMax ? localBinEdgeMax : binEdgeGlobalMax
+          const [localHistMin, localHistMax] = d3.extent(this.results.stats[group.category][group.subset].hist)
+          histGlobalMin = localHistMin < histGlobalMin ? localHistMin : histGlobalMin
+          histGlobalMax = localHistMax > histGlobalMax ? localHistMax : histGlobalMax
         })
         return { binEdgeGlobalMin, binEdgeGlobalMax, histGlobalMin, histGlobalMax }
       },
@@ -125,7 +131,11 @@
             if (!_.has(this.results.stats, [category, subset])) {
               return true
             }
-            groups.push({name: this.getGroupName(category, subset)})
+            groups.push({
+              name: this.getGroupName(category, subset),
+              subset,
+              category
+            })
           })
         })
         groups.forEach((group, i) => {
@@ -146,15 +156,29 @@
         const x = d3.axisBottom(this.scales.x)
         const y = d3.axisLeft(this.scales.y)
         return { x, y }
+      },
+      histograms () {
+        return this.groups.map((group, i) => {
+          const binEdges = this.results.stats[group.category][group.subset].bin_edges
+          const hist = this.results.stats[group.category][group.subset].hist
+          return hist.map((d, i) => {
+            return {
+              x: this.scales.x(binEdges[i]),
+              width: this.scales.x(binEdges[i + 1]) + this.scales.x(binEdges[i]),
+              height: this.scales.y(d),
+              color: group.color
+            }
+          })
+        })
       }
     },
     methods: {
-      runAnalysisWrapper (init, args) {
+      runAnalysisWrapper (args) {
         this.runAnalysis('compute-histogram', args)
           .then(response => {
             const results = JSON.parse(response)
             deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
-            this.stats = results.stats
+            this.results = results
           })
           .catch(error => console.error(error))
       },
@@ -162,10 +186,10 @@
         this.width = width
         this.height = height
       },
-      update_data (ids) {
-        this.numericData = ids
+      update_numericData (ids) {
+        this.numericData = ids[0]
       },
-      update_categories (ids) {
+      update_categoricData (ids) {
         this.categoryData = ids
       },
       getGroupName (category, subset) {
@@ -192,6 +216,17 @@
 
 <style lang="sass" scoped>
     @import '~assets/base.sass'
+
+    .fjs-legend
+        .fjs-legend-element
+            > svg
+                margin-right: 0.5vw
+            display: flex
+            align-items: center
+
+    .fjs-histogram
+        .fjs-bin
+            stroke: black
 </style>
 
 <style lang="sass">
