@@ -1,0 +1,209 @@
+<template>
+    <chart v-on:resize="resize">
+        <control-panel class="fjs-control-panel" name="Histogram Panel">
+            <data-box class="fjs-data-box"
+                      header="Numerical Variable"
+                      :data-types="['numerical']"
+                      :valid-range="[1, 1]">
+            </data-box>
+            <data-box class="fjs-data-box"
+                      header="Categorical Variables"
+                      :data-types="['numerical']"
+                      :valid-range="[0, Infinity]">
+            </data-box>
+            <hr class="fjs-seperator"/>
+        </control-panel>
+        <svg :height="height" :width="width">
+            <g :transform="`translate(${margin.left}, ${margin.top})`">
+                <html2svg :right="padded.width">
+                    <div class="fjs-legend">
+                        <div class="fjs-legend-element" v-for="group in groups">
+                            <svg width="1vw" height="1vw">
+                                <rect width="1vw" height="1vw" :fill="group.color"></rect>
+                            </svg>
+
+                            <span>{{ group.name }}</span>
+                        </div>
+                    </div>
+                </html2svg>
+                <g class="fjs-hist-axis" ref="xAxis"></g>
+                <g class="fjs-hist-axis" ref="yAxis"></g>
+                <crosshair :width="padded.width" :height="padded.height"></crosshair>
+                <g class="fjs-brush" ref="brush"></g>
+            </g>
+        </svg>
+    </chart>
+</template>
+
+<script>
+  import DataBox from '../components/DataBox.vue'
+  import ControlPanel from '../components/ControlPanel.vue'
+  import Chart from '../components/Chart.vue'
+  import store from '../../store/store'
+  import RunAnalysis from '../mixins/run-analysis'
+  import * as d3 from 'd3'
+  import deepFreeze from 'deep-freeze-strict'
+  import Crosshair from '../components/Crosshair.vue'
+  import Html2svg from '../components/HTML2SVG.vue'
+  import Draggable from '../components/Draggable.vue'
+  import _ from 'lodash'
+  export default {
+    name: 'histogram',
+    components: {
+      Draggable,
+      Html2svg,
+      ControlPanel,
+      DataBox,
+      Chart,
+      Crosshair
+    },
+    mixins: [
+      RunAnalysis
+    ],
+    data () {
+      return {
+        height: 0,
+        width: 0,
+        numericData: [],
+        categoryData: [],
+        results: {
+          subsets: [],
+          categories: [],
+          stats: {}
+        },
+        groupColors: d3.schemeCategory10
+      }
+    },
+    computed: {
+      idFilter () {
+        return store.getters.filter('ids')
+      },
+      args () {
+        return {
+          data: this.numericData,
+          categories: this.categoryData,
+          id_filter: this.id_filter,
+          subsets: store.getters.subsets
+        }
+      },
+      margin () {
+        const left = this.width / 20
+        const top = this.height / 20
+        const right = this.width / 20
+        const bottom = this.height / 20
+        return {left, top, right, bottom}
+      },
+      padded () {
+        const width = this.width - this.margin.left - this.margin.right
+        const height = this.height - this.margin.top - this.margin.bottom
+        return {width, height}
+      },
+      dataRanges () {
+        let binEdgeGlobalMin = Number.MAX_SAFE_INTEGER
+        let binEdgeGlobalMax = Number.MIN_SAFE_INTEGER
+        let histGlobalMin = Number.MAX_SAFE_INTEGER
+        let histGlobalMax = Number.MIN_SAFE_INTEGER
+        this.results.categories.forEach(category => {
+          this.results.subsets.forEach(subset => {
+            if (!_.has(this.results.stats, [category, subset])) {
+              return true
+            }
+            const [localBinEdgeMin, localBinEdgeMax] = d3.extent(this.results.stats[category][subset].bin_edges)
+            binEdgeGlobalMin = localBinEdgeMin < binEdgeGlobalMin ? localBinEdgeMin : binEdgeGlobalMin
+            binEdgeGlobalMax = localBinEdgeMax > binEdgeGlobalMax ? localBinEdgeMax : binEdgeGlobalMax
+            const [localHistMin, localHistMax] = d3.extent(this.results.stats[category][subset].hist)
+            histGlobalMin = localHistMin < histGlobalMin ? localHistMin : histGlobalMin
+            histGlobalMax = localHistMax > histGlobalMax ? localHistMax : histGlobalMax
+          })
+        })
+        return { binEdgeGlobalMin, binEdgeGlobalMax, histGlobalMin, histGlobalMax }
+      },
+      groups () {
+        const groups = []
+        this.results.categories.forEach(category => {
+          this.results.subsets.forEach(subset => {
+            if (!_.has(this.results.stats, [category, subset])) {
+              return true
+            }
+            groups.push({name: this.getGroupName(category, subset)})
+          })
+        })
+        groups.forEach((group, i) => {
+          group.color = this.groupColors[i % this.groupColors.length]
+        })
+        return groups
+      },
+      scales () {
+        const x = d3.scaleLinear()
+          .domain([this.dataRanges.binEdgeGlobalMin, this.dataRanges.binEdgeGlobalMax])
+          .range([0, this.padded.width])
+        const y = d3.scaleLinear()
+          .domain([this.dataRanges.histGlobalMin, this.dataRanges.histGlobalMax])
+          .range([this.padded.height, 0])
+        return { x, y }
+      },
+      axis () {
+        const x = d3.axisBottom(this.scales.x)
+        const y = d3.axisLeft(this.scales.y)
+        return { x, y }
+      }
+    },
+    methods: {
+      runAnalysisWrapper (init, args) {
+        this.runAnalysis('compute-histogram', args)
+          .then(response => {
+            const results = JSON.parse(response)
+            deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
+            this.stats = results.stats
+          })
+          .catch(error => console.error(error))
+      },
+      resize (width, height) {
+        this.width = width
+        this.height = height
+      },
+      update_data (ids) {
+        this.numericData = ids
+      },
+      update_categories (ids) {
+        this.categoryData = ids
+      },
+      getGroupName (category, subset) {
+        return `${this.results.label} [${category}] [s${subset + 1}]`
+      }
+    },
+    watch: {
+      'args': {
+        handler: function (newArgs) {
+          this.runAnalysisWrapper(newArgs)
+        }
+      },
+      'axis': {
+        handler: function (newAxis) {
+          this.$nextTick(() => {
+            d3.select(this.$refs.xAxis).call(newAxis.x)
+            d3.select(this.$refs.yAxis).call(newAxis.y)
+          })
+        }
+      }
+    }
+  }
+</script>
+
+<style lang="sass" scoped>
+    @import '~assets/base.sass'
+</style>
+
+<style lang="sass">
+    @import '~assets/d3.sass'
+    .fjs-hist-axis
+        shape-rendering: crispEdges
+        .tick
+            shape-rendering: crispEdges
+            line
+                stroke: #E2E2E2
+            text
+                font-size: 0.75em
+        path
+            stroke: none
+</style>
