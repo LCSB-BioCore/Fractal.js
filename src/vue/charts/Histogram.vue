@@ -9,7 +9,7 @@
             </data-box>
             <data-box class="fjs-data-box"
                       header="Categorical Variables"
-                      :data-types="['numerical']"
+                      :data-types="['categorical']"
                       v-on:update="update_categoricData"
                       :valid-range="[0, Infinity]">
             </data-box>
@@ -18,25 +18,28 @@
         <svg :height="height" :width="width">
             <g :transform="`translate(${margin.left}, ${margin.top})`">
                 <html2svg :right="padded.width">
-                    <div class="fjs-legend">
-                        <div class="fjs-legend-element" v-for="group in groups">
-                            <svg width="1vw" height="1vw">
-                                <rect width="1vw" height="1vw" :fill="group.color"></rect>
-                            </svg>
-                            <span>{{ group.name }}</span>
+                    <draggable>
+                        <div class="fjs-legend">
+                            <div class="fjs-legend-element" v-for="group in groups">
+                                <svg width="1vw" height="1vw">
+                                    <rect width="1vw" height="1vw" :fill="group.color"></rect>
+                                </svg>
+                                <span>{{ group.name }}</span>
+                            </div>
                         </div>
-                    </div>
+                    </draggable>
                 </html2svg>
-                <g class="fjs-hist-axis" ref="xAxis"></g>
+                <g class="fjs-hist-axis" ref="xAxis" :transform="`translate(0, ${this.padded.height})`"></g>
                 <g class="fjs-hist-axis" ref="yAxis"></g>
                 <crosshair :width="padded.width" :height="padded.height"></crosshair>
                 <g class="fjs-brush" ref="brush"></g>
                 <g class="fjs-histogram" v-for="histogram in histograms">
                     <rect class="fjs-bin"
                           :x="bin.x"
-                          :y="padded.height - bin.y"
-                          :height="bin.y"
+                          :y="bin.y"
+                          :height="bin.height"
                           :width="bin.width"
+                          :fill="bin.color"
                           v-for="bin in histogram">
                     </rect>
                 </g>
@@ -158,13 +161,14 @@
         return { x, y }
       },
       histograms () {
-        return this.groups.map((group, i) => {
+        return this.groups.map(group => {
           const binEdges = this.results.stats[group.category][group.subset].bin_edges
           const hist = this.results.stats[group.category][group.subset].hist
           return hist.map((d, i) => {
             return {
               x: this.scales.x(binEdges[i]),
-              width: this.scales.x(binEdges[i + 1]) + this.scales.x(binEdges[i]),
+              y: this.padded.height - this.scales.y(d),
+              width: this.scales.x(binEdges[i + 1]) - this.scales.x(binEdges[i]),
               height: this.scales.y(d),
               color: group.color
             }
@@ -226,7 +230,10 @@
 
     .fjs-histogram
         .fjs-bin
-            stroke: black
+            stroke: white
+            stroke-width: 0
+            shape-rendering: crispEdges
+            opacity: 0.5
 </style>
 
 <style lang="sass">
