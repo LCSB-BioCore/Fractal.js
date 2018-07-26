@@ -192,8 +192,7 @@
         return groups
       },
       paths () {
-        const paths = []
-        this.groups.forEach(group => {
+        return this.groups.map(group => {
           let path = ''
           this.results.stats[group.category][group.subset].estimate.forEach((d, i, arr) => {
             const stats = this.results.stats[group.category][group.subset]
@@ -205,16 +204,11 @@
               path += `L ${x} ${this.scales.y(d)}`
             }
           })
-          paths.push({
-            d: path,
-            color: group.color
-          })
+          return { d: path, color: group.color }
         })
-        return paths
       },
       ciPaths () {
-        const paths = []
-        this.groups.forEach(group => {
+        return this.groups.map(group => {
           const stats = this.results.stats[group.category][group.subset]
           let path = ''
           let backpath = ' Z '
@@ -232,12 +226,8 @@
               backpath = ` L ${x} ${this.scales.y(stats.ci_lower[i])}` + backpath
             }
           })
-          paths.push({
-            d: path + backpath,
-            color: group.color
-          })
+          return { d: path + backpath, color: group.color }
         })
-        return paths
       }
     },
     methods: {
