@@ -43,6 +43,38 @@
                           v-for="bin in histogram">
                     </rect>
                 </g>
+                <g class="fjs-stat-indicators"
+                   :transform="`translate(0, ${padded.height - margin.bottom / 4})`"
+                   v-for="indicator in statIndicators">
+                    <line :stroke="indicator.color"
+                          :x1="indicator.leftSD"
+                          :x2="indicator.leftSD"
+                          :y1="-margin.bottom / 4"
+                          :y2="margin.bottom / 4">
+                    </line>
+                    <line :stroke="indicator.color"
+                          :x1="indicator.rightSD"
+                          :x2="indicator.rightSD"
+                          :y1="-margin.bottom / 4"
+                          :y2="margin.bottom / 4">
+                    </line>
+                    <line :stroke="indicator.color"
+                          :x1="indicator.leftSD"
+                          :x2="indicator.mean - padded.width / 150">
+                    </line>
+                    <line :stroke="indicator.color"
+                          :x1="indicator.rightSD"
+                          :x2="indicator.mean + padded.width / 150">
+                    </line>
+                    <rect style="opacity: 0"
+                          :x="indicator.leftSD"
+                          :y="-margin.bottom / 2"
+                          :width="indicator.rightSD"
+                          :height="margin.bottom"
+                          :title="indicator.tooltip"
+                          :v-tooltip="{followCursor: true}">
+                    </rect>
+                </g>
             </g>
         </svg>
     </chart>
@@ -59,6 +91,7 @@
   import Crosshair from '../components/Crosshair.vue'
   import Html2svg from '../components/HTML2SVG.vue'
   import Draggable from '../components/Draggable.vue'
+  import tooltip from '../directives/tooltip'
   import _ from 'lodash'
   export default {
     name: 'histogram',
@@ -73,6 +106,9 @@
     mixins: [
       RunAnalysis
     ],
+    directives: {
+      tooltip
+    },
     data () {
       return {
         height: 0,
@@ -104,7 +140,7 @@
         const left = this.width / 20
         const top = this.height / 20
         const right = this.width / 20
-        const bottom = this.height / 20
+        const bottom = this.height / 15
         return {left, top, right, bottom}
       },
       padded () {
@@ -174,6 +210,25 @@
             }
           })
         })
+      },
+      statIndicators () {
+        return this.groups.map(group => {
+          const stats = this.results.stats[group.category][group.subset]
+          return {
+            mean: this.scales.x(stats.mean),
+            median: this.scales.x(stats.median),
+            rightSD: this.scales.x(stats.mean + stats.std),
+            leftSD: this.scales.x(stats.mean - stats.std),
+            color: group.color,
+            tooltip: `
+<div>
+    <span>Mean: ${stats.mean}</span>
+    <span>Median: ${stats.median}</span>
+    <span>Std Deviation: ${stats.std}</span>
+</div>
+`
+          }
+        })
       }
     },
     methods: {
@@ -234,6 +289,11 @@
             stroke-width: 0
             shape-rendering: crispEdges
             opacity: 0.5
+
+    .fjs-stat-indicators
+        line
+            stroke-width: 0.25em
+            shape-rendering: crispEdges
 </style>
 
 <style lang="sass">
