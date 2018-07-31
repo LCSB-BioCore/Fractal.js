@@ -14,6 +14,16 @@
                       :valid-range="[0, Infinity]">
             </data-box>
             <hr class="fjs-seperator"/>
+            <div class="fjs-params">
+                <label>
+                    Bandwidth Factor:
+                    <input type="number" min="0.1" step="0.1" v-model.lazy.number="params.bwFactor"/>
+                </label>
+                <label>
+                    Number of Bins:
+                    <input type="number" min="2" step="1" v-model.lazy.number="params.numBins"/>
+                </label>
+            </div>
         </control-panel>
         <svg :height="height" :width="width">
             <g :transform="`translate(${margin.left}, ${margin.top})`">
@@ -39,41 +49,15 @@
                           :y="bin.y"
                           :height="bin.height"
                           :width="bin.width"
-                          :fill="bin.color"
-                          v-for="bin in histogram">
+                          :fill="histogram.color"
+                          v-for="bin in histogram.bins">
                     </rect>
                 </g>
-                <g class="fjs-stat-indicators"
-                   :transform="`translate(0, ${padded.height - margin.bottom / 4})`"
-                   v-for="indicator in statIndicators">
-                    <line :stroke="indicator.color"
-                          :x1="indicator.leftSD"
-                          :x2="indicator.leftSD"
-                          :y1="-margin.bottom / 4"
-                          :y2="margin.bottom / 4">
-                    </line>
-                    <line :stroke="indicator.color"
-                          :x1="indicator.rightSD"
-                          :x2="indicator.rightSD"
-                          :y1="-margin.bottom / 4"
-                          :y2="margin.bottom / 4">
-                    </line>
-                    <line :stroke="indicator.color"
-                          :x1="indicator.leftSD"
-                          :x2="indicator.mean - padded.width / 150">
-                    </line>
-                    <line :stroke="indicator.color"
-                          :x1="indicator.rightSD"
-                          :x2="indicator.mean + padded.width / 150">
-                    </line>
-                    <rect style="opacity: 0"
-                          :x="indicator.leftSD"
-                          :y="-margin.bottom / 2"
-                          :width="indicator.rightSD"
-                          :height="margin.bottom"
-                          :title="indicator.tooltip"
-                          :v-tooltip="{followCursor: true}">
-                    </rect>
+                <g class="fjs-distributions" v-for="histogram in histograms">
+                    <polyline class="fjs-distribution"
+                              :stroke="histogram.color"
+                              :points="histogram.distribution">
+                    </polyline>
                 </g>
             </g>
         </svg>
@@ -113,8 +97,12 @@
       return {
         height: 0,
         width: 0,
-        numericData: [],
-        categoryData: [],
+        params: {
+          numericData: [],
+          categoryData: [],
+          bwFactor: 0.5,
+          numBins: 10
+        },
         results: {
           label: '',
           subsets: [],
@@ -130,10 +118,12 @@
       },
       args () {
         return {
+          bw_factor: this.params.bwFactor,
+          num_bins: this.params.numBins,
           id_filter: this.idFilter.value,
           subsets: store.getters.subsets,
-          data: this.numericData,
-          categories: this.categoryData
+          data: this.params.numericData,
+          categories: this.params.categoryData
         }
       },
       margin () {
@@ -161,7 +151,7 @@
           histGlobalMin = localHistMin < histGlobalMin ? localHistMin : histGlobalMin
           histGlobalMax = localHistMax > histGlobalMax ? localHistMax : histGlobalMax
         })
-        return { binEdgeGlobalMin, binEdgeGlobalMax, histGlobalMin, histGlobalMax }
+        return {binEdgeGlobalMin, binEdgeGlobalMax, histGlobalMin, histGlobalMax}
       },
       groups () {
         const groups = []
@@ -189,45 +179,36 @@
         const y = d3.scaleLinear()
           .domain([this.dataRanges.histGlobalMin, this.dataRanges.histGlobalMax])
           .range([this.padded.height, 0])
-        return { x, y }
+        return {x, y}
       },
       axis () {
         const x = d3.axisBottom(this.scales.x)
         const y = d3.axisLeft(this.scales.y)
-        return { x, y }
+        return {x, y}
       },
       histograms () {
         return this.groups.map(group => {
           const binEdges = this.results.stats[group.category][group.subset].bin_edges
           const hist = this.results.stats[group.category][group.subset].hist
-          return hist.map((d, i) => {
+          const bins = hist.map((d, i) => {
             return {
               x: this.scales.x(binEdges[i]),
-              y: this.padded.height - this.scales.y(d),
+              y: this.scales.y(d),
               width: this.scales.x(binEdges[i + 1]) - this.scales.x(binEdges[i]),
-              height: this.scales.y(d),
-              color: group.color
+              height: this.padded.height - this.scales.y(d)
             }
           })
-        })
-      },
-      statIndicators () {
-        return this.groups.map(group => {
-          const stats = this.results.stats[group.category][group.subset]
-          return {
-            mean: this.scales.x(stats.mean),
-            median: this.scales.x(stats.median),
-            rightSD: this.scales.x(stats.mean + stats.std),
-            leftSD: this.scales.x(stats.mean - stats.std),
-            color: group.color,
-            tooltip: `
-<div>
-    <span>Mean: ${stats.mean}</span>
-    <span>Median: ${stats.median}</span>
-    <span>Std Deviation: ${stats.std}</span>
-</div>
-`
-          }
+          const dist = this.results.stats[group.category][group.subset].dist
+          const xScale = d3.scaleLinear()
+            .domain([0, dist.length - 1])
+            .range([bins[0].x, bins[bins.length - 1].x + bins[bins.length - 1].width])
+          const yScale = d3.scaleLinear()
+            .domain(d3.extent(dist))
+            .range([this.padded.height, 0])
+          const distribution = dist.map((d, i) => {
+            return xScale(i) + ',' + yScale(d)
+          })
+          return { bins, distribution, color: group.color }
         })
       }
     },
@@ -246,10 +227,10 @@
         this.height = height
       },
       update_numericData (ids) {
-        this.numericData = ids[0]
+        this.params.numericData = ids[0]
       },
       update_categoricData (ids) {
-        this.categoryData = ids
+        this.params.categoryData = ids
       },
       getGroupName (category, subset) {
         return `${this.results.label} [${category}] [s${subset + 1}]`
@@ -276,6 +257,10 @@
 <style lang="sass" scoped>
     @import '~assets/base.sass'
 
+    .fjs-params
+        display: flex
+        flex-direction: column
+
     .fjs-legend
         .fjs-legend-element
             > svg
@@ -285,15 +270,16 @@
 
     .fjs-histogram
         .fjs-bin
-            stroke: white
+            stroke: black
             stroke-width: 0
             shape-rendering: crispEdges
             opacity: 0.5
 
-    .fjs-stat-indicators
-        line
-            stroke-width: 0.25em
-            shape-rendering: crispEdges
+    .fjs-distributions
+        .fjs-distribution
+            fill: none
+            stroke-width: 0.2em
+            opacity: 0.8
 </style>
 
 <style lang="sass">
