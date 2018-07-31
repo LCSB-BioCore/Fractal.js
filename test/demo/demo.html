@@ -56,7 +56,7 @@
   <input type="button" value="Add Chart" onclick="addChart()"/>
   <label>
     Zoom:
-    <input id="chart-size-range" type="range" min="10" max="100" value="30" oninput="setChartSize(this.value)"/>
+    <input id="chart-size-range" type="range" min="10" max="100" value="50" oninput="setChartSize(this.value)"/>
   </label>
   <input type="button" onclick="loadData()" value="Prepare analysis cache"/>
   <input type="button" onclick="deleteData()" value="Clear analysis cache"/>
@@ -95,7 +95,7 @@
     fjs.clearCache()
   }
 
-  let chartSize = '30vw'
+  let chartSize = '50vw'
   function setChartSize (value) {
     chartSize = value + 'vw'
     Array.prototype.forEach.call(document.querySelectorAll('.charts > div'), chart => {

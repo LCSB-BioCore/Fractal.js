@@ -59,6 +59,7 @@
                               :points="histogram.distribution">
                     </polyline>
                 </g>
+                <g class="fjs-brush" ref="brush"></g>
             </g>
         </svg>
     </chart>
@@ -101,9 +102,12 @@
           numericData: [],
           categoryData: [],
           bwFactor: 0.5,
-          numBins: 10
+          numBins: 10,
+          selectedPoints: []
         },
+        hasSetFilter: false,
         results: {
+          data: [],
           label: '',
           subsets: [],
           categories: [],
@@ -210,6 +214,28 @@
           })
           return { bins, distribution, color: group.color }
         })
+      },
+      brush () {
+        return d3.brushX()
+          .extent([[0, 0], [this.padded.width, this.padded.height]])
+          .on('end', () => {
+            this.error = ''
+            if (!d3.event.sourceEvent) { return }
+            if (!d3.event.selection) {
+              this.params.selectedPoints = []
+            } else {
+              const [x0, x1] = d3.event.selection
+              this.params.selectedPoints = this.results.data.filter(d => {
+                return x0 <= this.scales.x(d.value) && this.scales.x(d.value) <= x1
+              })
+            }
+            this.hasSetFilter = true
+            store.dispatch('setFilter', {
+              source: this._uid,
+              filter: 'ids',
+              value: this.params.selectedPoints.map(d => d.id)
+            })
+          })
       }
     },
     methods: {
@@ -217,6 +243,7 @@
         this.runAnalysis('compute-histogram', args)
           .then(response => {
             const results = JSON.parse(response)
+            results.data = JSON.parse(results.data)
             deepFreeze(results) // massively improve performance by telling Vue that the objects properties won't change
             this.results = results
           })
@@ -239,7 +266,10 @@
     watch: {
       'args': {
         handler: function (newArgs) {
-          this.runAnalysisWrapper(newArgs)
+          if (!this.hasSetFilter) {
+            this.runAnalysisWrapper(newArgs)
+          }
+          this.hasSetFilter = false
         }
       },
       'axis': {
@@ -247,6 +277,13 @@
           this.$nextTick(() => {
             d3.select(this.$refs.xAxis).call(newAxis.x)
             d3.select(this.$refs.yAxis).call(newAxis.y)
+          })
+        }
+      },
+      'brush': {
+        handler: function (newBrush) {
+          this.$nextTick(() => {
+            d3.select(this.$refs.brush).call(newBrush)
           })
         }
       }
