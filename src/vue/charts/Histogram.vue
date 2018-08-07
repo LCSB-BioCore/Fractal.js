@@ -228,8 +228,8 @@
               this.params.selectedPoints = this.results.data.filter(d => {
                 return x0 <= this.scales.x(d.value) && this.scales.x(d.value) <= x1
               })
+              this.hasSetFilter = true
             }
-            this.hasSetFilter = true
             store.dispatch('setFilter', {
               source: this._uid,
               filter: 'ids',
@@ -285,6 +285,13 @@
           this.$nextTick(() => {
             d3.select(this.$refs.brush).call(newBrush)
           })
+        }
+      },
+      'idFilter': {
+        handler: function (newIdFilter) {
+          if (newIdFilter.source !== this._uid) {
+            this.brush.move(d3.select(this.$refs.brush), null)
+          }
         }
       }
     }
