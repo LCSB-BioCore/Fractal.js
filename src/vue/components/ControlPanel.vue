@@ -17,6 +17,7 @@
     <div class="fjs-links" v-show="expanded">
       <a href="https://github.com/LCSB-BioCore/Fractalis-Issues/issues/new/choose" target="_blank">Report Issues</a>
       <a href="https://fractalis.lcsb.uni.lu" target="_blank">About</a>
+      <span>Version: {{ version }}</span>
     </div>
   </div>
 </template>
@@ -24,11 +25,13 @@
 <script>
   import TaskView from './TaskView.vue'
   import store from '../../store/store'
+  import { version } from '../../../package.json'
   export default {
     name: 'control-panel',
     data () {
       return {
-        focused: true
+        focused: true,
+        version
       }
     },
     props: {
