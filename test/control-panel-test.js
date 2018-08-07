@@ -1,11 +1,11 @@
 import ControlPanel from '../src/vue/components/ControlPanel.vue'
 import Vue from 'vue'
-import store, { resetState } from '../src/store/store'
+import store, { _resetState } from '../src/store/store'
 
 describe('ControlPanel', () => {
   let vm
   beforeEach(() => {
-    resetState()
+    _resetState()
     const div1 = document.createElement('div')
     div1.id = 'div1'
     const div2 = document.createElement('div')

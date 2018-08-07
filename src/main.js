@@ -43,6 +43,11 @@ class FractalJS {
   }
 
   // noinspection JSMethodCanBeStatic
+  removeAllCharts () {
+    return store.getters.chartManager.removeAllCharts()
+  }
+
+  // noinspection JSMethodCanBeStatic
   getAvailableCharts () {
     return store.getters.chartManager.getAvailableCharts()
   }

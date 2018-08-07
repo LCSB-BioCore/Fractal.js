@@ -1,12 +1,12 @@
 import TaskView from '../src/vue/components/TaskView.vue'
-import store, { resetState } from '../src/store/store'
+import store, { _resetState } from '../src/store/store'
 import Vue from 'vue'
 import RequestManager from '../src/services/request-manager'
 
 describe('TaskView', () => {
   let vm
   beforeEach(() => {
-    resetState()
+    _resetState()
     const requestManager = new RequestManager(
       {handler: '', dataSource: '', fractalisNode: '', getAuth: () => {}})
     store.dispatch('setRequestManager', requestManager)

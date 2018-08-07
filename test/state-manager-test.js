@@ -3,14 +3,14 @@ import RequestManager from '../src/services/request-manager'
 import ChartManager from '../src/services/chart-manager'
 import Vue from 'vue'
 import stateSaver from '../src/vue/mixins/state-saver'
-import store, { resetState } from '../src/store/store'
+import store, { _resetState } from '../src/store/store'
 import Chart from '../src/vue/components/Chart.vue'
 
 describe('state manager', () => {
   let stateManager
   let vm
   beforeEach(() => {
-    resetState()
+    _resetState()
     stateManager = new StateManager()
     const chartManager = new ChartManager()
     const requestManager = new RequestManager(

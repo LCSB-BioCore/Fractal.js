@@ -38,7 +38,7 @@ const store = new Vuex.Store({
 
 const initialState = JSON.parse(JSON.stringify(store.state))
 
-export function resetState () {
+export function _resetState () {
   store.replaceState(JSON.parse(JSON.stringify(initialState)))
 }
 

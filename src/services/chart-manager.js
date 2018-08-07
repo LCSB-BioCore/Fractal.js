@@ -2,6 +2,7 @@ import Vue from 'vue'
 
 export default class {
   constructor () {
+    this.setCharts = []
     this.availableCharts = {}
     const req = require.context('../vue/charts/', true, /\.vue$/)
     req.keys().forEach(key => {
@@ -30,7 +31,16 @@ export default class {
     const el = document.createElement('div')
     container.appendChild(el)
     vm.$mount(el)
+    this.setCharts.push(vm)
     return vm
+  }
+
+  removeAllCharts () {
+    this.setCharts.forEach(vm => {
+      vm.$el.remove()
+      vm.$destroy()
+    })
+    this.setCharts = []
   }
 
   getAvailableCharts () {

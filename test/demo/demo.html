@@ -59,7 +59,7 @@
     <input id="chart-size-range" type="range" min="10" max="100" value="50" oninput="setChartSize(this.value)"/>
   </label>
   <input type="button" onclick="loadData()" value="Prepare analysis cache"/>
-  <input type="button" onclick="deleteData()" value="Clear analysis cache"/>
+  <input type="button" onclick="deleteData()" value="Clear All"/>
   </div>
 </div>
 <div class="charts">
@@ -93,6 +93,7 @@
 
   function deleteData () {
     fjs.clearCache()
+    fjs.removeAllCharts()
   }
 
   let chartSize = '50vw'
@@ -121,7 +122,6 @@
   ])
 
   function loadData () {
-    deleteData()
     fjs.loadData([
       {
         dataType: 'categorical',
