@@ -14,7 +14,7 @@ Please have a look at this playlist to see a demo of the visual aspects of Fract
 - Please note that the test charts might not always be up-to-date. They are really just playground for developers and work-in-progress charts.
 
 ### I don't use webpack or similar tools. How can I include Fractalis in my project?
-Just run `npm run-script build` to create a single .js file that you can include/import however you want.
+https://unpkg.com
 
 ### Usage
 Please refer to the [main.js file](https://git-r3lab.uni.lu/Fractalis/fractal.js/blob/master/src/main.js). It is the only file directly exposed to your code.
