@@ -1,19 +1,16 @@
 <template>
     <chart v-on:resize="resize">
-        <control-panel class="fjs-control-panel" name="Survivalplot Panel">
-            <data-box class="fjs-data-box"
-                      header="Duration [numerical]"
+        <control-panel name="Survivalplot Panel">
+            <data-box header="Duration [numerical]"
                       :data-types="['numerical']"
                       :validRange="[1, 1]"
                       v-on:update="updateDurationVariable">
             </data-box>
-            <data-box class="fjs-data-box"
-                      header="Groups (optional) [categorical]"
+            <data-box header="Groups (optional) [categorical]"
                       :data-types="['categorical']"
                       v-on:update="updateGroupVariable">
             </data-box>
-            <data-box class="fjs-data-box"
-                      header="Observed (optional) [categorical]"
+            <data-box header="Observed (optional) [categorical]"
                       :data-types="['categorical']"
                       v-on:update="updateObservedVariable">
             </data-box>

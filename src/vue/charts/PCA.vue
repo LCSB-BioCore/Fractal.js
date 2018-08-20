@@ -1,15 +1,13 @@
 <template>
   <chart v-on:resize="resize">
 
-    <control-panel class="fjs-control-panel" name="PCA Panel">
-      <data-box class="fjs-data-box"
-                header="Numerical Variables"
+    <control-panel name="PCA Panel">
+      <data-box header="Numerical Variables"
                 :dataTypes="['numerical', 'numerical_array']"
                 :validRange="[2, Infinity]"
                 v-on:update="update_featureData">
       </data-box>
-      <data-box class="fjs-data-box"
-                header="Categorical Variables"
+      <data-box header="Categorical Variables"
                 :dataTypes="['categorical']"
                 v-on:update="update_categoryData">
       </data-box>

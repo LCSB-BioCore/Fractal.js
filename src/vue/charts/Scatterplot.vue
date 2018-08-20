@@ -1,15 +1,13 @@
 <template>
   <chart v-on:resize="resize">
 
-    <control-panel class="fjs-control-panel" name="Scatterplot Panel">
-      <data-box class="fjs-data-box"
-                header="Numerical Variables"
+    <control-panel name="Scatterplot Panel">
+      <data-box header="Numerical Variables"
                 :dataTypes="['numerical', 'numerical_array']"
                 :validRange="[2, 2]"
                 v-on:update="update_xyData">
       </data-box>
-      <data-box class="fjs-data-box"
-                header="Categorical Variables"
+      <data-box header="Categorical Variables"
                 :dataTypes="['categorical']"
                 v-on:update="update_categoryData">
       </data-box>

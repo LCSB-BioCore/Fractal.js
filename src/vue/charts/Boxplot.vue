@@ -1,15 +1,13 @@
 <template>
   <chart v-on:resize="resize">
 
-    <control-panel class="fjs-control-panel" name="Boxplot Panel">
-      <data-box class="fjs-data-box"
-                header="Numerical Variables"
+    <control-panel name="Boxplot Panel">
+      <data-box header="Numerical Variables"
                 :dataTypes="['numerical', 'numerical_array']"
                 :validRange="[1, Infinity]"
                 v-on:update="update_numData">
       </data-box>
-      <data-box class="fjs-data-box"
-                header="Categorical Variables"
+      <data-box header="Categorical Variables"
                 :dataTypes="['categorical']"
                 v-on:update="update_catData">
       </data-box>

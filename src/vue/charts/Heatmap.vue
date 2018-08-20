@@ -1,8 +1,7 @@
 <template>
   <chart v-on:resize="resize">
-    <control-panel class="fjs-control-panel" name="Heatmap Panel">
-      <data-box class="fjs-data-box"
-                header="Numerical Variables"
+    <control-panel name="Heatmap Panel">
+      <data-box header="Numerical Variables"
                 :dataTypes="['numerical_array']"
                 :validRange="[1, Infinity]"
                 v-on:update="update_numericArrayData">

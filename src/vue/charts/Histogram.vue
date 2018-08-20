@@ -1,14 +1,12 @@
 <template>
     <chart v-on:resize="resize">
-        <control-panel class="fjs-control-panel" name="Histogram Panel">
-            <data-box class="fjs-data-box"
-                      header="Numerical Variable"
+        <control-panel name="Histogram Panel">
+            <data-box header="Numerical Variable"
                       :data-types="['numerical']"
                       v-on:update="update_numericData"
                       :valid-range="[1, 1]">
             </data-box>
-            <data-box class="fjs-data-box"
-                      header="Categorical Variables"
+            <data-box header="Categorical Variables"
                       :data-types="['categorical']"
                       v-on:update="update_categoricData"
                       :valid-range="[0, Infinity]">
