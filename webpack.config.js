@@ -3,38 +3,13 @@ const path = require('path')
 const mode = require('yargs').argv.mode
 const VERSION = require('./package.json').version
 
-let plugins = [
-  new webpack.HotModuleReplacementPlugin()
-]
-let filename = ''
-const library = 'fractal'
-
-if (mode === 'production') {
-  filename = `${library}-${VERSION}.min.js`
-} else {
-  filename = `${library}.js`
-}
-
 module.exports = {
-  entry: [
-    path.resolve(__dirname, 'src/main.js')
-  ],
-  devtool: '#source-map',
-  devServer: {
-    host: '0.0.0.0',
-    port: '8080',
-    hot: true,
-    inline: true,
-    publicPath: 'http://127.0.0.1:8080/',
-    headers: { 'Access-Control-Allow-Origin': '*' }
-  },
-  plugins: plugins,
+  entry: './src/main.js',
   output: {
     path: path.resolve(__dirname, 'lib'),
-    library: library,
+    library: 'fractal',
     libraryTarget: 'var',
-    filename: filename,
-    publicPath: 'http://localhost:8080/',
+    filename: mode === 'production' ? `fractal-${VERSION}.min.js` : `fractal.js`,
     hotUpdateChunkFilename: 'hot/hot-update.js',
     hotUpdateMainFilename: 'hot/hot-update.json'
   },
@@ -67,5 +42,21 @@ module.exports = {
       'vue$': 'vue/dist/vue.esm.js',
       'assets': path.resolve(__dirname, 'src/assets')
     }
-  }
+  },
+  performance: {
+    hints: false
+  },
+  devtool: '#source-map',
+  context: __dirname,
+  target: 'web',
+  devServer: {
+    host: '0.0.0.0',
+    port: '8080',
+    hot: true,
+    inline: true,
+    headers: { 'Access-Control-Allow-Origin': '*' }
+  },
+  plugins: [
+    new webpack.HotModuleReplacementPlugin()
+  ]
 }

@@ -1,0 +1,11 @@
+src/
+test/
+node_modules/
+.idea
+.eslintrc
+.babelrc
+.gitignore
+.gitlab-ci.yml
+.bumpversion.cfg
+karma.conf.js
+webpack.config.js

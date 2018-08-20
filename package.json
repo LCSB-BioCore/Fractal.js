@@ -1,7 +1,7 @@
 {
   "name": "fractalis",
   "description": "The front-end component of the Fractalis visual analytics project.",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "author": "Sascha Herzinger <sascha.herzinger@uni.lu>",
   "license": "Apache-2.0",
   "bugs": {
@@ -13,11 +13,13 @@
     "url": "https://git-r3lab.uni.lu/Fractalis/fractal.js.git"
   },
   "scripts": {
-    "build": "./node_modules/webpack/bin/webpack.js --config webpack.config.js --mode production",
-    "devserver": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config webpack.config.js --mode development",
-    "test": "./node_modules/karma/bin/karma start karma.conf.js"
+    "build": "webpack --config webpack.config.js --mode production",
+    "prepublishOnly": "npm run-script build",
+    "devserver": "webpack-dev-server --config webpack.config.js --mode development",
+    "test": "karma start karma.conf.js"
   },
-  "main": "src/main.js",
+  "main": "./lib/fractal-1.2.2.min.js",
+  "module": "./lib/fractal-1.2.2.min.js",
   "dependencies": {
     "axios": "0.16.1",
     "d3": "4.13.0",
@@ -29,14 +31,14 @@
     "uuid": "3.2.1",
     "vue": "2.5.13",
     "vue-async-computed": "3.3.1",
-    "vuex": "3.0.1"
+    "vuex": "3.0.1",
+    "@babel/runtime": "7.0.0-beta.46"
   },
   "devDependencies": {
     "@babel/core": "7.0.0-beta.46",
     "@babel/plugin-proposal-object-rest-spread": "7.0.0-beta.46",
     "@babel/plugin-transform-runtime": "7.0.0-beta.46",
     "@babel/preset-env": "7.0.0-beta.46",
-    "@babel/runtime": "7.0.0-beta.46",
     "babel-loader": "8.0.0-beta.2",
     "css-loader": "1.0.0",
     "devbridge-autocomplete": "1.4.7",
