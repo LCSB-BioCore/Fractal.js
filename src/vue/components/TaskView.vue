@@ -5,7 +5,7 @@
          v-if="task.taskState === 'SUBMITTED' || task.taskState === 'FAILURE'">
       <loader class="fjs-loader" :style="{opacity: task.taskState === 'SUBMITTED' ? 1 : 0}"/>
       <span class="fjs-submitted" v-if="task.taskState === 'SUBMITTED'">{{ task.taskName }}</span>
-      <span class="fjs-failed" v-else>{{ task.taskMessage }}</span>
+      <span class="fjs-failed" v-else>{{ task.taskName }}: {{ task.taskMessage }}</span>
       <span class="fjs-cancel-btn" @click="cancelTask(task.taskID)">&#215;</span>
     </div>
   </div>
