@@ -21,7 +21,7 @@ test:all:
 release:npm:
     stage: release
     script:
-        - yum install -y gcc-c++ make
+        - yum install -y git gcc-c++ make
         - curl --silent --location https://rpm.nodesource.com/setup_10.x | bash -
         - yum install -y nodejs
         - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
