@@ -1,7 +1,7 @@
 {
   "name": "fractalis",
   "description": "The front-end component of the Fractalis visual analytics project.",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "author": "Sascha Herzinger <sascha.herzinger@uni.lu>",
   "license": "Apache-2.0",
   "bugs": {
@@ -18,8 +18,8 @@
     "devserver": "webpack-dev-server --config webpack.config.js --mode development",
     "test": "karma start karma.conf.js"
   },
-  "main": "./lib/fractal-1.2.5.min.js",
-  "module": "./lib/fractal-1.2.5.min.js",
+  "main": "./lib/fractal-1.2.6.min.js",
+  "module": "./lib/fractal-1.2.6.min.js",
   "dependencies": {
     "axios": "0.16.1",
     "d3": "4.13.0",
