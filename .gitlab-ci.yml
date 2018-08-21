@@ -25,6 +25,7 @@ release:npm:
         - curl --silent --location https://rpm.nodesource.com/setup_10.x | bash -
         - yum install -y nodejs
         - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+        - echo "unsafe-perm = true" >> ~/.npmrc
         - npm publish
     only:
         - tags
