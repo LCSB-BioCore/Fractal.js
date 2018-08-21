@@ -26,6 +26,7 @@ release:npm:
         - yum install -y nodejs
         - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
         - echo "unsafe-perm = true" >> ~/.npmrc
+        - npm install
         - npm publish
     only:
         - tags
