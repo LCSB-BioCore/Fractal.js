@@ -1,15 +1,13 @@
 const webpack = require('webpack')
 const path = require('path')
-const mode = require('yargs').argv.mode
-const VERSION = require('./package.json').version
 
 module.exports = {
   entry: './src/main.js',
   output: {
     path: path.resolve(__dirname, 'lib'),
-    library: 'fractal',
+    library: 'fractalis',
     libraryTarget: 'var',
-    filename: mode === 'production' ? `fractal-${VERSION}.min.js` : `fractal.js`,
+    filename: 'fractal.js',
     hotUpdateChunkFilename: 'hot/hot-update.js',
     hotUpdateMainFilename: 'hot/hot-update.json'
   },
