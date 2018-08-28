@@ -17,6 +17,7 @@
     <div class="fjs-links" v-show="expanded">
       <a href="https://github.com/LCSB-BioCore/Fractalis-Issues/issues/new/choose" target="_blank">Report Issues</a>
       <a href="https://fractalis.lcsb.uni.lu" target="_blank">About</a>
+      <a href="https://doi.org/10.1093/gigascience/giy109" target="_blank">Cite</a>
       <span>Version: {{ version }}</span>
     </div>
   </div>
