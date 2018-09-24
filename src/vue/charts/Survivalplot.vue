@@ -41,8 +41,8 @@
                     <draggable>
                         <div class="fjs-legend">
                             <div class="fjs-legend-element" v-for="group in groups">
-                                <svg width="1vw" height="1vw">
-                                    <rect width="1vw" height="1vw" :fill="group.color"></rect>
+                                <svg :width="iconSize" :height="iconSize">
+                                    <rect :width="iconSize" :height="iconSize" :fill="group.color"></rect>
                                 </svg>
 
                                 <span>{{ group.name }}</span>
@@ -133,6 +133,9 @@
         const width = this.width - this.margin.left - this.margin.right
         const height = this.height - this.margin.top - this.margin.bottom
         return {width, height}
+      },
+      iconSize () {
+        return this.padded.width / 50
       },
       dataRanges () {
         let timelineGlobalMin = Number.MAX_SAFE_INTEGER
