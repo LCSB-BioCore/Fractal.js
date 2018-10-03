@@ -1,10 +1,11 @@
 <template>
   <chart v-on:resize="resize">
     <control-panel name="Heatmap Panel">
-      <data-box header="Numerical Variables"
+      <data-box :header="params.numVars.label"
                 :dataTypes="['numerical_array']"
-                :validRange="[1, Infinity]"
-                v-on:update="update_numericArrayData">
+                :validRange="[params.numVars.minLength, params.numVars.maxLength]"
+                v-on:select="updateNumVarsSelection"
+                v-on:update="updateNumVars">
       </data-box>
       <hr class="fjs-seperator"/>
 
@@ -12,65 +13,10 @@
         <span class="fjs-param-header">Ranking Criteria</span>
         <fieldset class="fjs-expression-ranking fjs-fieldset">
           <legend>Expression Level</legend>
-          <!--FIXME: Make this dynamic similar to volcanoplot-->
-          <div>
+          <div v-for="method in params.rankingMethod.validValues">
             <label>
-              <input type="radio" value="mean" v-model="rankingMethod">
+              <input type="radio" :value="method" v-model="params.rankingMethod.value">
               Mean
-            </label>
-          </div>
-          <div>
-            <label>
-              <input type="radio" value="median" v-model="rankingMethod">
-              Median
-            </label>
-          </div>
-        </fieldset>
-        <fieldset class="fjs-fieldset">
-          <legend>Expression Variability</legend>
-          <div>
-            <label>
-              <input type="radio" value="variance" v-model="rankingMethod">
-              Variance
-            </label>
-          </div>
-        </fieldset>
-        <fieldset class="fjs-fieldset">
-          <legend>Differential Expression</legend>
-          <div>
-            <label>
-              <input type="radio" value="logFC" v-model="rankingMethod">
-              logFC
-            </label>
-          </div>
-          <div>
-            <label>
-              <input type="radio" value="t" v-model="rankingMethod">
-              t
-            </label>
-          </div>
-          <div>
-            <label>
-              <input type="radio" value="F" v-model="rankingMethod">
-              F
-            </label>
-          </div>
-          <div>
-            <label>
-              <input type="radio" value="B" v-model="rankingMethod">
-              B
-            </label>
-          </div>
-          <div>
-            <label>
-              <input type="radio" value="P.Val" v-model="rankingMethod">
-              P.Value
-            </label>
-          </div>
-          <div>
-            <label>
-              <input type="radio" value="adj.P.Val" v-model="rankingMethod">
-              adj.P.Value
             </label>
           </div>
         </fieldset>
@@ -80,36 +26,30 @@
         <span class="fjs-param-header">Heatmap Clustering</span>
         <fieldset class="fjs-fieldset">
           <legend>Algorithm</legend>
-          <div>
+          <div v-for="algorithm in params.clusterAlgorithm.validValues">
             <label>
-              <input type="radio" value="hclust" v-model="cluster.algorithm"/>
-              Hierarch.
-            </label>
-          </div>
-          <div>
-            <label>
-              <input type="radio" value="kmeans" v-model="cluster.algorithm"/>
-              KMeans
+              <input type="radio" :value="algorithm" v-model="params.clusterAlgorithm.value"/>
+              {{ algorithm }}
             </label>
           </div>
         </fieldset>
 
-        <fieldset class="fjs-cluster-option-fieldset fjs-fieldset" v-if="cluster.algorithm === 'hclust'">
+        <fieldset class="fjs-cluster-option-fieldset fjs-fieldset" v-if="params.clusterAlgorithm.value === 'hclust'">
           <legend>Options</legend>
           <div class="fjs-hclust-selects">
-            <select v-model="cluster.options.method">
+            <select v-model="params.clusterMethod.value">
               <option value="" selected disabled>-- Method --</option>
               <option :value="value"
-                      v-for="value in ['single', 'complete', 'average', 'weighted', 'centroid', 'median', 'ward']"
-                      v-model="cluster.options.method">
+                      v-for="value in params.clusterMethod.validValues"
+                      v-model="params.clusterMethod.value">
                 {{ value }}
               </option>
             </select>
-            <select v-model="cluster.options.metric">
+            <select v-model="params.clusterMetric.value">
               <option value="" selected disabled>-- Metric --</option>
               <option :value="value"
-                      v-for="value in ['euclidean', 'sqeuclidean', 'cityblock', 'correlation', 'cosine']"
-                      v-model="cluster.options.metric">
+                      v-for="value in params.clusterMetric.validValues"
+                      v-model="params.clusterMetric.value">
                 {{ value }}
               </option>
             </select>
@@ -117,17 +57,17 @@
           <div class="fjs-cluster-ranges">
             <label>
               <input type="range"
-                     min="1" max="20"
-                     v-model="cluster.options.n_row_clusters"/>
-              {{ cluster.options.n_row_clusters }} Row Clusters
+                     :min="params.nRowClusters.min" :max="params.nRowClusters.max"
+                     v-model="params.nRowClusters.value"/>
+              {{ params.nRowClusters.value }} Row Clusters
             </label>
           </div>
           <div class="fjs-cluster-ranges">
             <label>
               <input type="range"
-                     min="1" max="20"
-                     v-model="cluster.options.n_col_clusters"/>
-              {{ cluster.options.n_col_clusters }} Col Clusters
+                     :min="params.nColClusters.min" :max="params.nColClusters.max"
+                     v-model="params.nColClusters.value"/>
+              {{ params.nColClusters.value }} Col Clusters
             </label>
           </div>
         </fieldset>
@@ -137,17 +77,17 @@
           <div class="fjs-cluster-ranges">
             <label>
             <input type="range"
-                   min="1" max="20"
-                   v-model="cluster.options.n_row_centroids"/>
-              {{ cluster.options.n_row_centroids }} Row Centroids
+                   :min="params.nRowCentroids.min" :max="params.nRowCentroids.max"
+                   v-model="params.nRowCentroids.value"/>
+              {{ params.nRowCentroids.value }} Row Centroids
             </label>
           </div>
           <div class="fjs-cluster-ranges">
             <label>
             <input type="range"
-                   min="1" max="20"
-                   v-model="cluster.options.n_col_centroids"/>
-              {{ cluster.options.n_col_centroids }} Col Centroids
+                   :min="params.nColCentroids.min" :max="params.nColCentroids.max"
+                   v-model="params.nColCentroids.value"/>
+              {{ params.nColCentroids.value }} Col Centroids
             </label>
           </div>
         </fieldset>
@@ -183,6 +123,7 @@
   import deepFreeze from 'deep-freeze-strict'
   import getHDPICanvas from '../../utils/high-dpi-canvas'
   import StateSaver from '../mixins/state-saver'
+  import _ from 'lodash'
   export default {
     name: 'heatmap',
     data () {
@@ -191,18 +132,62 @@
         height: 0,
         colorScale: d3.interpolateCool,
         subsetColors: d3.schemeCategory10,
-        numericArrayDataIds: [],
-        rankingMethod: 'mean',
-        cluster: {
-          algorithm: 'hclust',
-          options: {
-            method: '',
-            metric: '',
-            n_row_clusters: 5,
-            n_col_clusters: 5,
-            n_row_centroids: 5,
-            n_col_centroids: 5
+        params: {
+          numVars: {
+            type: Array,
+            elementType: String,
+            label: 'Numerical Variables',
+            validValues: [],
+            minLength: 1,
+            maxLength: Infinity,
+            value: []
           },
+          rankingMethod: {
+            type: String,
+            validValues: [],
+            value: 'mean'
+          },
+          clusterAlgorithm: {
+            type: String,
+            validValues: ['hclust', 'kmeans'],
+            value: 'hclust'
+          },
+          clusterMethod: {
+            type: String,
+            validValues: ['single', 'complete', 'average', 'weighted', 'centroid', 'median', 'ward'],
+            value: ''
+          },
+          clusterMetric: {
+            type: String,
+            validValues: ['euclidean', 'sqeuclidean', 'cityblock', 'correlation', 'cosine'],
+            value: ''
+          },
+          nRowClusters: {
+            type: Number,
+            min: 1,
+            max: 20,
+            value: 5
+          },
+          nColClusters: {
+            type: Number,
+            min: 1,
+            max: 20,
+            value: 5
+          },
+          nRowCentroids: {
+            type: Number,
+            min: 1,
+            max: 20,
+            value: 5
+          },
+          nColCentroids: {
+            type: Number,
+            min: 1,
+            max: 20,
+            value: 5
+          }
+        },
+        cluster: {
           colColors: d3.schemeCategory10,
           rowColors: d3.schemeCategory10.slice().reverse(),
           results: {
@@ -220,13 +205,13 @@
     computed: {
       mainArgs () {
         return {
-          numerical_arrays: this.numericArrayDataIds,
+          numerical_arrays: this.params.numVars.value,
           numericals: [],
           categoricals: [],
-          ranking_method: this.rankingMethod,
+          ranking_method: this.params.rankingMethod.value,
           params: {},
           id_filter: this.idFilter.value,
-          max_rows: 100,
+          max_rows: 100, // FIXME: make this configurable
           subsets: store.getters.subsets
         }
       },
@@ -240,14 +225,14 @@
         })
         return {
           df: df,
-          cluster_algo: this.cluster.algorithm,
+          cluster_algo: this.params.clusterAlgorithm.value,
           options: {
-            method: this.cluster.options.method,
-            metric: this.cluster.options.metric,
-            n_row_clusters: parseInt(this.cluster.options.n_row_clusters),
-            n_col_clusters: parseInt(this.cluster.options.n_col_clusters),
-            n_row_centroids: parseInt(this.cluster.options.n_row_centroids),
-            n_col_centroids: parseInt(this.cluster.options.n_col_centroids)
+            method: this.params.clusterMethod.value,
+            metric: this.params.clusterMetric.value,
+            n_row_clusters: parseInt(this.params.nRowClusters.value),
+            n_col_clusters: parseInt(this.params.nColClusters.value),
+            n_row_centroids: parseInt(this.params.nRowCentroids.value),
+            n_col_centroids: parseInt(this.params.nColCentroids.value)
           }
         }
       },
@@ -270,6 +255,15 @@
       },
       canvas () {
         return getHDPICanvas(this.padded.width, this.padded.height)
+      },
+      statistics () {
+        if ((this.params.rankingMethod.value === 'limma') && (store.getters.subsets.length === 2)) {
+          return ['logFC', 'P.Value', 'feature', 'AveExpr', 't', 'adj.P.Val', 'B']
+        } else if ((this.params.rankingMethod.value === 'limma') && (store.getters.subsets.length > 2)) {
+          return ['F', 'P.Value', 'feature', 'AveExpr', 'adj.P.Val']
+        } else {
+          throw new Error(`Unknown ranking method: ${this.params.rankingMethod.value}`)
+        }
       },
       cols () {
         let cols = []
@@ -415,13 +409,13 @@
       sigBars () {
         return this.results.stats.feature.map((d, i) => {
           return {
-            x: -this.sigScales.x(this.results.stats[this.rankingMethod][i]),
+            x: -this.sigScales.x(this.results.stats[this.params.rankingMethod.value][i]),
             y: this.sigScales.y(d),
-            width: this.sigScales.x(this.results.stats[this.rankingMethod][i]),
+            width: this.sigScales.x(this.results.stats[this.params.rankingMethod.value][i]),
             height: this.grid.main.height,
-            fill: this.results.stats[this.rankingMethod][i] < 0 ? '#0072ff' : '#ff006a',
+            fill: this.results.stats[this.params.rankingMethod.value][i] < 0 ? '#0072ff' : '#ff006a',
             tooltip: '<div>' + Object.keys(this.results.stats).map(key => {
-              const selected = key === this.rankingMethod ? '<span style="font-weight: bold;">[selected]<span> ' : ''
+              const selected = key === this.params.rankingMethod.value ? '<span style="font-weight: bold;">[selected]<span> ' : ''
               return `<p>${selected}${key}: ${this.results.stats[key][i]}</p>`
             }).join('') + '</div>'
           }
@@ -450,9 +444,6 @@
         this.width = width
         this.height = height
       },
-      update_numericArrayData (ids) {
-        this.numericArrayDataIds = ids
-      },
       drawCells (cells) {
         const ctx = this.canvas.getContext('2d')
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
@@ -462,6 +453,12 @@
           ctx.fillRect(d.x, d.y, d.width, d.height)
         })
         this.dataUrl = this.canvas.toDataURL()
+      },
+      updateNumVars (ids) {
+        this.params.numVars.validValues = ids
+      },
+      updateNumVarsSelection (ids) {
+        this.params.numVars.value = ids
       }
     },
     watch: {
@@ -484,6 +481,14 @@
         handler: function (newCells) {
           this.$nextTick(() => this.drawCells(newCells))
         }
+      },
+      'statistics': {
+        handler: function (newStats, oldStats) {
+          if (!_.isEqual(newStats, oldStats)) {
+            this.params.rankingMethod.validValues = newStats
+          }
+        },
+        immediate: true
       }
     },
     components: {
@@ -497,12 +502,7 @@
     mixins: [
       StateSaver,
       RunAnalysis
-    ],
-    mounted () {
-      this.registerDataToSave([
-        'numericArrayDataIds', 'rankingMethod', 'cluster'
-      ])
-    }
+    ]
   }
 </script>
 

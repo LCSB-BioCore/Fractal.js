@@ -2,34 +2,29 @@
   <chart v-on:resize="resize">
 
     <control-panel name="Scatterplot Panel">
-      <data-box header="Numerical Variables"
+      <data-box :header="params.numVars.label"
                 :dataTypes="['numerical', 'numerical_array']"
-                :validRange="[2, 2]"
-                v-on:update="update_xyData">
+                :validRange="[params.numVars.minLength, params.numVars.maxLength]"
+                v-on:select="updateNumVarsSelection"
+                v-on:update="updateNumVars">
       </data-box>
-      <data-box header="Categorical Variables"
+      <data-box :header="params.catVars.label"
                 :dataTypes="['categorical']"
-                v-on:update="update_categoryData">
+                :validRange="[params.catVars.minLength, params.catVars.maxLength]"
+                v-on:select="updateCatVarsSelection"
+                v-on:update="updateCatVars">
       </data-box>
       <hr class="fjs-seperator"/>
       <fieldset class="fjs-fieldset">
         <legend>Correlation Method</legend>
-        <label>
-          <input type="radio" value="pearson" v-model="params.method">
+        <label v-for="method in params.method.validValues">
+          <input type="radio" :value="method" v-model="params.method.value">
           Pearson
-        </label>
-        <label>
-          <input type="radio" value="spearman" v-model="params.method">
-          Spearman
-        </label>
-        <label>
-          <input type="radio" value="kendall" v-model="params.method">
-          Kendall
         </label>
       </fieldset>
       <label>
         Ignore Subsets:
-        <input type="checkbox" v-model="params.ignoreSubsets"/>
+        <input type="checkbox" v-model="params.ignoreSubsets.value"/>
       </label>
     </control-panel>
 
@@ -122,12 +117,35 @@
         error: '',
         width: 0,
         height: 0,
-        xyData: [],
-        categoryData: [],
         categoryColors: d3.schemeCategory10,
         params: {
-          method: 'pearson',
-          ignoreSubsets: false
+          numVars: {
+            type: Array,
+            elementType: String,
+            label: 'Numerical Variables',
+            validValues: [],
+            minLength: 2,
+            maxLength: 2,
+            value: []
+          },
+          catVars: {
+            type: Array,
+            elementType: String,
+            label: 'Categorical Variables',
+            validValues: [],
+            minLength: 0,
+            maxLength: Infinity,
+            value: []
+          },
+          method: {
+            type: String,
+            validValues: ['pearson', 'kendall', 'spearman'],
+            value: 'pearson'
+          },
+          ignoreSubsets: {
+            type: Boolean,
+            value: false
+          }
         },
         shownResults: { // initially computed
           coef: 0,
@@ -159,19 +177,19 @@
         return store.getters.filter('ids')
       },
       validArgs () {
-        return this.xyData.length === 2
+        return this.params.numVars.value.length === 2
       },
       pointSize () {
         return this.padded.width / 100
       },
       args () {
         return {
-          x: this.xyData[0],
-          y: this.xyData[1],
+          x: this.params.numVars.value[0],
+          y: this.params.numVars.value[1],
           id_filter: this.idFilter.value,
-          method: this.params.method,
-          subsets: this.params.ignoreSubsets ? [] : store.getters.subsets,
-          categories: this.categoryData
+          method: this.params.method.value,
+          subsets: this.params.ignoreSubsets.value ? [] : store.getters.subsets,
+          categories: this.catVars
         }
       },
       margin () {
@@ -458,17 +476,18 @@
         this.width = width
         this.height = height
       },
-      update_xyData (ids) {
-        this.xyData = ids
+      updateNumVars (ids) {
+        this.params.numVars.validValues = ids
       },
-      update_categoryData (ids) {
-        this.categoryData = ids
+      updateCatVars (ids) {
+        this.params.catVars.validValues = ids
+      },
+      updateNumVarsSelection (ids) {
+        this.params.numVars.value = ids
+      },
+      updateCatVarsSelection (ids) {
+        this.params.numVars.value = ids
       }
-    },
-    mounted () {
-      this.registerDataToSave([
-        'xyData', 'categoryData', 'params'
-      ])
     }
   }
 </script>

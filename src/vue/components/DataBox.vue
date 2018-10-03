@@ -76,12 +76,12 @@
             ['SUBMITTED', 'SUCCESS', 'FAILURE'].includes(item.etl_state)
         })
       },
-      existing_ids () {
+      existingIds () {
         return this.items.map(item => item.task_id)
       },
       transformedIDs () {
         return this.checkedIds
-          .filter(id => this.existing_ids.includes(id))
+          .filter(id => this.existingIds.includes(id))
           .map(id => `$${JSON.stringify({id, filters: { feature: this.featureFilter[id] }})}$`)
       },
       isInValidRange () {
@@ -93,7 +93,14 @@
         handler: function (newTransformedIDs, oldTransformedIDs) {
           // avoid emitting signals and thus triggering watchers if selected ids didn't change
           if (this.isInValidRange && !_.isEqual(newTransformedIDs, oldTransformedIDs)) {
-            this.$emit('update', newTransformedIDs)
+            this.$emit('select', newTransformedIDs)
+          }
+        }
+      },
+      'items': {
+        handler: function (newItems, oldsItems) {
+          if (!_.isEqual(newItems, oldsItems)) {
+            this.$emit('update', newItems)
           }
         }
       }

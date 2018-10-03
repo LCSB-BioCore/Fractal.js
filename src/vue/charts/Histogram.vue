@@ -1,25 +1,27 @@
 <template>
     <chart v-on:resize="resize">
         <control-panel name="Histogram Panel">
-            <data-box header="Numerical Variable"
+            <data-box :header="params.numVars.label"
                       :data-types="['numerical']"
-                      v-on:update="update_numericData"
-                      :valid-range="[1, 1]">
+                      v-on:update="updateNumVars"
+                      v-on:select="updateNumVarsSelection"
+                      :valid-range="[params.numVars.minLength, params.numVars.maxLength]">
             </data-box>
-            <data-box header="Categorical Variables"
+            <data-box :header="params.catVars.label"
                       :data-types="['categorical']"
-                      v-on:update="update_categoricData"
-                      :valid-range="[0, Infinity]">
+                      v-on:update="updateCatVars"
+                      v-on:select="updateCatVarsSelection"
+                      :valid-range="[params.catVars.minLength, params.catVars.maxLength]">
             </data-box>
             <hr class="fjs-seperator"/>
             <div class="fjs-params">
                 <label>
                     Bandwidth Factor:
-                    <input type="number" min="0.1" step="0.1" v-model.lazy.number="params.bwFactor"/>
+                    <input type="number" :min="params.bwFactor.min" step="0.1" v-model.lazy.number="params.bwFactor.value"/>
                 </label>
                 <label>
                     Number of Bins:
-                    <input type="number" min="2" step="1" v-model.lazy.number="params.numBins"/>
+                    <input type="number" :min="params.numBins.min" step="1" v-model.lazy.number="params.numBins.value"/>
                 </label>
             </div>
         </control-panel>
@@ -97,12 +99,38 @@
         height: 0,
         width: 0,
         params: {
-          numericData: [],
-          categoryData: [],
-          bwFactor: 0.5,
-          numBins: 10,
-          selectedPoints: []
+          numVars: {
+            type: Array,
+            elementType: String,
+            label: 'Numerical Variables',
+            validValues: [],
+            minLength: 1,
+            maxLength: 1,
+            value: []
+          },
+          catVars: {
+            type: Array,
+            elementType: String,
+            label: 'Categorical Variables',
+            validValues: [],
+            minLength: 0,
+            maxLength: Infinity,
+            value: []
+          },
+          bwFactor: {
+            type: Number,
+            min: 0.1,
+            max: Infinity,
+            value: 0.5
+          },
+          numBins: {
+            type: Number,
+            min: 2,
+            max: 50,
+            value: 10
+          }
         },
+        selectedPoints: [],
         hasSetFilter: false,
         results: {
           data: [],
@@ -120,12 +148,12 @@
       },
       args () {
         return {
-          bw_factor: this.params.bwFactor,
-          num_bins: this.params.numBins,
+          bw_factor: this.params.bwFactor.value,
+          num_bins: this.params.numBins.value,
           id_filter: this.idFilter.value,
           subsets: store.getters.subsets,
-          data: this.params.numericData,
-          categories: this.params.categoryData
+          data: this.params.numVars.value[0],
+          categories: this.params.catVars.value
         }
       },
       margin () {
@@ -223,10 +251,10 @@
             this.error = ''
             if (!d3.event.sourceEvent) { return }
             if (!d3.event.selection) {
-              this.params.selectedPoints = []
+              this.selectedPoints = []
             } else {
               const [x0, x1] = d3.event.selection
-              this.params.selectedPoints = this.results.data.filter(d => {
+              this.selectedPoints = this.results.data.filter(d => {
                 return x0 <= this.scales.x(d.value) && this.scales.x(d.value) <= x1
               })
               this.hasSetFilter = true
@@ -234,7 +262,7 @@
             store.dispatch('setFilter', {
               source: this._uid,
               filter: 'ids',
-              value: this.params.selectedPoints.map(d => d.id)
+              value: this.selectedPoints.map(d => d.id)
             })
           })
       }
@@ -254,14 +282,20 @@
         this.width = width
         this.height = height
       },
-      update_numericData (ids) {
-        this.params.numericData = ids[0]
-      },
-      update_categoricData (ids) {
-        this.params.categoryData = ids
-      },
       getGroupName (category, subset) {
         return `${this.results.label} [${category}] [s${subset + 1}]`
+      },
+      updateNumVars (ids) {
+        this.params.numVars.validValues = ids
+      },
+      updateCatVars (ids) {
+        this.params.catVars.validValues = ids
+      },
+      updateNumVarsSelection (ids) {
+        this.params.numVars.value = ids
+      },
+      updateCatVarsSelection (ids) {
+        this.params.catVars.value = ids
       }
     },
     watch: {

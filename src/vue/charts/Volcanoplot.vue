@@ -1,18 +1,19 @@
 <template>
     <chart v-on:resize="resize">
         <control-panel name="Volcanoplot Panel">
-            <data-box header="Numerical Array Variables"
+            <data-box :header="params.numVars.label"
                       :data-types="['numerical_array']"
-                      :validRange="[1, Infinity]"
-                      v-on:update="update_arrays">
+                      :validRange="[params.numVars.minLength, params.numVars.maxLength]"
+                      v-on:select="updateNumVarsSelection"
+                      v-on:update="updateNumVars">
             </data-box>
             <hr class="fjs-seperator"/>
             <div class="fjs-settings">
                 <fieldset class="fjs-fieldset">
                     <legend>Differential Expression Analysis</legend>
-                    <div v-for="method in rankingMethods">
+                    <div v-for="method in params.rankingMethod.validValues">
                         <label>
-                            <input type="radio" :value="method" v-model="rankingMethod">
+                            <input type="radio" :value="method" v-model="params.rankingMethod.value">
                             {{ method }}
                         </label>
                     </div>
@@ -20,27 +21,27 @@
                 <div class="fjs-axis-params">
                     <label>
                         X-Axis
-                        <select v-model="xAxisTransform">
-                            <option :value="d" v-for="d in Object.keys(transformations)">{{ d }}</option>
+                        <select v-model="params.xAxisTransform.value">
+                            <option :value="d" v-for="d in Object.keys(params.xAxisTransform.validValues)">{{ d }}</option>
                         </select>
-                        <select v-model="xAxisStatistic">
+                        <select v-model="params.xAxisStatistic.value">
                             <option :value="d" v-for="d in statistics">{{ d }}</option>
                         </select>
                     </label>
                     <label>
                         Y-Axis
-                        <select v-model="yAxisTransform">
-                            <option :value="d" v-for="d in Object.keys(transformations)">{{ d }}</option>
+                        <select v-model="params.yAxisTransform.value">
+                            <option :value="d" v-for="d in Object.keys(params.yAxisTransform.validValues)">{{ d }}</option>
                         </select>
-                        <select v-model="yAxisStatistic">
+                        <select v-model="params.yAxisStatistic.value">
                             <option :value="d" v-for="d in statistics">{{ d }}</option>
                         </select>
                     </label>
                 </div>
-                <div v-if="rankingMethod === 'DESeq2'">
+                <div v-if="params.rankingMethod.value === 'DESeq2'">
                     <label>
                         Minimal total reads:
-                        <input type="number" v-model.number="params.min_total_row_count"/>
+                        <input type="number" v-model.number="params.minTotalRowCount.value"/>
                     </label>
                 </div>
             </div>
@@ -54,8 +55,8 @@
                            v-show="Object.keys(brushSelection).length > 0">
                         <tr id="table-colnames">
                             <td>Feature</td>
-                            <td>{{ xAxisStatistic }}</td>
-                            <td>{{ yAxisStatistic }}</td>
+                            <td>{{ params.xAxisStatistic.value }}</td>
+                            <td>{{ params.yAxisStatistic.value }}</td>
                         </tr>
                         <tr @mouseover="highlightedFeature = d.feature"
                             @mouseout="highlightedFeature = ''"
@@ -72,22 +73,22 @@
                 <g class="fjs-axis" ref="xAxis2"></g>
                 <text class="fjs-axis-label"
                       :transform="`translate(${padded.width / 2}, ${padded.height})`">
-                    {{ `${xAxisTransform}(${xAxisStatistic})` }}
+                    {{ `${params.xAxisTransform.value}(${params.xAxisStatistic.value})` }}
                 </text>
                 <text class="fjs-axis-label"
                       style="dominant-baseline: hanging"
                       :transform="`translate(${0}, ${padded.height / 2})rotate(-90)`">
-                    {{ `${yAxisTransform}(${yAxisStatistic})` }}
+                    {{ `${params.yAxisTransform.value}(${params.yAxisStatistic.value})` }}
                 </text>
                 <text class="fjs-axis-label"
                       style="dominant-baseline: hanging"
                       :transform="`translate(${padded.width / 2}, ${0})`">
-                    {{ `${xAxisStatistic}` }}
+                    {{ `${params.xAxisStatistic.value}` }}
                 </text>
                 <text class="fjs-axis-label"
                       style="dominant-baseline: hanging"
                       :transform="`translate(${padded.width}, ${padded.height / 2})rotate(90)`">
-                    {{ `${yAxisStatistic}` }}
+                    {{ `${params.yAxisStatistic.value}` }}
                 </text>
                 <crosshair :width="padded.width" :height="padded.height"/>
                 <image :xlink:href="dataUrl" :width="padded.width" :height="padded.height"></image>
@@ -118,13 +119,48 @@
       return {
         height: 0,
         width: 0,
-        arrays: [],
-        rankingMethod: 'limma',
-        rankingMethods: ['limma', 'DESeq2'],
-        xAxisStatistic: '',
-        yAxisStatistic: '',
-        xAxisTransform: 'identity',
-        yAxisTransform: '-log10',
+        params: {
+          numVars: {
+            type: Array,
+            elementType: String,
+            label: 'Numerical Variables',
+            validValues: [],
+            minLength: 1,
+            maxLength: Infinity,
+            value: []
+          },
+          rankingMethod: {
+            type: String,
+            validValues: ['limma', 'DESeq2'],
+            value: 'limma'
+          },
+          minTotalRowCount: {
+            type: Number,
+            min: 0,
+            max: Infinity,
+            value: 10
+          },
+          xAxisTransform: {
+            type: String,
+            validValues: ['log2', '-log2', 'log10', '-log10', 'identity'],
+            value: 'identity'
+          },
+          yAxisTransform: {
+            ype: String,
+            validValues: ['log2', '-log2', 'log10', '-log10', 'identity'],
+            value: '-log10'
+          },
+          xAxisStatistic: {
+            type: String,
+            validValues: [],
+            value: ''
+          },
+          yAxisStatistic: {
+            type: String,
+            validValues: [],
+            value: ''
+          }
+        },
         transformations: {
           'log2': Math.log2,
           '-log2': d => -Math.log2(d),
@@ -145,9 +181,6 @@
           top: 0
         },
         highlightedFeature: '',
-        params: {
-          min_total_row_count: 10
-        },
         results: {
           stats: { feature: [] }
         },
@@ -158,10 +191,10 @@
     computed: {
       args () {
         return {
-          numerical_arrays: this.arrays,
+          numerical_arrays: this.params.numVars.value,
           id_filter: store.getters.filter('ids').value,
-          params: this.params,
-          ranking_method: this.rankingMethod,
+          params: { min_total_row_count: this.params.minTotalRowCount.value }, // FIXME: Refactor me (back-end too)
+          ranking_method: this.params.rankingMethod.value,
           subsets: store.getters.subsets
         }
       },
@@ -191,8 +224,8 @@
         const ys = []
         const features = []
         this.results.stats.feature.forEach((feature, i) => {
-          const x = this.transformations[this.xAxisTransform](this.results.stats[this.xAxisStatistic][i])
-          const y = this.transformations[this.yAxisTransform](this.results.stats[this.yAxisStatistic][i])
+          const x = this.transformations[this.params.xAxisTransform.value](this.results.stats[this.params.xAxisStatistic.value][i])
+          const y = this.transformations[this.params.yAxisTransform.value](this.results.stats[this.params.yAxisStatistic.value][i])
           if (isFinite(x) && isFinite(y)) {
             xs.push(x)
             ys.push(y)
@@ -229,22 +262,22 @@
         const x1 = d3.axisBottom(this.scales.x)
         const y1 = d3.axisLeft(this.scales.y)
         const x2 = d3.axisTop(this.scales.x)
-          .tickFormat(d => this.inverseTransformations[this.xAxisTransform](d).toPrecision(2))
+          .tickFormat(d => this.inverseTransformations[this.params.xAxisTransform.value](d).toPrecision(2))
           .tickSize(-this.padded.height)
         const y2 = d3.axisRight(this.scales.y)
-          .tickFormat(d => this.inverseTransformations[this.yAxisTransform](d).toPrecision(2))
+          .tickFormat(d => this.inverseTransformations[this.params.yAxisTransform.value](d).toPrecision(2))
           .tickSize(-this.padded.width)
         return {x1, x2, y1, y2}
       },
       statistics () {
-        if ((this.rankingMethod === 'limma') && (store.getters.subsets.length === 2)) {
+        if ((this.params.rankingMethod.value === 'limma') && (store.getters.subsets.length === 2)) {
           return ['logFC', 'P.Value', 'feature', 'AveExpr', 't', 'adj.P.Val', 'B']
-        } else if ((this.rankingMethod === 'limma') && (store.getters.subsets.length > 2)) {
+        } else if ((this.params.rankingMethod.value === 'limma') && (store.getters.subsets.length > 2)) {
           return ['F', 'P.Value', 'feature', 'AveExpr', 'adj.P.Val']
-        } else if (this.rankingMethod === 'DESeq2') {
+        } else if (this.params.rankingMethod.value === 'DESeq2') {
           return ['log2FoldChange', 'pvalue', 'baseMean', 'lfcSE', 'stat', 'padj', 'feature']
         } else {
-          throw new Error(`Unknown ranking method: ${this.rankingMethod}`)
+          throw new Error(`Unknown ranking method: ${this.params.rankingMethod.value}`)
         }
       },
       brush () {
@@ -272,8 +305,8 @@
         return this.selectedFeatures.map(d => {
           const i = this.results.stats.feature.findIndex(e => e === d.feature)
           const feature = this.results.stats.feature[i]
-          const xStat = this.results.stats[this.xAxisStatistic][i].toPrecision(2)
-          const yStat = this.results.stats[this.yAxisStatistic][i].toPrecision(2)
+          const xStat = this.results.stats[this.params.xAxisStatistic.value][i].toPrecision(2)
+          const yStat = this.results.stats[this.params.yAxisStatistic.value][i].toPrecision(2)
           return { feature, xStat, yStat }
         })
       }
@@ -282,9 +315,6 @@
       resize (width, height) {
         this.width = width
         this.height = height
-      },
-      update_arrays (ids) {
-        this.arrays = ids
       },
       runAnalysisWrapper (args) {
         this.runAnalysis('compute-volcanoplot', args)
@@ -310,6 +340,12 @@
           ctx.fillRect(d.x - pointSize / 2, d.y - pointSize / 2, pointSize, pointSize)
         })
         this.dataUrl = this.canvas.toDataURL('image/png')
+      },
+      updateNumVars (ids) {
+        this.params.numVars.validValues = ids
+      },
+      updateNumVarsSelection (ids) {
+        this.params.numVars.values = ids
       }
     },
     watch: {
@@ -333,8 +369,10 @@
       'statistics': {
         handler: function (newStats, oldStats) {
           if (!_.isEqual(newStats, oldStats)) {
-            this.xAxisStatistic = newStats[0]
-            this.yAxisStatistic = newStats[1]
+            this.params.xAxisStatistic.value = newStats[0]
+            this.params.yAxisStatistic.value = newStats[1]
+            this.params.xAxisStatistic.validValues = newStats
+            this.params.yAxisStatistic.validValues = newStats
             this.results.stats = _.zipObject(newStats, _.times(newStats.length, () => []))
           }
         },

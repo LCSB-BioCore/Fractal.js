@@ -67,14 +67,25 @@ class FractalJS {
     store.dispatch('setSubsets', [])
   }
 
+  // FIXME: temporarily disabled. Focus on stabilizing core functionality for now.
+  // // noinspection JSMethodCanBeStatic
+  // chart2id (vm, callback) {
+  //   return store.getters.stateManager.chart2id(vm, callback)
+  // }
+  //
+  // // noinspection JSMethodCanBeStatic
+  // id2chart (selector, stateID) {
+  //   return store.getters.stateManager.id2chart(selector, stateID)
+  // }
+
   // noinspection JSMethodCanBeStatic
-  chart2id (vm, callback) {
-    return store.getters.stateManager.chart2id(vm, callback)
+  getChartParameterDescription (vm) {
+    return store.getters.chartManager.getChartParamDescr(vm)
   }
 
   // noinspection JSMethodCanBeStatic
-  id2chart (selector, stateID) {
-    return store.getters.stateManager.id2chart(selector, stateID)
+  setChartParameter (vm, parameter) {
+    store.getters.chartManager.setChartParams(vm, parameter)
   }
 }
 

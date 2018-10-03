@@ -2,14 +2,17 @@
   <chart v-on:resize="resize">
 
     <control-panel name="PCA Panel">
-      <data-box header="Numerical Variables"
+      <data-box :header="params.numVars.label"
                 :dataTypes="['numerical', 'numerical_array']"
-                :validRange="[2, Infinity]"
-                v-on:update="update_featureData">
+                :validRange="[params.numVars.minLength, params.numVars.maxLength]"
+                v-on:select="updateNumVarsSelection"
+                v-on:update="updateNumVars">
       </data-box>
-      <data-box header="Categorical Variables"
+      <data-box :header="params.catVars.label"
                 :dataTypes="['categorical']"
-                v-on:update="update_categoryData">
+                :validRange="[params.catVars.minLength, params.catVars.maxLength]"
+                v-on:select="updateCatVarsSelection"
+                v-on:update="updateCatVars">
       </data-box>
       <hr class="fjs-seperator"/>
       <div>
@@ -29,13 +32,13 @@
       </div>
       <div>
         <label>
-          <input type="checkbox" v-model="params.whiten"/>
+          <input type="checkbox" v-model="params.whiten.value"/>
           Whiten Output
         </label>
       </div>
       <div>
         <label>
-          <input type="checkbox" v-model="params.ignoreSubsets"/>
+          <input type="checkbox" v-model="params.ignoreSubsets.value"/>
           Ignore Subsets
         </label>
       </div>
@@ -46,13 +49,13 @@
         <html2svg :right="padded.width">
           <draggable>
             <div class="fjs-legend">
-              <div v-for="point, i in legendSubsetPoints">
+              <div v-for="(point, i) in legendSubsetPoints">
                 <svg :width="pointSize * 2" :height="pointSize * 2">
                   <polygon :points="point"></polygon>
                 </svg>
                 <span>S{{ i + 1 }}</span>
               </div>
-              <div class="fjs-legend-category" v-for="color, i in legendCategoryColors">
+              <div class="fjs-legend-category" v-for="(color, i) in legendCategoryColors">
                 <div :style="{background: color}"></div>
                 <span>&nbsp{{ categories[i] }}</span>
               </div>
@@ -135,8 +138,34 @@
       return {
         height: 0,
         width: 0,
-        featureData: [],
-        categoryData: [],
+        params: {
+          numVars: {
+            type: Array,
+            elementType: String,
+            label: 'Numerical Variables',
+            validValues: [],
+            minLength: 2,
+            maxLength: Infinity,
+            value: []
+          },
+          catVars: {
+            type: Array,
+            elementType: String,
+            label: 'Categorical Variables',
+            validValues: [],
+            minLength: 0,
+            maxLength: Infinity,
+            value: []
+          },
+          whiten: {
+            type: Boolean,
+            value: false
+          },
+          ignoreSubsets: {
+            type: Boolean,
+            value: false
+          }
+        },
         results: {
           data: {
             0: [],
@@ -158,10 +187,6 @@
         subsetColors: d3.schemeCategory10.slice().reverse(),
         selectedPoints: [],
         hasSetFilter: false,
-        params: {
-          whiten: false,
-          ignoreSubsets: false
-        },
         dataUrls: {
           main: '',
           xDist: '',
@@ -177,9 +202,9 @@
         return {
           features: this.featureData,
           categories: this.categoryData,
-          whiten: this.params.whiten,
+          whiten: this.params.whiten.value,
           id_filter: this.idFilter.value,
-          subsets: this.params.ignoreSubsets ? [] : store.getters.subsets
+          subsets: this.params.ignoreSubsets.value ? [] : store.getters.subsets
         }
       },
       validArgs () {
@@ -413,11 +438,17 @@
         this.width = width
         this.height = height
       },
-      update_featureData (ids) {
-        this.featureData = ids
+      updateNumVars (ids) {
+        this.params.numVars.validValues = ids
       },
-      update_categoryData (ids) {
-        this.categoryData = ids
+      updateCatVars (ids) {
+        this.params.catVars.validValues = ids
+      },
+      updateNumVarsSelection (ids) {
+        this.params.numVars.value = ids
+      },
+      updateCatVarsSelection (ids) {
+        this.params.catVars.value = ids
       }
     },
     components: {
@@ -434,12 +465,7 @@
     mixins: [
       StateSaver,
       RunAnalysis
-    ],
-    mounted () {
-      this.registerDataToSave([
-        'featureData', 'categoryData', 'pcX', 'pcY', 'params'
-      ])
-    }
+    ]
   }
 </script>
 

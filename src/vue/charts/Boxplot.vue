@@ -2,52 +2,55 @@
   <chart v-on:resize="resize">
 
     <control-panel name="Boxplot Panel">
-      <data-box header="Numerical Variables"
+      <data-box :header="params.numVars.label"
                 :dataTypes="['numerical', 'numerical_array']"
-                :validRange="[1, Infinity]"
-                v-on:update="update_numData">
+                :validRange="[params.numVars.minLength, params.numVars.maxLength]"
+                v-on:select="updateNumVarsSelection"
+                v-on:update="updateNumVars">
       </data-box>
-      <data-box header="Categorical Variables"
+      <data-box :header="params.catVars.label"
                 :dataTypes="['categorical']"
-                v-on:update="update_catData">
+                :validRange="[params.catVars.minLength, params.catVars.maxLength]"
+                v-on:select="updateCatVarsSelection"
+                v-on:update="updateCatVars">
       </data-box>
       <hr class="fjs-seperator"/>
       <div class="fjs-parameter-container">
         <div>
           <label>
             Data transformation:
-            <select class="fjs-transformation-select" v-model="params.transformation">
-              <option v-for="t in transformations">{{ t }}</option>
+            <select class="fjs-transformation-select" v-model="params.transformation.value">
+              <option v-for="t in params.transformation.validValues">{{ t }}</option>
             </select>
           </label>
         </div>
         <div>
           <label>
-            <input type="checkbox" v-model="params.showOutliers"/>
+            <input type="checkbox" v-model="params.showOutliers.value"/>
             Show Outliers
           </label>
         </div>
         <div>
           <label>
-            <input type="checkbox" v-model="params.showData"/>
+            <input type="checkbox" v-model="params.showData.value"/>
             Show Points
           </label>
         </div>
         <div>
           <label>
-            <input type="checkbox" v-model="params.jitter"/>
+            <input type="checkbox" v-model="params.jitter.value"/>
             Jitter Data
           </label>
         </div>
         <div>
           <label>
-            <input type="checkbox" v-model="params.showKDE"/>
+            <input type="checkbox" v-model="params.showKDE.value"/>
             Show Density Est.
           </label>
         </div>
         <div>
           <label>
-            <input type="checkbox" v-model="params.ignoreSubsets"/>
+            <input type="checkbox" v-model="params.ignoreSubsets.value"/>
             Ignore Subsets
           </label>
         </div>
@@ -153,7 +156,7 @@
           </image>
           <polyline class="fjs-kde"
                     :points="kdePolyPoints[label]"
-                    v-if="params.showKDE">
+                    v-if="params.showKDE.value">
           </polyline>
         </g>
       </g>
@@ -177,16 +180,50 @@
     name: 'boxplot',
     data () {
       return {
-        numData: [],
-        catData: [],
-        transformations: ['identity', 'log2(x)', 'log10(x)', '2^x', '10^x'],
         params: {
-          showOutliers: true,
-          showData: false,
-          jitter: false,
-          showKDE: false,
-          ignoreSubsets: false,
-          transformation: 'identity'
+          numVars: {
+            type: Array,
+            elementType: String,
+            label: 'Numerical Variables',
+            validValues: [],
+            minLength: 1,
+            maxLength: Infinity,
+            value: []
+          },
+          catVars: {
+            type: Array,
+            elementType: String,
+            label: 'Categorical Variables',
+            validValues: [],
+            minLength: 0,
+            maxLength: Infinity,
+            value: []
+          },
+          showOutliers: {
+            type: Boolean,
+            value: true
+          },
+          showData: {
+            type: Boolean,
+            value: false
+          },
+          jitter: {
+            type: Boolean,
+            value: false
+          },
+          showKDE: {
+            type: Boolean,
+            value: false
+          },
+          ignoreSubsets: {
+            type: Boolean,
+            value: false
+          },
+          transformation: {
+            type: String,
+            value: 'identity',
+            validValues: ['identity', 'log2(x)', 'log10(x)', '2^x', '10^x']
+          }
         },
         width: 0,
         height: 0,
@@ -212,8 +249,8 @@
           features: this.numData,
           categories: this.catData,
           id_filter: this.idFilter.value,
-          transformation: this.params.transformation,
-          subsets: this.params.ignoreSubsets ? [] : store.getters.subsets
+          transformation: this.params.transformation.value,
+          subsets: this.params.ignoreSubsets.value ? [] : store.getters.subsets
         }
       },
       pointSize () {
@@ -253,13 +290,13 @@
             .filter(d => d.subset === subset &&
               d.feature === feature &&
               d.category === category &&
-              (this.params.showOutliers ? true : !d.outlier) &&
+              (this.params.showOutliers.value ? true : !d.outlier) &&
               typeof d.value === 'number')
             .map(d => {
               return {
                 id: d.id,
                 value: d.value,
-                jitter: Math.max(this.pointSize / 2, (this.params.jitter ? Math.random() * this.boxplotWidth / 2 : this.boxplotWidth / 2) - this.pointSize / 2),
+                jitter: Math.max(this.pointSize / 2, (this.params.jitter.value ? Math.random() * this.boxplotWidth / 2 : this.boxplotWidth / 2) - this.pointSize / 2),
                 subset: d.subset,
                 category: d.category,
                 outlier: d.outlier
@@ -294,7 +331,7 @@
       },
       scales () {
         const values = this.results.data
-          .filter(d => this.params.showOutliers ? true : !d.outlier)
+          .filter(d => this.params.showOutliers.value ? true : !d.outlier)
           .map(d => d.value)
         const flattened = [].concat.apply([], values)
         const extent = d3.extent(flattened)
@@ -359,10 +396,10 @@
           })
         }
       },
-      'params.showData': {
+      'params.showData.value': {
         handler: function () { this.$nextTick(() => this.drawPoints()) }
       },
-      'params.jitter': {
+      'params.jitter.value': {
         handler: function () { this.$nextTick(() => this.drawPoints()) }
       },
       'points': {
@@ -391,12 +428,6 @@
       hideTooltip (label) {
         this.getTippyInstances(label).forEach(d => d.hide())
       },
-      update_numData (ids) {
-        this.numData = ids
-      },
-      update_catData (ids) {
-        this.catData = ids
-      },
       setIDFilter (label) {
         if (label === this.selectedLabel) {
           store.dispatch('setFilter', {source: this._uid, filter: 'ids', value: []})
@@ -413,7 +444,7 @@
           const canvas = this.canvas[label]
           const ctx = canvas.getContext('2d')
           ctx.clearRect(0, 0, canvas.width, canvas.height)
-          if (this.params.showData) {
+          if (this.params.showData.value) {
             this.points[label].forEach(point => {
               ctx.beginPath()
               ctx.fillStyle = point.outlier ? '#f00' : '#000'
@@ -442,6 +473,18 @@
             this.results = results
           })
           .catch(error => console.error(error))
+      },
+      updateNumVars (ids) {
+        this.params.numVars.validValues = ids
+      },
+      updateCatVars (ids) {
+        this.params.catVars.validValues = ids
+      },
+      updateNumVarsSelection (ids) {
+        this.params.numVars.value = ids
+      },
+      updateCatVarsSelection (ids) {
+        this.params.catVars.value = ids
       }
     },
     components: {
@@ -455,11 +498,6 @@
     ],
     directives: {
       tooltip
-    },
-    mounted () {
-      this.registerDataToSave([
-        'catData', 'numData', 'params'
-      ])
     }
   }
 </script>

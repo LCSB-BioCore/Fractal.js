@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import _ from 'lodash'
 
 export default class {
   constructor () {
@@ -45,5 +46,21 @@ export default class {
 
   getAvailableCharts () {
     return Object.keys(this.availableCharts)
+  }
+
+  getChartParamDescr (vm) {
+    if (typeof vm.params === 'undefined') {
+      throw new Error('This chart does not expose any parameters. This is a bug that you should report.')
+    }
+    return _.cloneDeep(vm.params)
+  }
+
+  setChartParameter (vm, params) {
+    Object.keys(params).forEach(key => {
+      if (typeof vm.params[key] === 'undefined') {
+        throw new Error(`Parameter "${key}" does not exist for this chart.`)
+      }
+      vm.params[key].value = params[key]
+    })
   }
 }

@@ -1,18 +1,23 @@
 <template>
     <chart v-on:resize="resize">
         <control-panel name="Survivalplot Panel">
-            <data-box header="Duration [numerical]"
+            <data-box :header="params.durationVars.label"
                       :data-types="['numerical']"
-                      :validRange="[1, 1]"
-                      v-on:update="updateDurationVariable">
+                      :validRange="[params.durationVars.minLength, params.durationVars.maxLength]"
+                      v-on:select="updateDurationVarsSelection"
+                      v-on:update="updateDurationVars">
             </data-box>
-            <data-box header="Groups (optional) [categorical]"
+            <data-box :header="params.groupVars.label"
                       :data-types="['categorical']"
-                      v-on:update="updateGroupVariable">
+                      :validRange="[params.groupVars.minLength, params.groupVars.maxLength]"
+                      v-on:select="updateGroupVarsSelection"
+                      v-on:update="updateGroupVars">
             </data-box>
-            <data-box header="Observed (optional) [categorical]"
+            <data-box :header="params.observedVars.label"
                       :data-types="['categorical']"
-                      v-on:update="updateObservedVariable">
+                      :validRange="[params.observedVars.minLength, params.observedVars.maxLength]"
+                      v-on:select="updateObservedVarsSelection"
+                      v-on:update="updateObservedVars">
             </data-box>
             <hr class="fjs-seperator"/>
             <div class="fjs-settings">
@@ -94,12 +99,44 @@
       return {
         height: 0,
         width: 0,
-        durationVariables: [],
-        groupVariables: [],
-        observedVariables: [],
-        estimator: 'KaplanMeier',
-        estimators: ['KaplanMeier', 'NelsonAalen'],
-        ignoreSubsets: false,
+        params: {
+          durationVars: {
+            type: Array,
+            elementType: String,
+            label: 'Duration [numerical]',
+            validValues: [],
+            minLength: 1,
+            maxLength: 1,
+            value: []
+          },
+          groupVars: {
+            type: Array,
+            elementType: String,
+            label: 'Groups (optional) [categorical]',
+            validValues: [],
+            minLength: 0,
+            maxLength: Infinity,
+            value: []
+          },
+          observedVars: {
+            type: Array,
+            elementType: String,
+            label: 'Observed (optional) [categorical]',
+            validValues: [],
+            minLength: 0,
+            maxLength: Infinity,
+            value: []
+          },
+          estimator: {
+            type: String,
+            validValues: ['KaplanMeier', 'NelsonAalen'],
+            value: 'KaplanMeier'
+          },
+          ignoreSubsets: {
+            type: Boolean,
+            value: false
+          }
+        },
         groupColors: d3.schemeCategory10,
         results: {
           subsets: [],
@@ -111,16 +148,16 @@
     computed: {
       args () {
         return {
-          durations: this.durationVariables,
-          categories: this.groupVariables,
-          event_observed: this.observedVariables,
-          estimator: this.estimator,
+          durations: this.params.durationVars.value,
+          categories: this.params.groupVars.value,
+          event_observed: this.params.observedVars.value,
+          estimator: this.params.estimator.value,
           id_filter: store.getters.filter('ids').value,
-          subsets: this.ignoreSubsets ? [] : store.getters.subsets
+          subsets: this.params.ignoreSubsets.value ? [] : store.getters.subsets
         }
       },
       validArgs () {
-        return this.durationVariables.length === 1
+        return this.params.durationVars.value.length === 1
       },
       margin () {
         const left = this.width / 15
@@ -231,15 +268,6 @@
       }
     },
     methods: {
-      updateDurationVariable (ids) {
-        this.durationVariables = ids
-      },
-      updateGroupVariable (ids) {
-        this.groupVariables = ids
-      },
-      updateObservedVariable (ids) {
-        this.observedVariables = ids
-      },
       resize (width, height) {
         this.width = width
         this.height = height
@@ -255,6 +283,24 @@
       },
       getGroupName (category, subset) {
         return `${this.results.label} [${category}] [s${subset + 1}]`
+      },
+      updateDurationVars (ids) {
+        this.params.durationVars.validValues = ids
+      },
+      updateGroupVars (ids) {
+        this.params.groupVars.validValues = ids
+      },
+      updateObservedVars (ids) {
+        this.params.observedVars.validValues = ids
+      },
+      updateDurationVarsSelection (ids) {
+        this.params.durationVars.value = ids
+      },
+      updateGroupVarsSelection (ids) {
+        this.params.groupVars.value = ids
+      },
+      updateObservedVarsSelection (ids) {
+        this.params.observedVars.value = ids
       }
     },
     watch: {
