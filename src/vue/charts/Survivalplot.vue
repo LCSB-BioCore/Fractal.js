@@ -22,18 +22,18 @@
             <hr class="fjs-seperator"/>
             <div class="fjs-settings">
                 <fieldset class="fjs-fieldset">
-                    <legend>Estimator</legend>
-                    <div v-for="method in estimators">
+                    <legend>{{ params.estimator.label }}</legend>
+                    <div v-for="method in params.estimator.validValues">
                         <label>
-                            <input type="radio" :value="method" v-model="estimator">
+                            <input type="radio" :value="method" v-model="params.estimator.value">
                             {{ method }}
                         </label>
                     </div>
                 </fieldset>
                 <div>
                     <label>
-                        Ignore Subsets
-                        <input type="checkbox" v-model="ignoreSubsets"/>
+                        {{ params.ignoreSubsets.label }}
+                        <input type="checkbox" v-model="params.ignoreSubsets.value"/>
                     </label>
                 </div>
             </div>
@@ -84,6 +84,7 @@
   import Chart from '../components/Chart.vue'
   import DataBox from '../components/DataBox.vue'
   import RunAnalysis from '../mixins/run-analysis'
+  import ParameterInterface from '../mixins/parameter-interface'
   import store from '../../store/store'
   import deepFreeze from 'deep-freeze-strict'
   import * as d3 from 'd3'
@@ -94,45 +95,47 @@
   export default {
     name: 'survivalplot',
     components: {Draggable, Html2svg, Crosshair, DataBox, Chart, ControlPanel},
-    mixins: [RunAnalysis],
+    mixins: [RunAnalysis, ParameterInterface],
     data () {
       return {
         height: 0,
         width: 0,
         params: {
           durationVars: {
+            label: 'Duration [numerical]',
             type: Array,
             elementType: String,
-            label: 'Duration [numerical]',
             validValues: [],
             minLength: 1,
             maxLength: 1,
             value: []
           },
           groupVars: {
+            label: 'Groups (optional) [categorical]',
             type: Array,
             elementType: String,
-            label: 'Groups (optional) [categorical]',
             validValues: [],
             minLength: 0,
             maxLength: Infinity,
             value: []
           },
           observedVars: {
+            label: 'Observed (optional) [categorical]',
             type: Array,
             elementType: String,
-            label: 'Observed (optional) [categorical]',
             validValues: [],
             minLength: 0,
             maxLength: Infinity,
             value: []
           },
           estimator: {
+            label: 'Estimator',
             type: String,
             validValues: ['KaplanMeier', 'NelsonAalen'],
             value: 'KaplanMeier'
           },
           ignoreSubsets: {
+            label: 'Ignore Subsets',
             type: Boolean,
             value: false
           }
@@ -144,6 +147,9 @@
           stats: {}
         }
       }
+    },
+    mounted () {
+      this.registerParameterObjectInterface('params')
     },
     computed: {
       args () {

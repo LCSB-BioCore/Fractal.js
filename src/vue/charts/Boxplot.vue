@@ -18,7 +18,7 @@
       <div class="fjs-parameter-container">
         <div>
           <label>
-            Data transformation:
+            {{ params.transformation.label }}:
             <select class="fjs-transformation-select" v-model="params.transformation.value">
               <option v-for="t in params.transformation.validValues">{{ t }}</option>
             </select>
@@ -27,31 +27,31 @@
         <div>
           <label>
             <input type="checkbox" v-model="params.showOutliers.value"/>
-            Show Outliers
+            {{ params.showOutliers.label }}
           </label>
         </div>
         <div>
           <label>
             <input type="checkbox" v-model="params.showData.value"/>
-            Show Points
+            {{ params.showData.label }}
           </label>
         </div>
         <div>
           <label>
             <input type="checkbox" v-model="params.jitter.value"/>
-            Jitter Data
+            {{ params.jitter.label }}
           </label>
         </div>
         <div>
           <label>
             <input type="checkbox" v-model="params.showKDE.value"/>
-            Show Density Est.
+            {{ params.showKDE.label }}
           </label>
         </div>
         <div>
           <label>
             <input type="checkbox" v-model="params.ignoreSubsets.value"/>
-            Ignore Subsets
+            {{ params.ignoreSubsets.label }}
           </label>
         </div>
 
@@ -174,7 +174,7 @@
   import * as d3 from 'd3'
   import deepFreeze from 'deep-freeze-strict'
   import tooltip from '../directives/tooltip'
-  import StateSaver from '../mixins/state-saver'
+  import ParameterInterface from '../mixins/parameter-interface'
   import getHDPICanvas from '../../utils/high-dpi-canvas'
   export default {
     name: 'boxplot',
@@ -182,44 +182,50 @@
       return {
         params: {
           numVars: {
+            label: 'Numerical Variables',
             type: Array,
             elementType: String,
-            label: 'Numerical Variables',
             validValues: [],
             minLength: 1,
             maxLength: Infinity,
             value: []
           },
           catVars: {
+            label: 'Categorical Variables',
             type: Array,
             elementType: String,
-            label: 'Categorical Variables',
             validValues: [],
             minLength: 0,
             maxLength: Infinity,
             value: []
           },
           showOutliers: {
+            label: 'Show Outliers',
             type: Boolean,
             value: true
           },
           showData: {
+            label: 'Show Points',
             type: Boolean,
             value: false
           },
           jitter: {
+            label: 'Jitter Data',
             type: Boolean,
             value: false
           },
           showKDE: {
+            label: 'Show Density Est.',
             type: Boolean,
             value: false
           },
           ignoreSubsets: {
+            label: 'Ignore Subsets',
             type: Boolean,
             value: false
           },
           transformation: {
+            label: 'Data transformation',
             type: String,
             value: 'identity',
             validValues: ['identity', 'log2(x)', 'log10(x)', '2^x', '10^x']
@@ -239,6 +245,9 @@
         },
         dataUrls: {}
       }
+    },
+    mounted () {
+      this.registerParameterObjectInterface('params')
     },
     computed: {
       idFilter () {
@@ -493,8 +502,8 @@
       Chart
     },
     mixins: [
-      StateSaver,
-      RunAnalysis
+      RunAnalysis,
+      ParameterInterface
     ],
     directives: {
       tooltip

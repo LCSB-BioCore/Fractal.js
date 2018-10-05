@@ -16,11 +16,11 @@
             <hr class="fjs-seperator"/>
             <div class="fjs-params">
                 <label>
-                    Bandwidth Factor:
+                    {{ params.bwFactor.label }}:
                     <input type="number" :min="params.bwFactor.min" step="0.1" v-model.lazy.number="params.bwFactor.value"/>
                 </label>
                 <label>
-                    Number of Bins:
+                    {{ params.numBins.label }}:
                     <input type="number" :min="params.numBins.min" step="1" v-model.lazy.number="params.numBins.value"/>
                 </label>
             </div>
@@ -77,6 +77,7 @@
   import Html2svg from '../components/HTML2SVG.vue'
   import Draggable from '../components/Draggable.vue'
   import tooltip from '../directives/tooltip'
+  import ParameterInterface from '../mixins/parameter-interface'
   import _ from 'lodash'
   export default {
     name: 'histogram',
@@ -89,7 +90,8 @@
       Crosshair
     },
     mixins: [
-      RunAnalysis
+      RunAnalysis,
+      ParameterInterface
     ],
     directives: {
       tooltip
@@ -100,30 +102,32 @@
         width: 0,
         params: {
           numVars: {
+            label: 'Numerical Variables',
             type: Array,
             elementType: String,
-            label: 'Numerical Variables',
             validValues: [],
             minLength: 1,
             maxLength: 1,
             value: []
           },
           catVars: {
+            label: 'Categorical Variables',
             type: Array,
             elementType: String,
-            label: 'Categorical Variables',
             validValues: [],
             minLength: 0,
             maxLength: Infinity,
             value: []
           },
           bwFactor: {
+            label: 'Bandwidth Factor',
             type: Number,
             min: 0.1,
             max: Infinity,
             value: 0.5
           },
           numBins: {
+            label: 'Number of Bins',
             type: Number,
             min: 2,
             max: 50,
@@ -141,6 +145,9 @@
         },
         groupColors: d3.schemeCategory10
       }
+    },
+    mounted () {
+      this.registerParameterObjectInterface('params')
     },
     computed: {
       idFilter () {

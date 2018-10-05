@@ -8,7 +8,6 @@
     </div>
     <div class="fjs-data-window" :class="{'fjs-invalid-range-window': !isInValidRange}">
       <div class="fjs-item" v-for="item in items">
-
         <div class="fjs-item-head">
           <input type="checkbox"
                  :value="item.task_id"
@@ -32,7 +31,6 @@
           </autocomplete>
           <span>{{ item.etl_message }}</span>
         </div>
-
       </div>
     </div>
   </div>

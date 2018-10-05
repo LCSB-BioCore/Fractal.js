@@ -10,7 +10,7 @@
             <hr class="fjs-seperator"/>
             <div class="fjs-settings">
                 <fieldset class="fjs-fieldset">
-                    <legend>Differential Expression Analysis</legend>
+                    <legend>{{ params.rankingMethod.label }}</legend>
                     <div v-for="method in params.rankingMethod.validValues">
                         <label>
                             <input type="radio" :value="method" v-model="params.rankingMethod.value">
@@ -40,7 +40,7 @@
                 </div>
                 <div v-if="params.rankingMethod.value === 'DESeq2'">
                     <label>
-                        Minimal total reads:
+                        {{ params.minTotalRowCount.label }}:
                         <input type="number" v-model.number="params.minTotalRowCount.value"/>
                     </label>
                 </div>
@@ -111,51 +111,58 @@
   import _ from 'lodash'
   import Html2svg from '../components/HTML2SVG.vue'
   import Draggable from '../components/Draggable.vue'
+  import ParameterInterface from '../mixins/parameter-interface'
   export default {
     name: 'volcanoplot',
     components: {Draggable, Html2svg, Crosshair, DataBox, ControlPanel, Chart},
-    mixins: [RunAnalysis],
+    mixins: [RunAnalysis, ParameterInterface],
     data () {
       return {
         height: 0,
         width: 0,
         params: {
           numVars: {
+            label: 'Numerical Variables',
             type: Array,
             elementType: String,
-            label: 'Numerical Variables',
             validValues: [],
             minLength: 1,
             maxLength: Infinity,
             value: []
           },
           rankingMethod: {
+            label: 'Differential Expression Analysis',
             type: String,
             validValues: ['limma', 'DESeq2'],
             value: 'limma'
           },
           minTotalRowCount: {
+            label: 'Minimal total reads',
             type: Number,
             min: 0,
             max: Infinity,
             value: 10
           },
           xAxisTransform: {
+            label: 'X-Axis Transform',
             type: String,
             validValues: ['log2', '-log2', 'log10', '-log10', 'identity'],
             value: 'identity'
           },
           yAxisTransform: {
+            label: 'Y-Axis Transform',
             ype: String,
             validValues: ['log2', '-log2', 'log10', '-log10', 'identity'],
             value: '-log10'
           },
           xAxisStatistic: {
+            label: 'X-Axis Statistic',
             type: String,
             validValues: [],
             value: ''
           },
           yAxisStatistic: {
+            label: 'Y-Axis Statistic',
             type: String,
             validValues: [],
             value: ''
@@ -187,6 +194,9 @@
         dataUrl: '',
         selectedFeatures: []
       }
+    },
+    mounted () {
+      this.registerParameterObjectInterface('params')
     },
     computed: {
       args () {

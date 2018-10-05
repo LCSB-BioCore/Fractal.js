@@ -16,14 +16,14 @@
       </data-box>
       <hr class="fjs-seperator"/>
       <fieldset class="fjs-fieldset">
-        <legend>Correlation Method</legend>
+        <legend>{{ params.method.label }}</legend>
         <label v-for="method in params.method.validValues">
           <input type="radio" :value="method" v-model="params.method.value">
-          Pearson
+          {{ method }}
         </label>
       </fieldset>
       <label>
-        Ignore Subsets:
+        {{ params.ignoreSubsets.label }}:
         <input type="checkbox" v-model="params.ignoreSubsets.value"/>
       </label>
     </control-panel>
@@ -108,7 +108,7 @@
   import Html2svg from '../components/HTML2SVG.vue'
   import Draggable from '../components/Draggable.vue'
   import getHDPICanvas from '../../utils/high-dpi-canvas'
-  import StateSaver from '../mixins/state-saver'
+  import ParameterInterface from '../mixins/parameter-interface'
   import _ from 'lodash'
   export default {
     name: 'scatterplot',
@@ -120,29 +120,31 @@
         categoryColors: d3.schemeCategory10,
         params: {
           numVars: {
+            label: 'Numerical Variables',
             type: Array,
             elementType: String,
-            label: 'Numerical Variables',
             validValues: [],
             minLength: 2,
             maxLength: 2,
             value: []
           },
           catVars: {
+            label: 'Categorical Variables',
             type: Array,
             elementType: String,
-            label: 'Categorical Variables',
             validValues: [],
             minLength: 0,
             maxLength: Infinity,
             value: []
           },
           method: {
+            label: 'Correlation Method',
             type: String,
             validValues: ['pearson', 'kendall', 'spearman'],
             value: 'pearson'
           },
           ignoreSubsets: {
+            label: 'Ignore Subsets',
             type: Boolean,
             value: false
           }
@@ -171,6 +173,9 @@
         hasSetFilter: false,
         dataUrl: ''
       }
+    },
+    mounted () {
+      this.registerParameterObjectInterface('params')
     },
     computed: {
       idFilter () {
@@ -438,8 +443,8 @@
       tooltip
     },
     mixins: [
-      StateSaver,
-      RunAnalysis
+      RunAnalysis,
+      ParameterInterface
     ],
     methods: {
       runAnalysisWrapper (init, args) {

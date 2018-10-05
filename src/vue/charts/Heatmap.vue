@@ -10,9 +10,8 @@
       <hr class="fjs-seperator"/>
 
       <div class="fjs-ranking-params">
-        <span class="fjs-param-header">Ranking Criteria</span>
+        <span class="fjs-param-header">{{ params.rankingMethod.label }}</span>
         <fieldset class="fjs-expression-ranking fjs-fieldset">
-          <legend>Expression Level</legend>
           <div v-for="method in params.rankingMethod.validValues">
             <label>
               <input type="radio" :value="method" v-model="params.rankingMethod.value">
@@ -23,7 +22,7 @@
       </div>
 
       <div class="fjs-clustering-params">
-        <span class="fjs-param-header">Heatmap Clustering</span>
+        <span class="fjs-param-header">{{ params.clusterAlgorithm.label }}</span>
         <fieldset class="fjs-fieldset">
           <legend>Algorithm</legend>
           <div v-for="algorithm in params.clusterAlgorithm.validValues">
@@ -38,7 +37,7 @@
           <legend>Options</legend>
           <div class="fjs-hclust-selects">
             <select v-model="params.clusterMethod.value">
-              <option value="" selected disabled>-- Method --</option>
+              <option value="" selected disabled>--{{ params.clusterMethod.label }}--</option>
               <option :value="value"
                       v-for="value in params.clusterMethod.validValues"
                       v-model="params.clusterMethod.value">
@@ -46,7 +45,7 @@
               </option>
             </select>
             <select v-model="params.clusterMetric.value">
-              <option value="" selected disabled>-- Metric --</option>
+              <option value="" selected disabled>--{{ params.clusterMetric.label }}--</option>
               <option :value="value"
                       v-for="value in params.clusterMetric.validValues"
                       v-model="params.clusterMetric.value">
@@ -59,7 +58,7 @@
               <input type="range"
                      :min="params.nRowClusters.min" :max="params.nRowClusters.max"
                      v-model="params.nRowClusters.value"/>
-              {{ params.nRowClusters.value }} Row Clusters
+              {{ params.nRowClusters.value }} {{ params.nRowClusters.label }}
             </label>
           </div>
           <div class="fjs-cluster-ranges">
@@ -67,7 +66,7 @@
               <input type="range"
                      :min="params.nColClusters.min" :max="params.nColClusters.max"
                      v-model="params.nColClusters.value"/>
-              {{ params.nColClusters.value }} Col Clusters
+              {{ params.nColClusters.value }} {{ params.nColClusters.label }}
             </label>
           </div>
         </fieldset>
@@ -79,7 +78,7 @@
             <input type="range"
                    :min="params.nRowCentroids.min" :max="params.nRowCentroids.max"
                    v-model="params.nRowCentroids.value"/>
-              {{ params.nRowCentroids.value }} Row Centroids
+              {{ params.nRowCentroids.value }} {{ params.nRowCentroids.label }}
             </label>
           </div>
           <div class="fjs-cluster-ranges">
@@ -87,7 +86,7 @@
             <input type="range"
                    :min="params.nColCentroids.min" :max="params.nColCentroids.max"
                    v-model="params.nColCentroids.value"/>
-              {{ params.nColCentroids.value }} Col Centroids
+              {{ params.nColCentroids.value }} {{ params.nColCentroids.label }}
             </label>
           </div>
         </fieldset>
@@ -122,7 +121,7 @@
   import tooltip from '../directives/tooltip.js'
   import deepFreeze from 'deep-freeze-strict'
   import getHDPICanvas from '../../utils/high-dpi-canvas'
-  import StateSaver from '../mixins/state-saver'
+  import ParameterInterface from '../mixins/parameter-interface'
   import _ from 'lodash'
   export default {
     name: 'heatmap',
@@ -134,53 +133,61 @@
         subsetColors: d3.schemeCategory10,
         params: {
           numVars: {
+            label: 'Numerical Variables',
             type: Array,
             elementType: String,
-            label: 'Numerical Variables',
             validValues: [],
             minLength: 1,
             maxLength: Infinity,
             value: []
           },
           rankingMethod: {
+            label: 'Ranking Criteria',
             type: String,
             validValues: [],
             value: 'mean'
           },
           clusterAlgorithm: {
+            label: 'Heatmap Clustering',
             type: String,
             validValues: ['hclust', 'kmeans'],
             value: 'hclust'
           },
           clusterMethod: {
+            label: 'Cluster Method',
             type: String,
             validValues: ['single', 'complete', 'average', 'weighted', 'centroid', 'median', 'ward'],
             value: ''
           },
           clusterMetric: {
+            label: 'Cluster Metric',
             type: String,
             validValues: ['euclidean', 'sqeuclidean', 'cityblock', 'correlation', 'cosine'],
             value: ''
           },
           nRowClusters: {
+            label: 'Row Clusters',
             type: Number,
             min: 1,
             max: 20,
             value: 5
           },
           nColClusters: {
+            label: 'Col Clusters',
             type: Number,
             min: 1,
             max: 20,
             value: 5
           },
           nRowCentroids: {
+            label: 'Row Centroids',
             type: Number,
             min: 1,
             max: 20,
             value: 5
           },
           nColCentroids: {
+            label: 'Col Centroids',
             type: Number,
             min: 1,
             max: 20,
@@ -201,6 +208,9 @@
         },
         dataUrl: ''
       }
+    },
+    mounted () {
+      this.registerParameterObjectInterface('params')
     },
     computed: {
       mainArgs () {
@@ -500,7 +510,7 @@
       tooltip
     },
     mixins: [
-      StateSaver,
+      ParameterInterface,
       RunAnalysis
     ]
   }

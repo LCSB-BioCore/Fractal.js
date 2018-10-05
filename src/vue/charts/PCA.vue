@@ -33,13 +33,13 @@
       <div>
         <label>
           <input type="checkbox" v-model="params.whiten.value"/>
-          Whiten Output
+          {{ params.whiten.label }}
         </label>
       </div>
       <div>
         <label>
           <input type="checkbox" v-model="params.ignoreSubsets.value"/>
-          Ignore Subsets
+          {{ params.ignoreSubsets.label }}
         </label>
       </div>
     </control-panel>
@@ -131,7 +131,7 @@
   import Html2svg from '../components/HTML2SVG.vue'
   import Draggable from '../components/Draggable.vue'
   import getHDPICanvas from '../../utils/high-dpi-canvas'
-  import StateSaver from '../mixins/state-saver'
+  import ParameterInterface from '../mixins/parameter-interface'
   export default {
     name: 'pca',
     data () {
@@ -140,28 +140,30 @@
         width: 0,
         params: {
           numVars: {
+            label: 'Numerical Variables',
             type: Array,
             elementType: String,
-            label: 'Numerical Variables',
             validValues: [],
             minLength: 2,
             maxLength: Infinity,
             value: []
           },
           catVars: {
+            label: 'Categorical Variables',
             type: Array,
             elementType: String,
-            label: 'Categorical Variables',
             validValues: [],
             minLength: 0,
             maxLength: Infinity,
             value: []
           },
           whiten: {
+            label: 'Whiten Output',
             type: Boolean,
             value: false
           },
           ignoreSubsets: {
+            label: 'Ignore Subsets',
             type: Boolean,
             value: false
           }
@@ -193,6 +195,9 @@
           yDist: ''
         }
       }
+    },
+    mounted () {
+      this.registerParameterObjectInterface('params')
     },
     computed: {
       idFilter () {
@@ -463,8 +468,8 @@
       tooltip
     },
     mixins: [
-      StateSaver,
-      RunAnalysis
+      RunAnalysis,
+      ParameterInterface
     ]
   }
 </script>

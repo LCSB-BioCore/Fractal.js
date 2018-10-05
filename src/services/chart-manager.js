@@ -1,5 +1,4 @@
 import Vue from 'vue'
-import _ from 'lodash'
 
 export default class {
   constructor () {
@@ -48,19 +47,14 @@ export default class {
     return Object.keys(this.availableCharts)
   }
 
-  getChartParamDescr (vm) {
-    if (typeof vm.params === 'undefined') {
-      throw new Error('This chart does not expose any parameters. This is a bug that you should report.')
+  getChartParamDescr (vm, callback) {
+    if (typeof vm._parameterChangedCallback === 'undefined') {
+      throw new Error('Cannot get parameters for this chart. It does not implement the parameter-interface mixin.')
     }
-    return _.cloneDeep(vm.params)
+    vm._setParameterChangedCallback(callback)
   }
 
   setChartParameter (vm, params) {
-    Object.keys(params).forEach(key => {
-      if (typeof vm.params[key] === 'undefined') {
-        throw new Error(`Parameter "${key}" does not exist for this chart.`)
-      }
-      vm.params[key].value = params[key]
-    })
+    vm._setParameters(params)
   }
 }
