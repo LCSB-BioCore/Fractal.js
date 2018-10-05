@@ -12,7 +12,7 @@ export default {
   },
   methods: {
     registerParameterObjectInterface (path) {
-      this.$data.paramPath = path
+      this.$data._paramPath = path
       this.$watch(path, newParams => {
         const paramCopy = _.cloneDeep(newParams)
         this.$data._parameterChangedCallback(paramCopy)
@@ -20,10 +20,12 @@ export default {
     },
     _setParameterChangedCallback (callback) {
       this.$data._parameterChangedCallback = callback
+      const paramCopy = _.cloneDeep(_.get(this, this.$data._paramPath))
+      callback(paramCopy)
     },
     _setParameters (params) {
       Object.keys(params).forEach(key => {
-        _.set(this, [this.$data._paramPath, key], params[key])
+        _.set(this, [this.$data._paramPath, key, 'value'], params[key])
       })
     }
   }

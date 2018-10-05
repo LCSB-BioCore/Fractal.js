@@ -48,7 +48,7 @@ export default class {
   }
 
   getChartParamDescr (vm, callback) {
-    if (typeof vm._parameterChangedCallback === 'undefined') {
+    if (vm.$data._paramPath == null) {
       throw new Error('Cannot get parameters for this chart. It does not implement the parameter-interface mixin.')
     }
     vm._setParameterChangedCallback(callback)
