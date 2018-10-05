@@ -1,5 +1,7 @@
 const webpackConfig = require('./webpack.config.js')
 
+webpackConfig.devtool = '#inline-source-map'
+
 module.exports = function (config) {
   config.set({
     basePath: '',
