@@ -21,7 +21,8 @@ const state = {
   },
   options: {
     controlPanelPosition: 'left',
-    controlPanelExpanded: false
+    controlPanelExpanded: false,
+    showDataBox: true
   },
   init () {
     this.controlPanel.expanded = this.controlPanel.locked = this.options.controlPanelExpanded

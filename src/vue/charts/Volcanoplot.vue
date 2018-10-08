@@ -4,7 +4,7 @@
             <data-box :header="params.numVars.label"
                       :data-types="['numerical_array']"
                       :validRange="[params.numVars.minLength, params.numVars.maxLength]"
-                      v-on:select="updateNumVarsSelection"
+                      v-model="params.numVars.value"
                       v-on:update="updateNumVars">
             </data-box>
             <hr class="fjs-seperator"/>
@@ -22,26 +22,26 @@
                     <label>
                         X-Axis
                         <select v-model="params.xAxisTransform.value">
-                            <option :value="d" v-for="d in Object.keys(params.xAxisTransform.validValues)">{{ d }}</option>
+                            <option :value="d" v-for="d in params.xAxisTransform.validValues">{{ d }}</option>
                         </select>
                         <select v-model="params.xAxisStatistic.value">
-                            <option :value="d" v-for="d in statistics">{{ d }}</option>
+                            <option :value="d" v-for="d in params.xAxisStatistic.validValues">{{ d }}</option>
                         </select>
                     </label>
                     <label>
                         Y-Axis
                         <select v-model="params.yAxisTransform.value">
-                            <option :value="d" v-for="d in Object.keys(params.yAxisTransform.validValues)">{{ d }}</option>
+                            <option :value="d" v-for="d in params.yAxisTransform.validValues">{{ d }}</option>
                         </select>
                         <select v-model="params.yAxisStatistic.value">
-                            <option :value="d" v-for="d in statistics">{{ d }}</option>
+                            <option :value="d" v-for="d in params.yAxisStatistic.validValues">{{ d }}</option>
                         </select>
                     </label>
                 </div>
                 <div v-if="params.rankingMethod.value === 'DESeq2'">
                     <label>
                         {{ params.minTotalRowCount.label }}:
-                        <input type="number" v-model.number="params.minTotalRowCount.value"/>
+                        <input type="number" v-model.lazy.number="params.minTotalRowCount.value"/>
                     </label>
                 </div>
             </div>
@@ -281,11 +281,11 @@
       },
       statistics () {
         if ((this.params.rankingMethod.value === 'limma') && (store.getters.subsets.length === 2)) {
-          return ['logFC', 'P.Value', 'feature', 'AveExpr', 't', 'adj.P.Val', 'B']
+          return ['logFC', 'P.Value', 'AveExpr', 't', 'adj.P.Val', 'B']
         } else if ((this.params.rankingMethod.value === 'limma') && (store.getters.subsets.length > 2)) {
-          return ['F', 'P.Value', 'feature', 'AveExpr', 'adj.P.Val']
+          return ['F', 'P.Value', 'AveExpr', 'adj.P.Val']
         } else if (this.params.rankingMethod.value === 'DESeq2') {
-          return ['log2FoldChange', 'pvalue', 'baseMean', 'lfcSE', 'stat', 'padj', 'feature']
+          return ['log2FoldChange', 'pvalue', 'baseMean', 'lfcSE', 'stat', 'padj']
         } else {
           throw new Error(`Unknown ranking method: ${this.params.rankingMethod.value}`)
         }
@@ -353,9 +353,6 @@
       },
       updateNumVars (ids) {
         this.params.numVars.validValues = ids
-      },
-      updateNumVarsSelection (ids) {
-        this.params.numVars.values = ids
       }
     },
     watch: {
@@ -383,7 +380,6 @@
             this.params.yAxisStatistic.value = newStats[1]
             this.params.xAxisStatistic.validValues = newStats
             this.params.yAxisStatistic.validValues = newStats
-            this.results.stats = _.zipObject(newStats, _.times(newStats.length, () => []))
           }
         },
         immediate: true

@@ -1,16 +1,32 @@
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons')
 @import '~tippy.js/dist/tippy.css'
-
-@font-face
-  font-family: 'Roboto'
-  font-style: normal
-  font-weight: 400
-  font-size: 1rem
-  src: local('Roboto'), local('Roboto-Regular'), url(https://fonts.gstatic.com/s/roboto/v15/oMMgfZMQthOryQo9n22dcuvvDin1pK8aKteLpeZ5c0A.woff2) format('woff2')
 
 *
   font-family: Roboto, sans-serif
   font-size: 1em
+
+.material-icons
+  font-family: 'Material Icons'
+  font-weight: normal
+  font-style: normal
+  font-size: 24px  /* Preferred icon size */
+  display: inline-block
+  line-height: 1
+  text-transform: none
+  letter-spacing: normal
+  word-wrap: normal
+  white-space: nowrap
+  direction: ltr
+
+  /* Support for all WebKit browsers. */
+  -webkit-font-smoothing: antialiased
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility
+
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale
+
+  /* Support for IE. */
+  font-feature-settings: 'liga'
 
 .fjs-seperator
   width: 100%
@@ -18,7 +34,7 @@
 
 .fjs-fieldset
   display: flex
-  flex-direction: row
+  flex-direction: column
   flex-wrap: nowrap
   justify-content: flex-start
   margin: 0.4vh 0 0.4vh 0

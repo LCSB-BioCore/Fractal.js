@@ -3,6 +3,8 @@ import store from './store/store'
 import RequestManager from './services/request-manager'
 import ChartManager from './services/chart-manager'
 import StateManager from './services/state-manager'
+require('./assets/fonts/Roboto/Roboto.sass')
+require('./assets/fonts/MaterialIcons/MaterialIcons.sass')
 
 class FractalJS {
   constructor (handler, dataSource, fractalisNode, getAuth, options) {

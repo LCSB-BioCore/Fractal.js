@@ -1,5 +1,5 @@
 <template>
-  <div class="fjs-data-box">
+  <div class="fjs-data-box" v-show="showDataBox">
     <div class="fjs-header">
       <span class="fjs-header-label">{{ header }}</span>
       <span class="fjs-error-text" v-if="!isInValidRange">
@@ -63,8 +63,7 @@
       },
       validRange: {
         type: Array,
-        required: false,
-        default: () => [0, Infinity]
+        required: true
       }
     },
     computed: {
@@ -84,6 +83,9 @@
       },
       isInValidRange () {
         return this.checkedIds.length >= this.validRange[0] && this.checkedIds.length <= this.validRange[1]
+      },
+      showDataBox () {
+        return store.getters.options.showDataBox
       }
     },
     watch: {
@@ -91,7 +93,7 @@
         handler: function (newTransformedIDs, oldTransformedIDs) {
           // avoid emitting signals and thus triggering watchers if selected ids didn't change
           if (this.isInValidRange && !_.isEqual(newTransformedIDs, oldTransformedIDs)) {
-            this.$emit('select', newTransformedIDs)
+            this.$emit('input', newTransformedIDs)
           }
         }
       },

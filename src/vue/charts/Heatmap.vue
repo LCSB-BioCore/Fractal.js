@@ -4,26 +4,39 @@
       <data-box :header="params.numVars.label"
                 :dataTypes="['numerical_array']"
                 :validRange="[params.numVars.minLength, params.numVars.maxLength]"
-                v-on:select="updateNumVarsSelection"
+                v-model="params.numVars.value"
                 v-on:update="updateNumVars">
       </data-box>
       <hr class="fjs-seperator"/>
 
-      <div class="fjs-ranking-params">
+      <div>
+        <label>
+          {{ params.maxRows.label }}:
+          <input class="fjs-max-rows-input"
+                 :min="params.maxRows.min"
+                 :max="params.maxRows.max"
+                 v-model.lazy.number="params.maxRows.value"/>
+        </label>
+      </div>
+      <br/>
+      <br/>
+      <div>
         <span class="fjs-param-header">{{ params.rankingMethod.label }}</span>
-        <fieldset class="fjs-expression-ranking fjs-fieldset">
+        <fieldset class="fjs-ranking-params fjs-fieldset">
+          <legend>Differential Expression Methods</legend>
           <div v-for="method in params.rankingMethod.validValues">
             <label>
               <input type="radio" :value="method" v-model="params.rankingMethod.value">
-              Mean
+              {{ method }}
             </label>
           </div>
         </fieldset>
       </div>
-
-      <div class="fjs-clustering-params">
+      <br/>
+      <br/>
+      <div>
         <span class="fjs-param-header">{{ params.clusterAlgorithm.label }}</span>
-        <fieldset class="fjs-fieldset">
+        <fieldset class="fjs-clustering-params fjs-fieldset">
           <legend>Algorithm</legend>
           <div v-for="algorithm in params.clusterAlgorithm.validValues">
             <label>
@@ -57,7 +70,7 @@
             <label>
               <input type="range"
                      :min="params.nRowClusters.min" :max="params.nRowClusters.max"
-                     v-model="params.nRowClusters.value"/>
+                     v-model.lazy.number="params.nRowClusters.value"/>
               {{ params.nRowClusters.value }} {{ params.nRowClusters.label }}
             </label>
           </div>
@@ -65,7 +78,7 @@
             <label>
               <input type="range"
                      :min="params.nColClusters.min" :max="params.nColClusters.max"
-                     v-model="params.nColClusters.value"/>
+                     v-model.lazy.number="params.nColClusters.value"/>
               {{ params.nColClusters.value }} {{ params.nColClusters.label }}
             </label>
           </div>
@@ -77,7 +90,7 @@
             <label>
             <input type="range"
                    :min="params.nRowCentroids.min" :max="params.nRowCentroids.max"
-                   v-model="params.nRowCentroids.value"/>
+                   v-model.lazy.number="params.nRowCentroids.value"/>
               {{ params.nRowCentroids.value }} {{ params.nRowCentroids.label }}
             </label>
           </div>
@@ -85,7 +98,7 @@
             <label>
             <input type="range"
                    :min="params.nColCentroids.min" :max="params.nColCentroids.max"
-                   v-model="params.nColCentroids.value"/>
+                   v-model.lazy.number="params.nColCentroids.value"/>
               {{ params.nColCentroids.value }} {{ params.nColCentroids.label }}
             </label>
           </div>
@@ -141,11 +154,18 @@
             maxLength: Infinity,
             value: []
           },
+          maxRows: {
+            label: 'Max Rows',
+            type: Number,
+            min: 10,
+            max: Infinity,
+            value: 100
+          },
           rankingMethod: {
             label: 'Ranking Criteria',
             type: String,
             validValues: [],
-            value: 'mean'
+            value: 'logFC'
           },
           clusterAlgorithm: {
             label: 'Heatmap Clustering',
@@ -221,7 +241,7 @@
           ranking_method: this.params.rankingMethod.value,
           params: {},
           id_filter: this.idFilter.value,
-          max_rows: 100, // FIXME: make this configurable
+          max_rows: this.params.maxRows.value,
           subsets: store.getters.subsets
         }
       },
@@ -267,12 +287,12 @@
         return getHDPICanvas(this.padded.width, this.padded.height)
       },
       statistics () {
-        if ((this.params.rankingMethod.value === 'limma') && (store.getters.subsets.length === 2)) {
-          return ['logFC', 'P.Value', 'feature', 'AveExpr', 't', 'adj.P.Val', 'B']
-        } else if ((this.params.rankingMethod.value === 'limma') && (store.getters.subsets.length > 2)) {
-          return ['F', 'P.Value', 'feature', 'AveExpr', 'adj.P.Val']
+        if (store.getters.subsets.length === 2) {
+          return ['logFC', 'P.Value', 'AveExpr', 't', 'adj.P.Val', 'B']
+        } else if (store.getters.subsets.length > 2) {
+          return ['F', 'P.Value', 'AveExpr', 'adj.P.Val']
         } else {
-          throw new Error(`Unknown ranking method: ${this.params.rankingMethod.value}`)
+          return ['mean', 'median', 'variance']
         }
       },
       cols () {
@@ -334,7 +354,7 @@
         return { x, y }
       },
       currentStats () {
-        return this.results.stats[this.rankingMethod]
+        return this.results.stats[this.params.rankingMethod.value]
       },
       sigScales () {
         const x = d3.scaleLinear()
@@ -466,9 +486,6 @@
       },
       updateNumVars (ids) {
         this.params.numVars.validValues = ids
-      },
-      updateNumVarsSelection (ids) {
-        this.params.numVars.value = ids
       }
     },
     watch: {
@@ -521,8 +538,9 @@
 
   .fjs-control-panel
     .fjs-param-header
+      display: table
       text-align: center
-      margin: 10px 0 5px 0
+      margin: 0 auto
     .fjs-ranking-params
       display: flex
       flex-direction: column

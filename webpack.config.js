@@ -32,6 +32,11 @@ module.exports = {
         test: /\.sass$/,
         exclude: /node_modules/,
         loader: 'style-loader!css-loader!sass-loader?indentedSyntax'
+      },
+      {
+        test: /\.(woff2?|ttf)$/,
+        exclude: /node_modules/,
+        use: 'base64-inline-loader?limit=1000&name=[name].[ext]'
       }
     ]
   },

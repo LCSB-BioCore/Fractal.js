@@ -4,21 +4,22 @@
             <data-box :header="params.durationVars.label"
                       :data-types="['numerical']"
                       :validRange="[params.durationVars.minLength, params.durationVars.maxLength]"
-                      v-on:select="updateDurationVarsSelection"
+                      v-model="params.durationVars.value"
                       v-on:update="updateDurationVars">
             </data-box>
             <data-box :header="params.groupVars.label"
                       :data-types="['categorical']"
                       :validRange="[params.groupVars.minLength, params.groupVars.maxLength]"
-                      v-on:select="updateGroupVarsSelection"
+                      v-model="params.groupVars.value"
                       v-on:update="updateGroupVars">
             </data-box>
-            <data-box :header="params.observedVars.label"
-                      :data-types="['categorical']"
-                      :validRange="[params.observedVars.minLength, params.observedVars.maxLength]"
-                      v-on:select="updateObservedVarsSelection"
-                      v-on:update="updateObservedVars">
-            </data-box>
+            <!--FIXME: does not work right now -->
+            <!--<data-box :header="params.observedVars.label"-->
+                      <!--:data-types="['categorical']"-->
+                      <!--:validRange="[params.observedVars.minLength, params.observedVars.maxLength]"-->
+                      <!--v-model="params.observedVars.value"-->
+                      <!--v-on:update="updateObservedVars">-->
+            <!--</data-box>-->
             <hr class="fjs-seperator"/>
             <div class="fjs-settings">
                 <fieldset class="fjs-fieldset">
@@ -119,15 +120,16 @@
             maxLength: Infinity,
             value: []
           },
-          observedVars: {
-            label: 'Observed (optional) [categorical]',
-            type: Array,
-            elementType: String,
-            validValues: [],
-            minLength: 0,
-            maxLength: Infinity,
-            value: []
-          },
+          // FIXME: Does not work right now
+          // observedVars: {
+          //   label: 'Observed (optional) [categorical]',
+          //   type: Array,
+          //   elementType: String,
+          //   validValues: [],
+          //   minLength: 0,
+          //   maxLength: Infinity,
+          //   value: []
+          // },
           estimator: {
             label: 'Estimator',
             type: String,
@@ -156,7 +158,7 @@
         return {
           durations: this.params.durationVars.value,
           categories: this.params.groupVars.value,
-          event_observed: this.params.observedVars.value,
+          event_observed: [], // this.params.observedVars.value,
           estimator: this.params.estimator.value,
           id_filter: store.getters.filter('ids').value,
           subsets: this.params.ignoreSubsets.value ? [] : store.getters.subsets
@@ -298,15 +300,6 @@
       },
       updateObservedVars (ids) {
         this.params.observedVars.validValues = ids
-      },
-      updateDurationVarsSelection (ids) {
-        this.params.durationVars.value = ids
-      },
-      updateGroupVarsSelection (ids) {
-        this.params.groupVars.value = ids
-      },
-      updateObservedVarsSelection (ids) {
-        this.params.observedVars.value = ids
       }
     },
     watch: {

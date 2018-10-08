@@ -5,13 +5,13 @@
       <data-box :header="params.numVars.label"
                 :dataTypes="['numerical', 'numerical_array']"
                 :validRange="[params.numVars.minLength, params.numVars.maxLength]"
-                v-on:select="updateNumVarsSelection"
+                v-model="params.numVars.value"
                 v-on:update="updateNumVars">
       </data-box>
       <data-box :header="params.catVars.label"
                 :dataTypes="['categorical']"
                 :validRange="[params.catVars.minLength, params.catVars.maxLength]"
-                v-on:select="updateCatVarsSelection"
+                v-model="params.catVars.value"
                 v-on:update="updateCatVars">
       </data-box>
       <hr class="fjs-seperator"/>
@@ -194,7 +194,7 @@
           id_filter: this.idFilter.value,
           method: this.params.method.value,
           subsets: this.params.ignoreSubsets.value ? [] : store.getters.subsets,
-          categories: this.catVars
+          categories: this.params.catVars.value
         }
       },
       margin () {
@@ -486,12 +486,6 @@
       },
       updateCatVars (ids) {
         this.params.catVars.validValues = ids
-      },
-      updateNumVarsSelection (ids) {
-        this.params.numVars.value = ids
-      },
-      updateCatVarsSelection (ids) {
-        this.params.numVars.value = ids
       }
     }
   }

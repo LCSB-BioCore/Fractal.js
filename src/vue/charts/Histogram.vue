@@ -4,13 +4,13 @@
             <data-box :header="params.numVars.label"
                       :data-types="['numerical']"
                       v-on:update="updateNumVars"
-                      v-on:select="updateNumVarsSelection"
+                      v-model="params.numVars.value"
                       :valid-range="[params.numVars.minLength, params.numVars.maxLength]">
             </data-box>
             <data-box :header="params.catVars.label"
                       :data-types="['categorical']"
                       v-on:update="updateCatVars"
-                      v-on:select="updateCatVarsSelection"
+                      v-model="params.catVars.value"
                       :valid-range="[params.catVars.minLength, params.catVars.maxLength]">
             </data-box>
             <hr class="fjs-seperator"/>
@@ -297,12 +297,6 @@
       },
       updateCatVars (ids) {
         this.params.catVars.validValues = ids
-      },
-      updateNumVarsSelection (ids) {
-        this.params.numVars.value = ids
-      },
-      updateCatVarsSelection (ids) {
-        this.params.catVars.value = ids
       }
     },
     watch: {

@@ -5,13 +5,13 @@
       <data-box :header="params.numVars.label"
                 :dataTypes="['numerical', 'numerical_array']"
                 :validRange="[params.numVars.minLength, params.numVars.maxLength]"
-                v-on:select="updateNumVarsSelection"
+                v-model="params.numVars.value"
                 v-on:update="updateNumVars">
       </data-box>
       <data-box :header="params.catVars.label"
                 :dataTypes="['categorical']"
                 :validRange="[params.catVars.minLength, params.catVars.maxLength]"
-                v-on:select="updateCatVarsSelection"
+                v-model="params.catVars.value"
                 v-on:update="updateCatVars">
       </data-box>
       <hr class="fjs-seperator"/>
@@ -255,8 +255,8 @@
       },
       args () {
         return {
-          features: this.numData,
-          categories: this.catData,
+          features: this.params.numVars.value,
+          categories: this.params.catVars.value,
           id_filter: this.idFilter.value,
           transformation: this.params.transformation.value,
           subsets: this.params.ignoreSubsets.value ? [] : store.getters.subsets
@@ -266,7 +266,7 @@
         return this.width / 150
       },
       validArgs () {
-        return this.numData.length > 0
+        return this.params.numVars.value.length > 0
       },
       margin () {
         const left = 10
@@ -488,12 +488,6 @@
       },
       updateCatVars (ids) {
         this.params.catVars.validValues = ids
-      },
-      updateNumVarsSelection (ids) {
-        this.params.numVars.value = ids
-      },
-      updateCatVarsSelection (ids) {
-        this.params.catVars.value = ids
       }
     },
     components: {
