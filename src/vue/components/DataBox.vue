@@ -9,13 +9,13 @@
     <div class="fjs-data-window" :class="{'fjs-invalid-range-window': !isInValidRange}">
       <div class="fjs-item" v-for="item in items">
         <div class="fjs-item-head">
-          <input type="checkbox"
-                 :value="item.task_id"
-                 v-model="checkedIds"
-                 :disabled="item.etl_state !== 'SUCCESS'"/>
-          <span class="fjs-item-label" :data-state="item.etl_state">
+          <label class="fjs-item-label" :data-state="item.etl_state">
+            <input type="checkbox"
+                   :value="item.task_id"
+                   v-model="checkedIds"
+                   :disabled="item.etl_state !== 'SUCCESS'"/>
             {{ (item.etl_state === 'SUBMITTED' ? 'LOADING: ' : item.etl_state === 'FAILURE' ? 'ERROR: ' : '') + item.label }}
-          </span>
+          </label>
           <span class="fjs-item-options" @click="toggleItemBody(item.task_id)">&#9776;</span>
         </div>
 
@@ -165,6 +165,8 @@
             align-items: center
             overflow: hidden
             width: 100%
+            &[data-state="SUCCESS"]
+              cursor: pointer
             &[data-state="SUBMITTED"]
               animation: loadingColorCycle 2s infinite
             &[data-state="FAILURE"]

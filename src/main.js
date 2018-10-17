@@ -103,6 +103,7 @@ class FractalJS {
   // id2chart (selector, stateID) {
   //   return store.getters.stateManager.id2chart(selector, stateID)
   // }
+
   /**
    * For a given chart register a callback that accepts exactly one argument (the parameterDescriptionObject)
    * The callback is called every time the parameters of the chart change to reflect the current state of the parameters.
