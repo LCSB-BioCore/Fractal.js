@@ -1,7 +1,7 @@
 <template>
   <div class="fjs-control-panel"
        :style="{left: left, right: right}"
-       v-show="focused"
+       v-show="focused && !hidden"
        @mouseover="show()"
        @mouseout="hide()">
     <span class="fjs-panel-label" v-show="!expanded">Control Panel</span>
@@ -47,6 +47,9 @@
       },
       expanded () {
         return store.getters.controlPanel.expanded
+      },
+      hidden () {
+        return store.getters.options.controlPanelHidden
       },
       lockIcon () {
         return this.locked ? 'lock' : 'lock_open'

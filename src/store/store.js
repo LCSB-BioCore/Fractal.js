@@ -22,6 +22,7 @@ const state = {
   options: {
     controlPanelPosition: 'left',
     controlPanelExpanded: false,
+    controlPanelHidden: false,
     showDataBox: true
   },
   init () {
