@@ -96,17 +96,13 @@ class FractalJS {
   }
 
   // FIXME: temporarily disabled. Focus on stabilizing core functionality for now.
-  // // noinspection JSMethodCanBeStatic
   // chart2id (vm, callback) {
   //   return store.getters.stateManager.chart2id(vm, callback)
   // }
   //
-  // // noinspection JSMethodCanBeStatic
   // id2chart (selector, stateID) {
   //   return store.getters.stateManager.id2chart(selector, stateID)
   // }
-
-  // noinspection JSMethodCanBeStatic
   /**
    * For a given chart register a callback that accepts exactly one argument (the parameterDescription object)
    * The callback is called every time the parameters of the chart change
@@ -118,7 +114,6 @@ class FractalJS {
     store.getters.chartManager.getChartParamDescr(vm, callback)
   }
 
-  // noinspection JSMethodCanBeStatic
   /**
    * Update the given vm with the given parameter object.
    * Example for parameter object: {ignoreSubsets: false, ...}
