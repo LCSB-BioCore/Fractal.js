@@ -19,7 +19,6 @@ class FractalJS {
     this._versionCheck()
   }
 
-  // noinspection JSMethodCanBeStatic
   async _versionCheck () {
     const rv = await store.getters.requestManager.getVersion()
     const fractaljsVersions = version.split('.')
@@ -34,37 +33,64 @@ class FractalJS {
     }
   }
 
-  // noinspection JSMethodCanBeStatic
+  /**
+   * Trigger ETL processes for the given list of descriptors to populate the data cache.
+   * @param descriptors {[object]}. Descriptors that contain information for the ETLs. (Depends on ETL implementation).
+   * @returns {promise}
+   */
   loadData (descriptors) {
     return store.getters.requestManager.createData(descriptors)
   }
 
-  // noinspection JSMethodCanBeStatic
+  /**
+   * Put chart into a container identified by selector.
+   * A list of charts can be obtained by {@link getAvailableCharts}.
+   * IMPORTANT: Make sure that the container has a relative or fixed height/width (e.g. width: 10vw)
+   * @param chart {string}
+   * @param selector {string} CSS selector (of div that will contain the chart.)
+   * @returns {Vue}
+   */
   setChart (chart, selector) {
     return store.getters.chartManager.setChart(chart, selector)
   }
 
-  // noinspection JSMethodCanBeStatic
+  /**
+   * Remove all charts.
+   * IMPORTANT: This does not remove the surrounding containers!
+   */
   removeAllCharts () {
-    return store.getters.chartManager.removeAllCharts()
+    store.getters.chartManager.removeAllCharts()
   }
 
-  // noinspection JSMethodCanBeStatic
+  /**
+   * Returns list of available charts types that can be used as arguments for {@link setChart}.
+   * @returns {[string]}
+   */
   getAvailableCharts () {
     return store.getters.chartManager.getAvailableCharts()
   }
 
-  // noinspection JSMethodCanBeStatic
+  /**
+   * Clear data cache.
+   * @returns {promise}
+   */
   clearCache () {
     return store.getters.requestManager.deleteAllData()
   }
 
-  // noinspection JSMethodCanBeStatic
+  /**
+   * Set list of lists of ids (subsets / cohorts) that will be applied to all charts.
+   * Example: [caseGroupIds, controlGroupIds]
+   * By default all ids are in one group.
+   * @param subsets {[[number]]}
+   */
   setSubsets (subsets) {
     store.dispatch('setSubsets', subsets)
   }
 
-  // noinspection JSMethodCanBeStatic
+  /**
+   * Undo all previous subset selections. {@link setSubsets}.
+   */
   deleteSubsets () {
     store.dispatch('setSubsets', [])
   }
