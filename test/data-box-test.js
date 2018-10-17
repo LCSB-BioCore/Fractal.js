@@ -18,7 +18,7 @@ describe('DataBox', () => {
       {data_type: 'numeric', label: '', etl_state: 'SUCCESS'}
     ]
     const Component = Vue.extend(DataBox)
-    const propsData = {dataTypes: ['numeric'], header: ''}
+    const propsData = {dataTypes: ['numeric'], header: '', validRange: [-Infinity, Infinity]}
     const vm = new Component({propsData}).$mount()
     expect(vm.$el.querySelectorAll('.fjs-item-head').length).toBe(3)
   })
@@ -29,7 +29,7 @@ describe('DataBox', () => {
       {data_type: 'categoric', label: '', etl_state: 'SUCCESS'}
     ]
     const Component = Vue.extend(DataBox)
-    const propsData = {dataTypes: ['numeric'], header: ''}
+    const propsData = {dataTypes: ['numeric'], header: '', validRange: [-Infinity, Infinity]}
     const vm = new Component({propsData}).$mount()
     expect(vm.$el.querySelectorAll('.fjs-item-head').length).toBe(1)
   })
@@ -40,7 +40,7 @@ describe('DataBox', () => {
       {data_type: 'numeric', label: '', task_id: 'B', etl_state: 'SUCCESS'}
     ]
     const Component = Vue.extend(DataBox)
-    const propsData = {dataTypes: ['numeric'], header: ''}
+    const propsData = {dataTypes: ['numeric'], header: '', validRange: [-Infinity, Infinity]}
     const data = {checkedIds: ['A']}
     const vm = new Component({propsData, data}).$mount()
     expect(vm.$el.querySelectorAll('.fjs-item-head').length).toBe(2)
@@ -57,7 +57,7 @@ describe('DataBox', () => {
       {data_type: 'numeric', label: '', task_id: 'E', etl_state: 'FOO'}
     ]
     const Component = Vue.extend(DataBox)
-    const propsData = {dataTypes: ['numeric'], header: ''}
+    const propsData = {dataTypes: ['numeric'], header: '', validRange: [-Infinity, Infinity]}
     const vm = new Component({propsData}).$mount()
     expect(vm.$el.querySelectorAll('.fjs-item-head').length).toBe(3)
   })
