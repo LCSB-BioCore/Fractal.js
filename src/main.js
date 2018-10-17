@@ -153,7 +153,7 @@ class FractalJS {
    * @param parameters {object} (parameterName:parameterValue pairs)
    */
   setChartParameters (vm, parameters) {
-    store.getters.chartManager.setChartParams(vm, parameters)
+    store.getters.chartManager.setChartParameter(vm, parameters)
   }
 }
 
