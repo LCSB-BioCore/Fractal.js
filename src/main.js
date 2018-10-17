@@ -107,8 +107,8 @@ class FractalJS {
    * For a given chart register a callback that accepts exactly one argument (the parameterDescription object)
    * The callback is called every time the parameters of the chart change
    * Example for parameterDescriptionObject: {ignoreSubsets: {label: 'Ignore Subsets', type: Boolean, value: true}, ...}
-   * @param vm The chart VM (returned by setChart)
-   * @param callback The callback to register.
+   * @param vm {Vue} The chart VM (returned by setChart)
+   * @param callback {function} The callback to register.
    */
   getChartParameterDescription (vm, callback) {
     store.getters.chartManager.getChartParamDescr(vm, callback)
@@ -117,8 +117,8 @@ class FractalJS {
   /**
    * Update the given vm with the given parameter object.
    * Example for parameter object: {ignoreSubsets: false, ...}
-   * @param vm (returned by setChart)
-   * @param parameters (key:value pairs / parameterName:parameterValue pairs)
+   * @param vm {Vue} (returned by setChart)
+   * @param parameters {object} (parameterName:parameterValue pairs)
    */
   setChartParameter (vm, parameters) {
     store.getters.chartManager.setChartParams(vm, parameters)
