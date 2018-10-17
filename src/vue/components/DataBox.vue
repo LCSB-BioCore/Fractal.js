@@ -135,6 +135,8 @@
 </script>
 
 <style lang="sass" scoped>
+  @import '~assets/base.sass'
+
   .fjs-data-box
     text-align: start
     margin: 1vh 0 1vh 0
