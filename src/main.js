@@ -104,23 +104,54 @@ class FractalJS {
   //   return store.getters.stateManager.id2chart(selector, stateID)
   // }
   /**
-   * For a given chart register a callback that accepts exactly one argument (the parameterDescription object)
-   * The callback is called every time the parameters of the chart change
-   * Example for parameterDescriptionObject: {ignoreSubsets: {label: 'Ignore Subsets', type: Boolean, value: true}, ...}
+   * For a given chart register a callback that accepts exactly one argument (the parameterDescriptionObject)
+   * The callback is called every time the parameters of the chart change to reflect the current state of the parameters.
+   * Example for parameterDescriptionObject with two described parameters `ignoreSubsets` and `method`:
+   *
+   * {
+   *  ignoreSubsets: {
+   *    label: 'Ignore Subsets',
+   *    type: Boolean,
+   *    value: true
+   *   },
+   *   method: {
+   *    label: 'Correlation Method',
+   *    type: String,
+   *    validValues: ['pearson', 'kendall', 'spearman'],
+   *    value: 'pearson'
+   *   }
+   * }
+   *
+   * For this chart `ignoreSubsets` and `method` are valid keys for the parameterObject in {@link setChartParameters}
+   *
    * @param vm {Vue} The chart VM (returned by setChart)
    * @param callback {function} The callback to register.
    */
-  getChartParameterDescription (vm, callback) {
+  getChartParameterDescriptions (vm, callback) {
     store.getters.chartManager.getChartParamDescr(vm, callback)
   }
 
   /**
-   * Update the given vm with the given parameter object.
-   * Example for parameter object: {ignoreSubsets: false, ...}
+   * Update the given vm with the given set of parameter names and their new value.
+   *
+   * The names of these parameters are the keys of the parameterDescriptionObject obtained at
+   * {@link getChartParameterDescriptions}. E.g. in the example above `ignoreSubsets` and `method`.
+   *
+   * The values are constrained to the description given by the parameterDescriptionObject.
+   * E.g. in the example above `ignoreSubsets` must be a Boolean and `method` must be a String amongst
+   * the 3 valid values 'pearson', 'kendall', and 'spearman'
+   *
+   * Example for the parameters argument for this function:
+   *
+   * {
+   *   method: 'spearman',
+   *   ignoreSubsets: false
+   * }
+   *
    * @param vm {Vue} (returned by setChart)
    * @param parameters {object} (parameterName:parameterValue pairs)
    */
-  setChartParameter (vm, parameters) {
+  setChartParameters (vm, parameters) {
     store.getters.chartManager.setChartParams(vm, parameters)
   }
 }
@@ -128,11 +159,11 @@ class FractalJS {
 /**
  * Initialize FractalJS and return an instance that contains all basic methods necessary to use this library.
  *
- * @param handler: The service in which this library is used. Example: 'ada', 'tranSMART', 'variantDB'
- * @param dataSource: The base URL of the service in which this library is used. Example: 'https://my.service.org/'
- * @param fractalisNode: The base URL of the fractalis back end that you want to use. 'http://fractalis.uni.lu/'
- * @param getAuth: This MUST be a function that can be called at any time to retrieve credentials to authenticate with
- * @param options: Optional object to configure fractal.js within the target UI.
+ * @param handler {string}: The service in which this library is used. Example: 'ada', 'tranSMART', 'variantDB'
+ * @param dataSource {string}: The base URL of the service in which this library is used. Example: 'https://my.service.org/'
+ * @param fractalisNode {string}: The base URL of the fractalis back end that you want to use. 'http://fractalis.uni.lu/'
+ * @param getAuth {function}: This MUST be a function that can be called at any time to retrieve credentials to authenticate with
+ * @param options {object}: Optional object to configure fractal.js within the target UI.
  * the API of the service specified in dataSource.
  * @returns {FractalJS}: An instance of FractalJS.
  */
