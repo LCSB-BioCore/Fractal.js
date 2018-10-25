@@ -57,6 +57,9 @@ export default {
           throw new Error(taskInfo.result)
         } else if (taskInfo.state === 'SUBMITTED') {
           this.$data.__tasks[taskName].state = taskInfo.state
+        } else if (taskInfo.state === 'REVOKED') {
+          // REVOKED can occur if new analysis has been submitted while old one is still being executed
+          continue
         } else {
           throw new Error(`Analysis Task has unhandled state: ${taskInfo.state}`)
         }
