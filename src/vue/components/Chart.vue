@@ -6,7 +6,9 @@
       </div>
     </div>
     <div class="fjs-loading-cover fjs-cover" v-show="showLoadingCover">
-      <loader class="fjs-loader"/>
+        <!--<div class="loader-container">-->
+            <loader class="fjs-loader"/>
+        <!--</div>-->
     </div>
     <div class="fjs-error-cover fjs-cover" v-show="showErrorCover">
       <div>
@@ -112,8 +114,7 @@
       &:hover
         box-shadow: inset 0 0 0 2px #e6e6e6
     .fjs-loading-cover
-      div
-        span
+
     .fjs-error-cover
       div
         span
