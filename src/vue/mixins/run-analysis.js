@@ -16,64 +16,54 @@ import store from '../../store/store'
 export default {
   data () {
     return {
-      __init: true
+      __init: true,
+      __tasks: {}
     }
   },
   methods: {
-    async runAnalysis (taskName, args) {
-      function timeout (ms) {
-        return new Promise(resolve => setTimeout(resolve, ms))
+    async __timeout (ms) {
+      return new Promise(resolve => setTimeout(resolve, ms))
+    },
+    __removeAnalysis (taskName) {
+      const task = this.$data.__tasks[taskName]
+      if (typeof task !== 'undefined') {
+        store.getters.requestManager.cancelAnalysis(task.id)
+        this.$delete(this.$data.__tasks, taskName)
       }
+    },
+    async runAnalysis (taskName, args) {
+      // discard potential previous analysis
+      this.__removeAnalysis(taskName)
 
       const rv = await store.getters.requestManager.createAnalysis(taskName, args)
       const taskID = rv.data.task_id
-      store.dispatch('setTask', {
-        taskID,
-        taskName,
-        taskState: 'SUBMITTED'
-      })
-
+      this.$set(this.$data.__tasks, taskName, {id: taskID, state: 'SUBMITTED', message: ''})
       let timeWaited = 0
       let delay = 200
       while (timeWaited <= 900000) { // we wait 15 minutes
-        await timeout(delay)
+        await this.__timeout(delay)
         timeWaited += delay
         delay += 100
         delay = delay > 3000 ? 3000 : delay
         const rv2 = await store.getters.requestManager.getAnalysisStatus(taskID)
         const taskInfo = rv2.data
         if (taskInfo.state === 'SUCCESS') {
-          store.dispatch('setTask', {
-            taskID,
-            taskName,
-            taskState: taskInfo.state
-          })
+          this.$data.__tasks[taskName].state = taskInfo.state
           this.$data.__init = false // current component is no longer in its initial state
           return taskInfo.result
         } else if (taskInfo.state === 'FAILURE') {
-          store.dispatch('setTask', {
-            taskID,
-            taskName,
-            taskState: taskInfo.state,
-            taskMessage: taskInfo.result
-          })
+          this.$data.__tasks[taskName].state = taskInfo.state
+          this.$data.__tasks[taskName].message = taskInfo.result
           throw new Error(taskInfo.result)
         } else if (taskInfo.state === 'SUBMITTED') {
-          store.dispatch('setTask', {
-            taskID,
-            taskName,
-            taskState: taskInfo.state})
+          this.$data.__tasks[taskName].state = taskInfo.state
         } else {
           throw new Error(`Analysis Task has unhandled state: ${taskInfo.state}`)
         }
       }
       const error = 'Analysis took too long. Stopped listener.'
-      store.dispatch('setTask', {
-        taskID,
-        taskName,
-        taskState: 'FAILURE',
-        taskMessage: error
-      })
+      this.$data.__tasks[taskName].state = 'FAILURE'
+      this.$data.__tasks[taskName].message = error
       throw new Error(error)
     }
   }

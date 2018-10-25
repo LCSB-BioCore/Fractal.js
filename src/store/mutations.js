@@ -23,17 +23,6 @@ export default {
   [types.SET_FILTER] (state, {source, filter, value}) {
     Vue.set(state.filters, filter, {source, value})
   },
-  [types.SET_TASK] (state, {taskID, taskName, taskState, taskMessage}) {
-    // avoid triggering possible watchers if task information remain the same
-    if (!state.tasks[taskID] ||
-        state.tasks[taskID].taskState !== taskState ||
-        state.tasks[taskID].taskMessage !== taskMessage) {
-      Vue.set(state.tasks, taskID, {taskID, taskName, taskState, taskMessage})
-    }
-  },
-  [types.UNSET_TASK] (state, taskID) {
-    Vue.delete(state.tasks, taskID)
-  },
   [types.SET_CONTROL_PANEL] (state, options) {
     Object.assign(state.controlPanel, options)
   },

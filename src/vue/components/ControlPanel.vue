@@ -11,8 +11,6 @@
     </div>
     <div class="fjs-panel-content" v-show="expanded">
       <slot/>
-      <hr class="fjs-seperator"/>
-      <task-view/>
     </div>
     <div class="fjs-links" v-show="expanded">
       <a href="https://github.com/LCSB-BioCore/Fractalis-Issues/issues/new/choose" target="_blank">Report Issues</a>
@@ -24,7 +22,6 @@
 </template>
 
 <script>
-  import TaskView from './TaskView.vue'
   import store from '../../store/store'
   import { version } from '../../../package.json'
   export default {
@@ -98,9 +95,6 @@
     beforeDestroy () {
       const panels = store.getters.controlPanel.panels.filter(panel => panel._uid !== this._uid)
       store.dispatch('setControlPanel', {panels})
-    },
-    components: {
-      TaskView
     }
   }
 </script>

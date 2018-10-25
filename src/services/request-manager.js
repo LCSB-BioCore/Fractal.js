@@ -1,5 +1,4 @@
 import axios from 'axios'
-import store from '../store/store'
 
 /**
  * The RequestManager class is responsible for the communication with the back end.
@@ -110,7 +109,6 @@ export default class {
    * @returns {AxiosPromise} An ES6 promise.
    */
   cancelAnalysis (taskID) {
-    store.dispatch('unsetTask', taskID)
     return this._axios.delete(`/analytics/${taskID}`)
   }
 

@@ -86,25 +86,6 @@ export default {
     context.commit(types.SET_FILTER, {source, filter, value})
   },
   /**
-   * Commits a tasks mutation that will add a new task to the store.
-   * @param context The context of the action.
-   * @param taskID The id of the task.
-   * @param taskName The name of the task.
-   * @param taskState The current state of the task. (SUBMITTED, SUCCESS, FAILURE, PENDING (not existing))
-   * @param taskMessage A message in case the task failed.
-   */
-  setTask: (context, {taskID, taskName, taskState, taskMessage}) => {
-    context.commit(types.SET_TASK, {taskID, taskName, taskState, taskMessage})
-  },
-  /**
-   * Commits a tasks mutation that will remove the task for the given taskID.
-   * @param context The context of the action.
-   * @param taskID The id of the task to remove.
-   */
-  unsetTask: (context, taskID) => {
-    context.commit(types.UNSET_TASK, taskID)
-  },
-  /**
    * Commits panel states to control them on a global level.
    * @param context: The context of the action.
    * @param options: An object that contains options for a control panel.

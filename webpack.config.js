@@ -49,7 +49,7 @@ module.exports = {
   performance: {
     hints: false
   },
-  devtool: '#source-map',
+  devtool: '#inline-source-map',
   context: __dirname,
   target: 'web',
   devServer: {

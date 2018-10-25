@@ -9,9 +9,12 @@ describe('runAnalysis method', () => {
     vm = new Vue({
       mixins: [RunAnalysis]
     })
-    const requestManager = new RequestManager(
-      {handler: '', dataSource: '', fractalisNode: '', getAuth: () => {}})
+    const requestManager = new RequestManager({handler: '', dataSource: '', fractalisNode: '', getAuth: () => {}})
     store.dispatch('setRequestManager', requestManager)
+  })
+
+  afterAll(() => {
+    document.body.innerHTML = ''
   })
 
   it('fails if unknown task state', done => {
@@ -70,7 +73,20 @@ describe('runAnalysis method', () => {
       .catch(() => fail())
   })
 
-  afterAll(() => {
-    document.body.innerHTML = ''
+  it('cancels running tasks with same name', async () => {
+    spyOn(store.getters.requestManager, 'createAnalysis')
+      .and.returnValue(Promise.resolve({data: {task_id: 123}}))
+    spyOn(store.getters.requestManager, 'getAnalysisStatus')
+      .and.returnValue(Promise.resolve({data: {state: 'SUCCESS', result: 123}}))
+    spyOn(store.getters.requestManager, 'cancelAnalysis')
+    await vm.runAnalysis('some-name', {})
+    expect(Object.keys(vm.$data.__tasks).length).toBe(1)
+    expect(store.getters.requestManager.cancelAnalysis).toHaveBeenCalledTimes(0)
+    await vm.runAnalysis('some-name', {})
+    expect(Object.keys(vm.$data.__tasks).length).toBe(1)
+    expect(store.getters.requestManager.cancelAnalysis).toHaveBeenCalledTimes(1)
+    await vm.runAnalysis('other-name', {})
+    expect(Object.keys(vm.$data.__tasks).length).toBe(2)
+    expect(store.getters.requestManager.cancelAnalysis).toHaveBeenCalledTimes(1)
   })
 })

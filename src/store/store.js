@@ -8,7 +8,6 @@ Vue.use(Vuex)
 
 const state = {
   data: [],
-  tasks: {},
   requestManager: null,
   chartManager: null,
   stateManager: null,
