@@ -163,6 +163,9 @@
           categories: this.params.catVars.value
         }
       },
+      validArgs () {
+        return typeof this.args.data !== 'undefined'
+      },
       margin () {
         const left = this.width / 20
         const top = this.height / 20
@@ -302,7 +305,7 @@
     watch: {
       'args': {
         handler: function (newArgs) {
-          if (!this.hasSetFilter) {
+          if (!this.hasSetFilter && this.validArgs) {
             this.runAnalysisWrapper(newArgs)
           }
           this.hasSetFilter = false
