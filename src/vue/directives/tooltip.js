@@ -1,5 +1,4 @@
 /**
- * Tooltips for SVG!
  * Refer to https://atomiks.github.io/tippyjs/ for documentation.
  * Pass your own options like this v-tooltip='{...}'
  */
