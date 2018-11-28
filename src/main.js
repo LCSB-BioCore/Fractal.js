@@ -155,6 +155,15 @@ class FractalJS {
   setChartParameters (vm, parameters) {
     store.getters.chartManager.setChartParameter(vm, parameters)
   }
+
+  /**
+   * Returns a promise that lists all variables that are currently tracked by Fractalis. That includes failed, running,
+   * and successful MicroETLs.
+   * @returns {Promise}
+   */
+  getTrackedVariables () {
+    return store.getters.requestManager.getAllDataStates()
+  }
 }
 
 /**
